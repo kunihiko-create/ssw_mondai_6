@@ -1,0 +1,3441 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SSW試験対策アプリ - インドネシア人向け</title>
+  <style>
+    :root {
+      --ink: #172026;
+      --muted: #5f6b73;
+      --line: #d9e0e5;
+      --paper: #fbfcfd;
+      --panel: #ffffff;
+      --accent: #0f766e;
+      --accent-strong: #0b5f59;
+      --warm: #b45309;
+      --cool: #2563eb;
+      --good: #15803d;
+      --bad: #b91c1c;
+      --shadow: 0 10px 24px rgba(23, 32, 38, .08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+      line-height: 1.55;
+    }
+
+    body.auth-pending header,
+    body.auth-pending main,
+    body.auth-pending footer {
+      visibility: hidden;
+    }
+
+    .password-gate {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: none;
+      place-items: center;
+      padding: 20px;
+      background: #f4f8f7;
+    }
+
+    .auth-pending .password-gate {
+      display: grid;
+    }
+
+    .password-card {
+      width: min(420px, 100%);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+      box-shadow: var(--shadow);
+      padding: 24px;
+    }
+
+    .password-card .mark {
+      margin-bottom: 14px;
+    }
+
+    .password-card h2 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      line-height: 1.25;
+    }
+
+    .password-card p {
+      margin: 0 0 18px;
+      color: var(--muted);
+    }
+
+    .password-field {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 12px;
+      font-weight: 800;
+    }
+
+    .password-field input {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font: inherit;
+      color: var(--ink);
+    }
+
+    .password-field input:focus {
+      outline: 3px solid rgba(15, 118, 110, .18);
+      border-color: var(--accent);
+    }
+
+    .password-error {
+      min-height: 22px;
+      margin: 8px 0 0;
+      color: var(--bad);
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .password-card .btn {
+      width: 100%;
+    }
+
+    header {
+      background: #f4f8f7;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .wrap {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      color: white;
+      background: linear-gradient(135deg, var(--accent), #1d4ed8);
+      font-weight: 800;
+      flex: 0 0 auto;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(21px, 3vw, 34px);
+      letter-spacing: 0;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .language-pill {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: white;
+      color: var(--muted);
+      white-space: nowrap;
+      font-size: 13px;
+    }
+
+    .ui-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .segmented {
+      display: inline-flex;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+      background: white;
+    }
+
+    .seg-btn {
+      border: 0;
+      background: transparent;
+      padding: 8px 11px;
+      cursor: pointer;
+      color: var(--muted);
+      font-weight: 800;
+      min-height: 36px;
+    }
+
+    .seg-btn.active {
+      background: var(--accent);
+      color: white;
+    }
+
+    .ui-sub {
+      display: block;
+      margin-top: 2px;
+      color: inherit;
+      opacity: .78;
+      font-size: .78em;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .hero {
+      padding: 10px 0 16px;
+    }
+
+    .hero-copy { display: none; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      max-width: 560px;
+      margin-left: auto;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: white;
+      min-height: 74px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 20px;
+      line-height: 1.1;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.25;
+    }
+
+    main { padding: 14px 0 48px; }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .tab {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      min-height: 48px;
+      padding: 8px 10px;
+      color: var(--ink);
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .tab[aria-selected="true"] {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 310px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    aside, .content-panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    aside { padding: 18px; }
+
+    .content-panel { padding: 22px; }
+
+    h3 {
+      margin: 0 0 10px;
+      font-size: 20px;
+      line-height: 1.25;
+    }
+
+    h4 {
+      margin: 24px 0 10px;
+      font-size: 16px;
+    }
+
+    .meta-list {
+      display: grid;
+      gap: 10px;
+      margin: 14px 0 0;
+    }
+
+    .meta {
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfd;
+    }
+
+    .meta .label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 2px;
+    }
+
+    .meta strong {
+      font-size: 14px;
+    }
+
+    .mode-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 16px 0;
+    }
+
+    .mode {
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 999px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--muted);
+      min-width: 108px;
+    }
+
+    .mode.active {
+      color: white;
+      background: var(--cool);
+      border-color: var(--cool);
+    }
+
+    .track-switch {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0 0 14px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfd;
+    }
+
+    .track-label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .track-buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      flex: 1;
+    }
+
+    .track-btn {
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+      color: var(--ink);
+      cursor: pointer;
+      font-weight: 900;
+      padding: 7px 8px;
+    }
+
+    .track-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .box {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fbfcfd;
+    }
+
+    ul {
+      padding-left: 20px;
+      margin: 8px 0 0;
+    }
+
+    li + li { margin-top: 6px; }
+
+    .bi {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .quiz-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      background: #fbfcfd;
+    }
+
+    .question-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      background: #ecfdf5;
+      color: var(--accent-strong);
+      border: 1px solid #a7f3d0;
+      padding: 4px 9px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .question {
+      font-size: 18px;
+      font-weight: 800;
+      margin: 0 0 14px;
+    }
+
+    .quiz-tools {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 12px 0;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+    }
+
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .toggle input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+    }
+
+    ruby rt {
+      color: var(--muted);
+      font-size: .62em;
+      font-weight: 700;
+    }
+
+    .question-id {
+      display: none;
+      margin: -4px 0 14px;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #bfdbfe;
+      background: #eff6ff;
+      color: #1e3a8a;
+      font-weight: 700;
+    }
+
+    .question-id.show { display: block; }
+
+    .choices {
+      display: grid;
+      gap: 8px;
+    }
+
+    .choice {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+      padding: 12px;
+      text-align: left;
+      cursor: pointer;
+      color: var(--ink);
+      font-size: 15px;
+    }
+
+    .choice-id {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .choice.correct {
+      border-color: #86efac;
+      background: #f0fdf4;
+      color: var(--good);
+      font-weight: 800;
+    }
+
+    .choice.wrong {
+      border-color: #fecaca;
+      background: #fef2f2;
+      color: var(--bad);
+      font-weight: 800;
+    }
+
+    .choice.selected {
+      border-color: #bfdbfe;
+      background: #eff6ff;
+      color: #1e3a8a;
+      font-weight: 800;
+    }
+
+    .explain {
+      display: none;
+      margin-top: 14px;
+      padding: 13px;
+      border-radius: 8px;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+    }
+
+    .explain.show { display: block; }
+
+    .quiz-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .exam-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    .exam-summary .meta {
+      background: white;
+    }
+
+    .score-panel {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 16px;
+      align-items: center;
+      margin: 12px 0 16px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfd;
+    }
+
+    .score {
+      display: grid;
+      place-items: center;
+      min-height: 120px;
+      border-radius: 8px;
+      background: white;
+      border: 1px solid var(--line);
+      text-align: center;
+      font-weight: 900;
+      font-size: 32px;
+      color: var(--accent-strong);
+    }
+
+    .result-pass {
+      color: var(--good);
+      font-weight: 900;
+    }
+
+    .result-fail {
+      color: var(--bad);
+      font-weight: 900;
+    }
+
+    .review-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .review-item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: white;
+    }
+
+    .btn {
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: white;
+      border-radius: 8px;
+      min-height: 42px;
+      padding: 9px 14px;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .btn.secondary {
+      background: white;
+      color: var(--accent);
+    }
+
+    .btn.warning {
+      border-color: var(--bad);
+      background: var(--bad);
+    }
+
+    .progress {
+      height: 10px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      overflow: hidden;
+      margin: 12px 0 2px;
+    }
+
+    .progress > div {
+      height: 100%;
+      width: 0;
+      background: var(--accent);
+      transition: width .2s ease;
+    }
+
+    .source-list a {
+      color: var(--cool);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .source-list a:hover { text-decoration: underline; }
+
+    .notice {
+      border-left: 4px solid var(--warm);
+      background: #fff7ed;
+      padding: 12px 14px;
+      margin-top: 18px;
+      color: #5b3412;
+    }
+
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 18px 0 30px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 880px) {
+      .layout, .grid-two {
+        grid-template-columns: 1fr;
+      }
+
+      .tabs {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .stats {
+        grid-template-columns: repeat(3, 1fr);
+        max-width: none;
+        margin-left: 0;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .wrap { width: min(100% - 20px, 1180px); }
+      header { position: sticky; top: 0; z-index: 10; }
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px 0;
+      }
+      .mark {
+        width: 34px;
+        height: 34px;
+        font-size: 13px;
+      }
+      h1 { font-size: 20px; }
+      .subtitle { font-size: 12px; }
+      .language-pill { display: none; }
+      .ui-controls { justify-content: flex-start; width: 100%; }
+      .segmented { width: 100%; }
+      .seg-btn {
+        flex: 1;
+        padding: 8px 6px;
+        font-size: 13px;
+      }
+      .hero { padding: 4px 0 8px; }
+      .stats {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+      }
+      .stat {
+        min-height: 50px;
+        padding: 7px 8px;
+      }
+      .stat strong { font-size: 17px; }
+      .stat span { font-size: 10px; }
+      main { padding-top: 10px; }
+      .tabs {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+        margin-bottom: 10px;
+      }
+      .tab {
+        min-height: 42px;
+        padding: 7px 8px;
+        font-size: 13px;
+      }
+      .layout { gap: 10px; }
+      aside {
+        padding: 12px;
+        box-shadow: none;
+      }
+      .content-panel {
+        padding: 12px;
+        box-shadow: none;
+      }
+      #fieldSummary,
+      #fieldMeta,
+      #sideNotice {
+        display: none;
+      }
+      h3 {
+        font-size: 18px;
+        margin-bottom: 8px;
+      }
+      h4 {
+        margin: 14px 0 8px;
+      }
+      .mode-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+        margin: 8px 0 12px;
+      }
+      .mode {
+        min-width: 0;
+        padding: 8px 6px;
+        font-size: 13px;
+      }
+      .track-switch {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px;
+      }
+      .track-label {
+        white-space: normal;
+      }
+      .track-buttons {
+        grid-template-columns: 1fr;
+      }
+      .box { padding: 10px; }
+      .bi { font-size: 12px; }
+      .quiz-tools {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+        margin: 8px 0;
+        padding: 8px;
+      }
+      .toggle {
+        font-size: 13px;
+        margin-bottom: 4px;
+      }
+      .quiz-card {
+        padding: 12px;
+      }
+      .question-head {
+        align-items: flex-start;
+        margin-bottom: 8px;
+      }
+      .question {
+        font-size: 17px;
+        line-height: 1.55;
+        margin-bottom: 10px;
+      }
+      .choice {
+        min-height: 48px;
+        padding: 10px;
+        font-size: 15px;
+      }
+      .choice-id {
+        font-size: 12px;
+      }
+      .question-id {
+        padding: 10px;
+        font-size: 13px;
+      }
+      .explain {
+        padding: 10px;
+        font-size: 13px;
+      }
+      .quiz-actions { flex-direction: column; }
+      .btn {
+        width: 100%;
+        min-height: 46px;
+      }
+      .exam-summary {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+      }
+      .exam-summary .meta {
+        padding: 8px;
+      }
+      .exam-summary .meta strong {
+        font-size: 12px;
+      }
+      .score-panel {
+        grid-template-columns: 1fr;
+        padding: 10px;
+      }
+      .score {
+        min-height: 84px;
+        font-size: 28px;
+      }
+      footer { display: none; }
+    }
+  </style>
+</head>
+<body class="auth-pending">
+  <div class="password-gate" id="passwordGate" role="dialog" aria-modal="true" aria-labelledby="passwordTitle">
+    <form class="password-card" id="passwordForm">
+      <div class="mark" aria-hidden="true">SSW</div>
+      <h2 id="passwordTitle">パスワードを入力してください</h2>
+      <p>初回だけ必要です。次回から同じブラウザでは入力不要です。<span class="bi">Masukkan kata sandi hanya pertama kali. Setelah itu tidak perlu di browser yang sama.</span></p>
+      <label class="password-field" for="passwordInput">
+        パスワード
+        <span class="ui-sub">Kata sandi</span>
+        <input id="passwordInput" type="password" autocomplete="current-password" inputmode="text" required>
+      </label>
+      <button class="btn" type="submit">開く<span class="ui-sub">Buka</span></button>
+      <p class="password-error" id="passwordError" aria-live="polite"></p>
+    </form>
+  </div>
+  <header>
+    <div class="wrap">
+      <div class="topbar">
+        <div class="brand">
+          <div class="mark">SSW</div>
+          <div>
+            <h1 id="appTitle">特定技能 試験対策アプリ</h1>
+            <p class="subtitle" id="appSubtitle">インドネシア人学習者向け・6分野対応</p>
+          </div>
+        </div>
+        <div class="ui-controls" aria-label="表示言語">
+          <span class="language-pill" id="languageLabel">表示言語</span>
+          <div class="segmented">
+            <button class="seg-btn" data-ui-mode="ja">日本語</button>
+            <button class="seg-btn" data-ui-mode="id">Indonesia</button>
+            <button class="seg-btn active" data-ui-mode="both">両方</button>
+          </div>
+        </div>
+      </div>
+      <div class="hero">
+        <div class="hero-copy">
+          <h2 id="heroTitle">公式範囲と非公式傾向から、合格に近い練習へ。</h2>
+          <p id="heroCopy">本アプリは、公式テキスト・試験範囲を中心に、支援機関記事や学習動画で見える受験者目線の難所を整理し、オリジナル問題として練習できるようにした教材プロトタイプです。</p>
+        </div>
+        <div class="stats">
+          <div class="stat"><strong>6</strong><span id="statFields">対象分野</span></div>
+          <div class="stat"><strong>2700</strong><span id="statQuestions">問題数</span></div>
+          <div class="stat"><strong>ID</strong><span id="statIndonesian">インドネシア語解説</span></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <nav class="tabs" aria-label="分野選択"></nav>
+
+    <div class="layout">
+      <aside>
+        <h3 id="fieldTitle">介護</h3>
+        <p id="fieldSummary"></p>
+        <div class="meta-list" id="fieldMeta"></div>
+        <div class="notice" id="sideNotice">注意：本番問題の再現ではありません。公開範囲と公開教材から作成したオリジナル模擬問題です。</div>
+      </aside>
+
+      <section class="content-panel">
+        <div class="mode-row" aria-label="表示切替">
+          <button class="mode active" data-mode="overview" data-ui-key="overviewTab">出題傾向</button>
+          <button class="mode" data-mode="quiz" data-ui-key="quizTab">ミニ模試</button>
+          <button class="mode" data-mode="exam" data-ui-key="examTab">本番模試</button>
+          <button class="mode" data-mode="plan" data-ui-key="planTab">学習計画</button>
+        </div>
+
+        <div class="section active" id="overview"></div>
+        <div class="section" id="quiz"></div>
+        <div class="section" id="exam"></div>
+        <div class="section" id="plan"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="wrap" id="footerNote">作成日：2026-05-09。教材作成時は、各試験実施団体の最新ページで試験形式・範囲・受験条件を再確認してください。</div>
+  </footer>
+
+  <script>
+    const APP_PASSWORD = "doryoku2026";
+    const AUTH_STORAGE_KEY = "sswExamPrepUnlocked";
+
+    function hasSavedUnlock() {
+      try {
+        return window.localStorage.getItem(AUTH_STORAGE_KEY) === "true";
+      } catch (error) {
+        return document.cookie.split("; ").includes(`${AUTH_STORAGE_KEY}=true`);
+      }
+    }
+
+    function saveUnlock() {
+      try {
+        window.localStorage.setItem(AUTH_STORAGE_KEY, "true");
+      } catch (error) {
+        document.cookie = `${AUTH_STORAGE_KEY}=true; max-age=31536000; path=/; SameSite=Lax`;
+      }
+    }
+
+    function unlockApp() {
+      document.body.classList.remove("auth-pending");
+      document.getElementById("passwordGate").setAttribute("aria-hidden", "true");
+    }
+
+    function initPasswordGate() {
+      const form = document.getElementById("passwordForm");
+      const input = document.getElementById("passwordInput");
+      const error = document.getElementById("passwordError");
+
+      if (hasSavedUnlock()) {
+        unlockApp();
+        return;
+      }
+
+      document.getElementById("passwordGate").removeAttribute("aria-hidden");
+      input.focus();
+
+      form.addEventListener("submit", event => {
+        event.preventDefault();
+        if (input.value.trim() === APP_PASSWORD) {
+          saveUnlock();
+          error.textContent = "";
+          unlockApp();
+          return;
+        }
+        error.textContent = "パスワードが違います。 / Kata sandi salah.";
+        input.select();
+      });
+    }
+
+    const fields = {
+      care: {
+        name: "介護",
+        summary: "日本語コミュニケーションと生活支援技術の比重が高い分野。技能評価試験と介護日本語評価試験の両方を意識します。",
+        meta: [
+          ["試験の中心", "介護の基本、こころとからだ、生活支援、介護日本語"],
+          ["問題形式", "CBT、4択、写真・場面判断を含む"],
+          ["重点", "声かけ、尊厳、安全、観察、記録"]
+        ],
+        trends: [
+          "利用者の尊厳を守る行動を選ぶ問題が出やすい。",
+          "食事、排泄、移動、入浴など生活支援の手順理解が重要。",
+          "介護日本語では、現場で使うことば、会話、文書の読み取りが問われる。",
+          "インドネシア語で理解してから、日本語の定型表現に置き換える練習が効果的。"
+        ],
+        pitfalls: [
+          "丁寧すぎるだけで安全確認がない選択肢を選んでしまう。",
+          "「見守り」「自立支援」「プライバシー」の意味を日本語で説明できない。",
+          "記録文の短い表現を読み取れない。"
+        ],
+        plan: [
+          "Week 1-2：からだ、介護動作、生活場面の語彙を日本語とインドネシア語で暗記。",
+          "Week 3-4：食事・排泄・移動・入浴の手順問題を反復。",
+          "Week 5：介護日本語の会話と文書を毎日15問。",
+          "Week 6：45問形式の模試と間違いノート作成。"
+        ],
+        sources: [
+          ["厚労省 介護分野", "https://www.mhlw.go.jp/stf/newpage_000117702.html"],
+          ["カケモチ 介護試験解説", "https://kakemochi.co.jp/column/overview-of-the-ssw-care-field-skills-test/"],
+          ["ミャンマー・ユニティ 介護試験対策", "https://www.myanmarunity.jp/tokutei_ginou/17372/"]
+        ],
+        questions: [
+          {
+            type: "生活支援",
+            q: "利用者が自分で服を着たいと言っています。介護職の対応で最もよいものはどれですか。",
+            choices: ["時間がかかるので全部手伝う", "できるところは本人にしてもらい、難しいところを手伝う", "危ないので着替えをやめてもらう", "家族にだけ手伝ってもらう"],
+            answer: 1,
+            exp: "自立支援では、本人ができることを大切にします。",
+            id: "Dalam perawatan lansia, dukung kemandirian. Bagian yang bisa dilakukan sendiri sebaiknya dibiarkan, lalu bantu bagian yang sulit."
+          },
+          {
+            type: "介護日本語",
+            q: "「移乗」の意味として正しいものはどれですか。",
+            choices: ["食事をすること", "ベッドから車いすなどへ移ること", "薬を飲むこと", "体温を測ること"],
+            answer: 1,
+            exp: "移乗は、ベッド、車いす、いすなどの間を移ることです。",
+            id: "Ijō berarti berpindah, misalnya dari tempat tidur ke kursi roda."
+          },
+          {
+            type: "安全",
+            q: "車いすを押す前に確認することで最も大切なものはどれですか。",
+            choices: ["利用者の好きな食べ物", "ブレーキと足の位置", "テレビのチャンネル", "服の色"],
+            answer: 1,
+            exp: "移動前はブレーキ、足の位置、周囲の安全を確認します。",
+            id: "Sebelum mendorong kursi roda, cek rem, posisi kaki, dan keamanan sekitar."
+          },
+          {
+            type: "声かけ",
+            q: "利用者の体を動かす前の声かけでよいものはどれですか。",
+            choices: ["だまってすぐ動かす", "今から右に向きを変えますね", "早くしてください", "自分でしてください"],
+            answer: 1,
+            exp: "介助前には、これから行うことを説明して同意を得ます。",
+            id: "Sebelum membantu, jelaskan tindakan yang akan dilakukan agar pengguna merasa aman."
+          },
+          {
+            type: "記録",
+            q: "介護記録に書く内容として適切なものはどれですか。",
+            choices: ["自分の気分だけを書く", "事実を具体的に書く", "利用者の悪口を書く", "何も書かない"],
+            answer: 1,
+            exp: "記録は、観察した事実を具体的に書くことが大切です。",
+            id: "Catatan perawatan harus berisi fakta yang diamati, bukan pendapat pribadi atau hinaan."
+          }
+        ]
+      },
+      construction: {
+        name: "建設",
+        summary: "安全、工具、作業手順、図や写真の判断が重要。土木・建築・ライフライン・設備の3区分に分けて対策します。",
+        meta: [
+          ["試験の中心", "共通安全、土木、建築、ライフライン・設備"],
+          ["問題形式", "CBT、○×、2-4択"],
+          ["重点", "危険予知、保護具、区分別作業、標識、合図"]
+        ],
+        trends: [
+          "安全帯、ヘルメット、墜落防止など労働安全の比重が高い。",
+          "写真や図を見て、正しい工具・作業・危険箇所を判断する練習が必要。",
+          "土木、建築、ライフライン・設備の受験区分に合わせた専門語彙が必要。",
+          "経験者は現場の習慣で答えず、日本の安全ルールで答える練習が大切。"
+        ],
+        pitfalls: [
+          "母国の現場経験で判断し、日本の標準手順とずれる。",
+          "標識、保護具、合図の日本語を覚えていない。",
+          "土木・建築・ライフライン・設備の受験区分を誤って選ぶ。"
+        ],
+        plan: [
+          "Week 1：安全用語、保護具、標識を写真カードで暗記。",
+          "Week 2-3：区分別テキストの重要語彙と工具名を学習。",
+          "Week 4：○×問題を毎日50問。",
+          "Week 5-6：学科30問、実技20問の時間練習。"
+        ],
+        sources: [
+          ["JAC 建設分野特定技能評価試験", "https://jac-skill.or.jp/exam/"],
+          ["JAC テキスト・参考資料", "https://global.jac-skill.or.jp/examination/documents.php"],
+          ["SMILEVISA 建設分野解説", "https://www.smilevisa.jp/owned-media/tokuteiginou-construction/"]
+        ],
+        questions: [
+          {
+            type: "安全",
+            q: "高い場所で作業するとき、最も重要なものはどれですか。",
+            choices: ["安全帯を使う", "急いで作業する", "ヘルメットを脱ぐ", "一人で合図なしに作業する"],
+            answer: 0,
+            exp: "高所作業では墜落防止が最重要です。",
+            id: "Saat bekerja di tempat tinggi, pencegahan jatuh adalah hal paling penting. Gunakan alat pelindung jatuh."
+          },
+          {
+            type: "工具",
+            q: "工具を使う前に行うことで正しいものはどれですか。",
+            choices: ["壊れていないか点検する", "汚れていても確認しない", "人に向けて振る", "用途と違う使い方をする"],
+            answer: 0,
+            exp: "工具は使用前点検を行い、正しい用途で使います。",
+            id: "Sebelum memakai alat, periksa kondisinya dan gunakan sesuai fungsi."
+          },
+          {
+            type: "合図",
+            q: "重機の近くで作業するとき、正しい行動はどれですか。",
+            choices: ["運転者に見えない場所に立つ", "決められた合図者の指示に従う", "大声だけで自由に動く", "重機の後ろで休む"],
+            answer: 1,
+            exp: "重機作業では合図者と作業範囲の確認が必要です。",
+            id: "Saat bekerja dekat alat berat, ikuti instruksi pemberi aba-aba yang ditentukan."
+          },
+          {
+            type: "服装",
+            q: "建設現場で安全な服装はどれですか。",
+            choices: ["サンダル", "袖や裾が作業の邪魔にならない作業服", "長いひもが出た服", "ヘルメットなし"],
+            answer: 1,
+            exp: "服装は巻き込まれや転倒を防ぐため、作業に適したものにします。",
+            id: "Pakaian kerja harus aman dan tidak mudah tersangkut mesin atau material."
+          },
+          {
+            type: "危険予知",
+            q: "床に資材が散らばっています。まず行うこととして正しいものはどれですか。",
+            choices: ["そのまま走る", "整理して通路を確保する", "暗くして作業する", "見なかったことにする"],
+            answer: 1,
+            exp: "転倒を防ぐため、整理整頓と通路確保が必要です。",
+            id: "Rapikan material dan pastikan jalur jalan aman untuk mencegah tersandung."
+          }
+        ]
+      },
+      cleaning: {
+        name: "ビルクリーニング",
+        summary: "道具・洗剤・作業順序を写真や場面で判断する力が重要。実技作業の流れを体で覚えると得点につながります。",
+        meta: [
+          ["試験の中心", "判断試験、清掃作業、道具選択"],
+          ["問題形式", "写真・イラスト判断、作業手順"],
+          ["重点", "床、ガラス、洋式大便器、洗剤、用具"]
+        ],
+        trends: [
+          "清掃場所に合う道具と洗剤を選べるかが問われる。",
+          "作業前準備、作業中の安全、片付けまでの順序が重要。",
+          "水拭き、乾拭き、スクイジー、モップなど用語の区別が必要。",
+          "写真を見て、汚れの種類や作業ミスを判断する練習が有効。"
+        ],
+        pitfalls: [
+          "洗剤を混ぜてはいけない理由を理解していない。",
+          "道具名を日本語で覚えていない。",
+          "作業後の片付け・表示板撤去まで意識できない。"
+        ],
+        plan: [
+          "Week 1：道具名と写真を一致させる。",
+          "Week 2：床、ガラス、トイレの作業順序を暗記。",
+          "Week 3：洗剤、安全表示、立入防止の判断問題。",
+          "Week 4：写真判断ミニ模試と実技動作の確認。"
+        ],
+        sources: [
+          ["全国ビルメンテナンス協会", "https://www.j-bma.or.jp/qualification-training/zairyu-1go"],
+          ["厚労省 ビルクリーニング分野", "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/blc_tokuteiginou02.html"],
+          ["WAQUE ビルクリーニング解説", "https://waque.jp/building-cleaning/"]
+        ],
+        questions: [
+          {
+            type: "道具",
+            q: "ガラス面の水を上から下へきれいに取る道具はどれですか。",
+            choices: ["スクイジー", "ほうき", "ちりとり", "床用ブラシ"],
+            answer: 0,
+            exp: "スクイジーはガラス面の水切りに使います。",
+            id: "Squeegee digunakan untuk membersihkan dan menarik air dari permukaan kaca."
+          },
+          {
+            type: "安全",
+            q: "床がぬれているとき、利用者の安全のために置くものはどれですか。",
+            choices: ["作業中表示板", "ごみ袋だけ", "時計", "紙コップ"],
+            answer: 0,
+            exp: "ぬれた床では転倒防止のため表示板を置きます。",
+            id: "Saat lantai basah, pasang tanda peringatan agar orang tidak terpeleset."
+          },
+          {
+            type: "洗剤",
+            q: "洗剤を使うときに正しいものはどれですか。",
+            choices: ["種類を確認して決められた濃度で使う", "強くするため自由に混ぜる", "ラベルを見ない", "手に直接つける"],
+            answer: 0,
+            exp: "洗剤は種類と希釈濃度を守ります。混ぜるのは危険です。",
+            id: "Gunakan deterjen sesuai jenis dan takaran. Jangan mencampur bahan kimia sembarangan."
+          },
+          {
+            type: "作業順序",
+            q: "清掃作業の最後に行うことで正しいものはどれですか。",
+            choices: ["道具をその場に置いたまま帰る", "用具を洗い、決められた場所に戻す", "表示板を置きっぱなしにする", "ごみを隠す"],
+            answer: 1,
+            exp: "作業後は用具の手入れと片付けが必要です。",
+            id: "Setelah bekerja, bersihkan alat dan kembalikan ke tempat yang ditentukan."
+          },
+          {
+            type: "トイレ清掃",
+            q: "洋式大便器を清掃するとき、衛生上よい行動はどれですか。",
+            choices: ["便器用のクロスを他の場所にも使う", "場所ごとに決められたクロスを使い分ける", "手袋を使わない", "汚れた道具をそのまま保管する"],
+            answer: 1,
+            exp: "交差汚染を防ぐため、クロスや道具は場所ごとに使い分けます。",
+            id: "Gunakan kain berbeda untuk area berbeda agar kuman tidak menyebar."
+          }
+        ]
+      },
+      food: {
+        name: "飲食料品製造業",
+        summary: "公式サンプルが少ないため、公式テキストと非公式練習問題から傾向を整理する価値が高い分野です。",
+        meta: [
+          ["試験の中心", "食品衛生、HACCP、工程管理、労働安全"],
+          ["問題形式", "CBT、3択、学科と実技判断・計画立案"],
+          ["重点", "5S、異物混入、温度管理、アレルゲン"]
+        ],
+        trends: [
+          "食品安全、一般衛生、製造工程、HACCP、労働安全衛生が中心。",
+          "実技は図やイラストの状況判断、作業計画の読み取りが重要。",
+          "公式サンプルが見当たりにくいため、公式テキストを細かく問題化する必要がある。",
+          "インドネシア人にはHACCP、アレルゲン、異物混入、5Sを具体例で説明すると定着しやすい。"
+        ],
+        pitfalls: [
+          "清潔と消毒の違いがあいまい。",
+          "アレルゲンや交差汚染を軽く見てしまう。",
+          "温度管理、記録、手洗いの理由を説明できない。"
+        ],
+        plan: [
+          "Week 1：食品安全と食中毒の基礎。",
+          "Week 2：5S、手洗い、作業服、異物混入対策。",
+          "Week 3：HACCP、重要管理点、記録。",
+          "Week 4：実技判断・計画立案の文章問題を反復。"
+        ],
+        sources: [
+          ["OTAFF 飲食料品製造業", "https://otaff.or.jp/tokutei/insyoku-1/"],
+          ["OTAFF 学習テキスト", "https://otaff.or.jp/tokutei/insyoku-1/materials/"],
+          ["市進日本語eラーニング 練習問題", "https://www.youtube.com/watch?v=tKtfDTRtQdg"],
+          ["MEIKOGLOBAL 試験解説", "https://meikoglobal.jp/magazine/food-and-beverage-manufacturing-sector-examination/"]
+        ],
+        questions: [
+          {
+            type: "衛生",
+            q: "食品工場で作業を始める前に最も正しい行動はどれですか。",
+            choices: ["手を洗い、作業服と帽子を正しく着用する", "手袋だけすれば手洗いは不要", "昨日の道具をそのまま使う"],
+            answer: 0,
+            exp: "作業前は手洗い、服装、毛髪混入防止を確認します。",
+            id: "Sebelum bekerja di pabrik makanan, cuci tangan dan pakai pakaian kerja serta penutup kepala dengan benar."
+          },
+          {
+            type: "異物混入",
+            q: "製品に髪の毛が入ることを防ぐ対策として正しいものはどれですか。",
+            choices: ["帽子やヘアネットを正しく着ける", "髪を出して作業する", "作業中に髪をとかす"],
+            answer: 0,
+            exp: "毛髪混入防止には、帽子やヘアネットの正しい着用が必要です。",
+            id: "Untuk mencegah rambut masuk ke produk, gunakan topi atau hairnet dengan benar."
+          },
+          {
+            type: "HACCP",
+            q: "HACCPで特に重要な考え方はどれですか。",
+            choices: ["危害を予測し、重要な工程を管理する", "問題が起きてから考える", "記録をしないで感覚で管理する"],
+            answer: 0,
+            exp: "HACCPは危害要因を分析し、重要管理点を管理する考え方です。",
+            id: "HACCP berarti menganalisis bahaya dan mengendalikan titik penting dalam proses produksi."
+          },
+          {
+            type: "5S",
+            q: "5Sに含まれないものはどれですか。",
+            choices: ["整理", "清掃", "睡眠"],
+            answer: 2,
+            exp: "5Sは整理、整頓、清掃、清潔、しつけです。",
+            id: "5S adalah seiri, seiton, seiso, seiketsu, shitsuke. Tidur tidak termasuk."
+          },
+          {
+            type: "労働安全",
+            q: "機械の調子が悪いとき、正しい行動はどれですか。",
+            choices: ["勝手に手を入れて直す", "上司に報告し、決められた手順に従う", "そのまま無理に使う"],
+            answer: 1,
+            exp: "機械トラブルは報告し、停止や確認などの手順に従います。",
+            id: "Jika mesin bermasalah, laporkan kepada atasan dan ikuti prosedur keselamatan."
+          }
+        ]
+      },
+      agriculture: {
+        name: "農業",
+        summary: "耕種農業と畜産農業に分かれます。農作業の知識に加えて、作業指示を日本語で理解する力が必要です。",
+        meta: [
+          ["試験の中心", "耕種、畜産、安全衛生、農作業日本語"],
+          ["問題形式", "CBT、学科、実技判断、日本語確認"],
+          ["重点", "農薬、機械、収穫、飼養管理、天候"]
+        ],
+        trends: [
+          "耕種と畜産で学ぶ内容が変わるため、受験区分を早めに決める。",
+          "農機具、農薬、肥料、温度、湿度、家畜管理など実務語彙が多い。",
+          "作業指示の聞き取り・読み取りが合否に影響しやすい。",
+          "地方就労が多いため、試験対策と生活日本語をつなげると定着率が上がる。"
+        ],
+        pitfalls: [
+          "農薬や機械の安全ルールを軽く考える。",
+          "耕種と畜産の語彙を混ぜて覚えてしまう。",
+          "天候や作業予定に関する日本語指示が読めない。"
+        ],
+        plan: [
+          "Week 1：耕種または畜産の区分決定と基礎語彙。",
+          "Week 2：安全衛生、農薬、機械、燃油の注意点。",
+          "Week 3：作業別の手順と写真判断。",
+          "Week 4：農作業日本語とミニ模試。"
+        ],
+        sources: [
+          ["農業技能測定試験 学習用テキスト", "https://asat-nca.jp/asat1/textbook"],
+          ["農業技能測定試験 試験概要", "https://asat-nca.jp/asat1/overview"],
+          ["全国農業会議所 試験範囲", "https://www.nca.or.jp/support/farmers/examination/examination.html"]
+        ],
+        questions: [
+          {
+            type: "農薬",
+            q: "農薬を使うときに正しい行動はどれですか。",
+            choices: ["ラベルを読み、決められた量を守る", "多いほどよいので増やす", "素手で扱う", "風が強い日に周りを見ずにまく"],
+            answer: 0,
+            exp: "農薬はラベル、使用量、防護具、天候を確認して使います。",
+            id: "Saat memakai pestisida, baca label, ikuti dosis, gunakan alat pelindung, dan perhatikan cuaca."
+          },
+          {
+            type: "収穫",
+            q: "収穫した野菜の扱いで正しいものはどれですか。",
+            choices: ["土や傷みを確認して丁寧に扱う", "投げて箱に入れる", "暑い場所に長時間置く", "汚れても確認しない"],
+            answer: 0,
+            exp: "品質を守るため、収穫物は丁寧に扱い、状態を確認します。",
+            id: "Hasil panen harus diperiksa dan ditangani dengan hati-hati agar kualitas tetap baik."
+          },
+          {
+            type: "機械",
+            q: "農業機械を点検するとき、安全のために正しいものはどれですか。",
+            choices: ["エンジンを止めてから確認する", "動いている刃に手を近づける", "説明を聞かずに使う", "異音がしても続ける"],
+            answer: 0,
+            exp: "機械の点検や清掃は停止してから行います。",
+            id: "Saat memeriksa mesin pertanian, matikan mesin terlebih dahulu."
+          },
+          {
+            type: "畜産",
+            q: "家畜の様子がいつもと違うとき、正しい行動はどれですか。",
+            choices: ["すぐに責任者へ報告する", "何も見なかったことにする", "勝手に薬を飲ませる", "大きな音で追いかける"],
+            answer: 0,
+            exp: "異常を見つけたら、自己判断せず責任者に報告します。",
+            id: "Jika ternak terlihat tidak normal, segera laporkan kepada penanggung jawab."
+          },
+          {
+            type: "作業指示",
+            q: "「午前中にハウスの換気をしてください」の意味として正しいものはどれですか。",
+            choices: ["午前中に温室の空気を入れ替える", "午後に収穫する", "夜にえさをやる", "農薬を買いに行く"],
+            answer: 0,
+            exp: "ハウスは温室、換気は空気を入れ替えることです。",
+            id: "House berarti rumah kaca/plastic greenhouse, kanki berarti mengganti udara atau ventilasi."
+          }
+        ]
+      },
+      hotel: {
+        name: "宿泊",
+        summary: "フロント、接客、客室、レストランサービス、安全衛生など、宿泊施設での場面対応力が重要な分野です。",
+        meta: [
+          ["試験の中心", "フロント、企画・広報、接客、レストランサービス、安全衛生"],
+          ["問題形式", "CBT、選択式、場面判断"],
+          ["重点", "予約確認、案内、苦情対応、衛生、安全"]
+        ],
+        trends: [
+          "お客様への丁寧な対応と確認の日本語が問われやすい。",
+          "フロント、客室、レストランなど複数場面の判断が必要。",
+          "予約、チェックイン、問い合わせ、苦情対応の流れを理解する。",
+          "安全衛生では火災、けが、体調不良、食物アレルギーへの対応が重要。"
+        ],
+        pitfalls: [
+          "丁寧な言葉だけで、確認や報告が抜ける。",
+          "予約情報、部屋番号、時間、人数など数字の確認を間違える。",
+          "苦情や緊急時に自己判断で対応してしまう。"
+        ],
+        plan: [
+          "Week 1：ホテル基本語彙、敬語、案内表現を覚える。",
+          "Week 2：予約、チェックイン、チェックアウトの流れを練習。",
+          "Week 3：レストランサービス、アレルギー、衛生の問題を解く。",
+          "Week 4：苦情対応、安全衛生、緊急時対応を本番形式で確認。"
+        ],
+        sources: [
+          ["宿泊技能測定試験", "https://caipt.or.jp/"],
+          ["特定技能総合支援サイト", "https://www.ssw.go.jp/"]
+        ],
+        questions: [
+          {
+            type: "フロント",
+            q: "予約したお客様の名前が見つからないとき、最もよい対応はどれですか。",
+            choices: ["名前、予約日、予約番号を確認する", "予約がないと言ってすぐ帰ってもらう", "別のお客様の部屋を案内する", "確認せず空いている部屋に入れる"],
+            answer: 0,
+            exp: "予約確認では、名前、日付、予約番号などを落ち着いて確認します。",
+            id: "Jika nama tamu tidak ditemukan, periksa nama, tanggal reservasi, dan nomor reservasi dengan tenang."
+          },
+          {
+            type: "接客",
+            q: "お客様から部屋が寒いと言われました。最もよい対応はどれですか。",
+            choices: ["謝罪し、空調や毛布の対応を確認する", "我慢してくださいと言う", "何も確認せず別の仕事をする", "ほかのお客様に相談する"],
+            answer: 0,
+            exp: "苦情や依頼を受けたら、謝罪、確認、報告、対応を行います。",
+            id: "Jika tamu mengeluh kamar dingin, minta maaf, periksa AC atau selimut, lalu tindak lanjuti."
+          },
+          {
+            type: "客室",
+            q: "客室清掃中に忘れ物を見つけたとき、正しい対応はどれですか。",
+            choices: ["決められた手順で保管し、責任者へ報告する", "自分で持ち帰る", "捨てる", "次のお客様に渡す"],
+            answer: 0,
+            exp: "忘れ物はホテルの手順に従って記録、保管、報告します。",
+            id: "Barang tertinggal harus dicatat, disimpan, dan dilaporkan sesuai prosedur hotel."
+          },
+          {
+            type: "レストラン",
+            q: "お客様が食物アレルギーについて質問しました。最もよい対応はどれですか。",
+            choices: ["内容を確認し、分からない場合は責任者に確認する", "大丈夫だと思うと言う", "確認せず料理を出す", "質問を無視する"],
+            answer: 0,
+            exp: "アレルギーは健康被害につながるため、自己判断せず確認します。",
+            id: "Alergi makanan bisa berbahaya, jadi jangan menebak. Konfirmasi kepada penanggung jawab."
+          },
+          {
+            type: "安全衛生",
+            q: "館内で火災警報が鳴ったとき、正しい行動はどれですか。",
+            choices: ["手順に従い、お客様を安全な場所へ案内する", "警報を止めて何もしない", "エレベーターで避難させる", "一人で先に外へ出る"],
+            answer: 0,
+            exp: "火災時は避難手順に従い、お客様の安全を優先します。",
+            id: "Saat alarm kebakaran berbunyi, ikuti prosedur dan arahkan tamu ke tempat aman."
+          }
+        ]
+      }
+    };
+
+    const blueprintSets = {
+      care: [
+        ["尊厳", "利用者の部屋に入る前の対応で最もよいものはどれですか。", "ノックして声をかけ、返事を待つ", ["急いで無言で入る", "ドアを開けたまま着替えを手伝う", "他の利用者の前で大きな声で話す"], "プライバシーを守るため、入室前の声かけと同意が必要です。", "Hormati privasi pengguna. Ketuk pintu, panggil, dan tunggu jawaban sebelum masuk."],
+        ["自立支援", "食事で利用者が自分で食べられるとき、最もよい介助はどれですか。", "見守りながら必要な部分だけ手伝う", ["全部食べさせる", "時間がかかるので食事を片付ける", "できないと決めつける"], "本人ができる動作を大切にすることが自立支援です。", "Dukung kemandirian. Bantu hanya bagian yang diperlukan."],
+        ["感染対策", "排泄介助の後に行うことで正しいものはどれですか。", "手袋を外し、手洗い・消毒を行う", ["手袋をしたまま食事介助をする", "手洗いを省略する", "汚れた物を利用者の近くに置く"], "感染予防には手洗い、手袋交換、消毒が大切です。", "Setelah membantu toileting, lepas sarung tangan lalu cuci dan disinfeksi tangan."],
+        ["観察", "利用者の顔色が悪く、いつもより元気がありません。最もよい対応はどれですか。", "様子を観察し、責任者へ報告する", ["そのまま放置する", "勝手に薬を飲ませる", "本人を強く叱る"], "体調変化に気づいたら観察し、自己判断せず報告します。", "Jika kondisi pengguna berubah, amati dan laporkan kepada penanggung jawab."],
+        ["移動", "歩行介助で転倒を防ぐために大切なことはどれですか。", "利用者のペースに合わせ、足元と周囲を確認する", ["急がせる", "後ろから押す", "荷物を持たせて走らせる"], "歩行介助ではペース、足元、周囲の安全確認が必要です。", "Saat membantu berjalan, sesuaikan kecepatan dan cek sekitar."],
+        ["食事", "むせやすい利用者への食事介助で正しいものはどれですか。", "姿勢を整え、ゆっくり食べてもらう", ["寝たまま早く食べさせる", "一度に大量に口へ入れる", "むせても続ける"], "誤嚥予防には姿勢、量、ペースの確認が重要です。", "Untuk mencegah tersedak, perhatikan posisi tubuh, jumlah makanan, dan kecepatan."],
+        ["入浴", "入浴前に確認することで大切なものはどれですか。", "体調と浴室の安全を確認する", ["温度を確認しない", "体調不良でも無理に入浴する", "床が濡れていても走らせる"], "入浴は体調確認と転倒予防が重要です。", "Sebelum mandi, cek kondisi tubuh dan keamanan kamar mandi."],
+        ["記録", "介護記録で正しい書き方はどれですか。", "見た事実を具体的に書く", ["想像で書く", "悪口を書く", "空欄のままにする"], "記録は事実、時間、状態を具体的に残します。", "Catatan harus berdasarkan fakta yang diamati."],
+        ["認知症", "同じ質問を何度もする利用者への対応でよいものはどれですか。", "落ち着いて短くわかりやすく答える", ["怒って無視する", "大声で責める", "からかう"], "認知症の利用者には安心できる対応が必要です。", "Jawab dengan tenang dan sederhana agar pengguna merasa aman."],
+        ["緊急時", "利用者が転倒した直後の対応で正しいものはどれですか。", "動かす前に状態を確認し、職員を呼ぶ", ["すぐに無理やり立たせる", "何も報告しない", "一人で判断して帰る"], "転倒時は状態確認、応援要請、報告が必要です。", "Saat jatuh, cek kondisi dulu dan panggil staf lain."],
+        ["服薬", "薬の介助で正しいものはどれですか。", "決められた薬と時間を確認する", ["余った薬を別の人に渡す", "名前を確認しない", "勝手に量を増やす"], "服薬は本人、薬、時間、量の確認が必要です。", "Cek orang, obat, waktu, dan dosis sebelum membantu minum obat."],
+        ["コミュニケーション", "聞き取りにくい利用者と話すときによい方法はどれですか。", "正面からゆっくり、はっきり話す", ["背中を向けて早口で話す", "聞こえないと決めつける", "周囲に内容を大声で知らせる"], "相手に合わせた話し方とプライバシー配慮が必要です。", "Bicara pelan dan jelas dari depan, tetap jaga privasi."]
+      ],
+      construction: [
+        ["保護具", "現場に入るときの基本的な保護具として正しいものはどれですか。", "ヘルメットと安全靴を着用する", ["サンダルで入る", "ヘルメットを手に持つだけにする", "保護具なしで作業する"], "現場では頭部と足元の保護が基本です。", "Di lokasi konstruksi, gunakan helm dan sepatu keselamatan."],
+        ["高所作業", "足場で作業するときに正しい行動はどれですか。", "手すりや足元を確認して作業する", ["足場の端で走る", "安全帯を使わない", "資材を下へ投げる"], "高所作業では墜落と落下物を防ぐ必要があります。", "Saat bekerja di ketinggian, cegah jatuh dan benda jatuh."],
+        ["整理整頓", "通路に材料が置かれている場合の対応で正しいものはどれですか。", "材料を整理し、通路を確保する", ["そのままにする", "暗い場所に移す", "上を飛び越える"], "転倒防止のため通路確保が必要です。", "Rapikan material agar jalur aman."],
+        ["重機", "重機の旋回範囲に入る前に必要なことはどれですか。", "合図者や運転者に確認する", ["無言で近づく", "後ろから急に入る", "携帯を見ながら歩く"], "重機周辺では合図と確認が重要です。", "Di sekitar alat berat, ikuti aba-aba dan konfirmasi."],
+        ["工具", "電動工具を使う前に正しい確認はどれですか。", "コードや刃の状態を確認する", ["壊れていても使う", "濡れた手で扱う", "人に向ける"], "電動工具は使用前点検と正しい扱いが必要です。", "Periksa alat listrik sebelum digunakan."],
+        ["玉掛け", "吊り荷の下でしてはいけないことはどれですか。", "吊り荷の下に入る", ["合図を確認する", "周囲を確認する", "立入禁止を守る"], "吊り荷の下は落下の危険があるため立入禁止です。", "Jangan berada di bawah beban yang digantung."],
+        ["火気", "溶接作業の近くで確認すべきことはどれですか。", "燃えやすい物が近くにないか確認する", ["紙を近くに置く", "火花を見ない", "消火器の場所を知らない"], "火気作業では火災予防と消火準備が必要です。", "Saat pekerjaan panas, cegah kebakaran dan siapkan pemadam."],
+        ["標識", "立入禁止の表示がある場所で正しい行動はどれですか。", "許可なく入らない", ["近道なので入る", "表示を外す", "友人だけ入れる"], "安全標識は必ず守ります。", "Patuhi rambu keselamatan."],
+        ["報告", "現場で危険な状態を見つけたときの対応はどれですか。", "作業を止め、責任者へ報告する", ["見なかったことにする", "写真だけ撮って帰る", "勝手に続ける"], "危険を見つけたら止める、知らせる、改善する流れが必要です。", "Jika melihat bahaya, hentikan dan laporkan."],
+        ["材料運搬", "重い物を運ぶときに正しいものはどれですか。", "無理をせず、必要なら二人で運ぶ", ["腰を丸めて急に持つ", "視界をふさいで運ぶ", "走って運ぶ"], "重量物は無理な姿勢を避け、協力して運びます。", "Angkat barang berat dengan aman dan minta bantuan bila perlu."],
+        ["電気", "仮設電源を使うときに避けるべきことはどれですか。", "濡れた場所でむき出しのコードを使う", ["漏電に注意する", "コードの損傷を確認する", "決められた電源を使う"], "水濡れや損傷したコードは感電の危険があります。", "Kabel rusak atau basah berbahaya karena bisa menyebabkan sengatan listrik."],
+        ["作業手順", "初めての作業をするとき、最初に行うことはどれですか。", "手順と危険ポイントを確認する", ["説明を聞かず始める", "早さだけを優先する", "保護具を外す"], "作業前に手順、役割、危険箇所を確認します。", "Sebelum pekerjaan baru, pahami prosedur dan risiko."]
+      ],
+      cleaning: [
+        ["床清掃", "床を水拭きした後に必要な安全対策はどれですか。", "床が乾くまで表示板を置く", ["すぐ表示板を片付ける", "走って確認する", "利用者に知らせない"], "濡れた床は滑りやすいため表示が必要です。", "Lantai basah harus diberi tanda sampai kering."],
+        ["用具管理", "使用後のモップの扱いで正しいものはどれですか。", "洗って乾かし、決められた場所に保管する", ["濡れたまま放置する", "食品の近くに置く", "汚れたまま次に使う"], "用具は清潔に保管し、悪臭や汚染を防ぎます。", "Bersihkan dan keringkan alat sebelum disimpan."],
+        ["洗剤", "酸性洗剤と塩素系洗剤について正しいものはどれですか。", "混ぜると危険なので混ぜない", ["強くなるので混ぜる", "香りで判断する", "ラベルを捨てる"], "洗剤を混ぜると有害ガスが出る危険があります。", "Jangan mencampur bahan kimia karena bisa menghasilkan gas berbahaya."],
+        ["ガラス", "ガラス清掃でスクイジーを使う目的はどれですか。", "水や洗剤をきれいに切る", ["床を掃く", "ごみを集める", "便器を洗う"], "スクイジーはガラス面の水切りに使います。", "Squeegee digunakan untuk menarik air dari kaca."],
+        ["トイレ", "トイレ清掃で交差汚染を防ぐ方法はどれですか。", "場所ごとにクロスを使い分ける", ["同じクロスを全部に使う", "手袋なしで作業する", "汚れを隠す"], "場所ごとに道具を分けると菌の広がりを防げます。", "Gunakan kain berbeda untuk area berbeda."],
+        ["ごみ処理", "ごみ袋を交換するときに正しいものはどれですか。", "中身がこぼれないよう口を閉じる", ["袋を引きずる", "分別を確認しない", "鋭利物を素手で押し込む"], "ごみ処理では分別、飛散防止、けが防止が重要です。", "Tutup kantong sampah dan cegah tumpahan atau luka."],
+        ["作業順序", "清掃前に確認することで正しいものはどれですか。", "作業場所、道具、安全表示を確認する", ["すぐ水をまく", "道具を探しながら作業する", "人の通行を確認しない"], "作業前準備で事故とやり直しを減らします。", "Sebelum membersihkan, cek lokasi, alat, dan tanda keselamatan."],
+        ["感染対策", "血液のような汚れを見つけたときの対応はどれですか。", "手順に従い、必要な保護具を使う", ["素手で拭く", "普通の紙で隠す", "人に踏ませる"], "体液汚れは感染リスクがあるため手順と保護具が必要です。", "Gunakan APD dan prosedur khusus untuk cairan tubuh."],
+        ["資機材", "ほうきとちりとりの使い方で正しいものはどれですか。", "ごみを集めてちりとりに入れる", ["ガラスの水を切る", "洗剤を混ぜる", "床を乾燥させる"], "ほうきとちりとりはごみを集める道具です。", "Sapu dan pengki digunakan untuk mengumpulkan sampah."],
+        ["品質", "清掃後の確認で正しいものはどれですか。", "汚れ残り、忘れ物、道具の置き忘れを確認する", ["見ないで終了する", "表示板を永久に置く", "ごみを隅に寄せる"], "仕上げ確認は品質と安全を守ります。", "Setelah selesai, cek hasil, barang tertinggal, dan alat."],
+        ["マナー", "利用者が近くを通るときの対応で正しいものはどれですか。", "作業を一時止め、安全に通ってもらう", ["道をふさぐ", "水をかける", "無視して作業を続ける"], "利用者の安全と通行を優先します。", "Utamakan keselamatan pengguna yang lewat."],
+        ["希釈", "洗剤を薄めるときに正しいものはどれですか。", "決められた割合を守る", ["濃いほどよいと考える", "目分量だけで大量に入れる", "別容器にラベルなしで入れる"], "希釈倍率を守ることで安全と効果を保ちます。", "Ikuti takaran pengenceran agar aman dan efektif."]
+      ],
+      food: [
+        ["手洗い", "食品を扱う前の手洗いで正しいものはどれですか。", "石けんで洗い、必要に応じて消毒する", ["水で少し濡らすだけ", "手袋をすれば洗わない", "作業中だけ洗う"], "手洗いは食中毒予防の基本です。", "Cuci tangan dengan sabun sebelum menangani makanan."],
+        ["作業服", "作業場に入る前の服装確認で正しいものはどれですか。", "毛髪や私物が出ていないか確認する", ["時計やアクセサリーをつけたまま入る", "帽子を浅くかぶる", "外靴で入る"], "異物混入を防ぐため服装と持ち物を確認します。", "Cek pakaian kerja agar rambut dan barang pribadi tidak masuk produk."],
+        ["温度管理", "冷蔵品の管理で正しいものはどれですか。", "決められた温度で保管し、記録する", ["常温に長く置く", "温度計を見ない", "暑い場所で解凍する"], "温度管理は菌の増殖を防ぐために重要です。", "Simpan produk dingin pada suhu yang ditentukan dan catat."],
+        ["アレルゲン", "アレルゲンの混入を防ぐ対応で正しいものはどれですか。", "原材料表示と作業順序を確認する", ["同じ器具を洗わず使う", "表示を確認しない", "少量なら気にしない"], "アレルゲンは少量でも健康被害につながります。", "Alergen sedikit pun bisa berbahaya, jadi cek label dan alat."],
+        ["異物混入", "金属片の混入を防ぐために正しいものはどれですか。", "器具の破損や部品の脱落を確認する", ["壊れた器具を使う", "落ちた物をそのまま戻す", "点検しない"], "器具点検は異物混入防止に必要です。", "Periksa alat agar bagian rusak tidak masuk makanan."],
+        ["HACCP", "重要管理点で行うべきことはどれですか。", "基準を守り、記録を残す", ["感覚だけで判断する", "記録を後でまとめて想像する", "異常を隠す"], "HACCPでは基準、監視、記録、改善が重要です。", "Pada CCP, ikuti batas, pantau, catat, dan tindak lanjuti."],
+        ["5S", "整理の意味として正しいものはどれですか。", "必要な物と不要な物を分ける", ["床を濡らす", "休憩する", "音を大きくする"], "整理は必要・不要を分けることです。", "Seiri berarti memisahkan barang yang perlu dan tidak perlu."],
+        ["交差汚染", "生肉を扱った器具について正しい対応はどれですか。", "洗浄・消毒してから別の食品に使う", ["そのまま野菜に使う", "見た目がきれいなら使う", "布で軽く拭くだけ"], "交差汚染を防ぐため洗浄と消毒が必要です。", "Cuci dan sanitasi alat setelah kontak dengan daging mentah."],
+        ["報告", "製品に異物らしいものを見つけたときの対応はどれですか。", "作業を止めて責任者に報告する", ["取り除いて黙って続ける", "見なかったことにする", "自分で食べて確認する"], "異物の疑いは報告し、手順に従います。", "Jika menemukan kemungkinan benda asing, hentikan dan laporkan."],
+        ["機械安全", "機械の清掃をするときに正しいものはどれですか。", "停止を確認してから行う", ["動いたまま手を入れる", "カバーを外して運転する", "異音を無視する"], "機械清掃では停止確認と手順遵守が必要です。", "Saat membersihkan mesin, pastikan mesin berhenti."],
+        ["期限表示", "原材料を使う前に確認することはどれですか。", "期限、表示、状態を確認する", ["古いものを隠す", "表示を見ない", "においだけで決める"], "期限と状態確認は食品安全の基本です。", "Cek tanggal, label, dan kondisi bahan."],
+        ["清掃", "作業後の清掃で正しいものはどれですか。", "決められた手順で洗浄し、記録する", ["汚れを残す", "水だけかけて終わる", "記録をしない"], "清掃記録は衛生管理の証拠になります。", "Bersihkan sesuai prosedur dan catat hasilnya."]
+      ],
+      agriculture: [
+        ["農薬", "農薬散布前に確認することで正しいものはどれですか。", "ラベル、天候、防護具を確認する", ["風向きを見ない", "素手で混ぜる", "量を自由に増やす"], "農薬は使用基準と安全対策を守ります。", "Sebelum menyemprot pestisida, cek label, cuaca, dan APD."],
+        ["機械", "刈払機を使う前の確認で正しいものはどれですか。", "刃、燃料、周囲の人を確認する", ["人の近くで振り回す", "保護具なしで使う", "説明を読まない"], "農業機械は使用前点検と周囲確認が必要です。", "Periksa mesin dan sekitar sebelum memakai alat pemotong."],
+        ["収穫", "収穫物の品質を守る方法として正しいものはどれですか。", "傷をつけないよう丁寧に扱う", ["投げる", "直射日光に長く置く", "泥を確認しない"], "収穫後の扱いが品質に影響します。", "Tangani hasil panen dengan hati-hati agar kualitas terjaga."],
+        ["肥料", "肥料を使うときに正しいものはどれですか。", "種類と量を確認して使う", ["多いほどよいと考える", "水路に捨てる", "説明を読まない"], "肥料は作物や土に合わせて適量を使います。", "Gunakan pupuk sesuai jenis dan dosis."],
+        ["天候", "強風の日の農薬散布で正しい判断はどれですか。", "飛散の危険があるため避ける", ["風上に人がいても散布する", "量を増やしてまく", "防護具を外す"], "強風時は農薬が飛散しやすく危険です。", "Hindari penyemprotan saat angin kencang."],
+        ["畜産", "家畜のえさやりで大切なことはどれですか。", "量、時間、家畜の様子を確認する", ["古いえさを確認せず与える", "水を与えない", "異常を無視する"], "飼養管理では量、時間、健康観察が重要です。", "Saat memberi pakan, cek jumlah, waktu, dan kondisi ternak."],
+        ["衛生", "畜舎の衛生管理で正しいものはどれですか。", "ふん尿を処理し、清潔を保つ", ["汚れを放置する", "水飲み場を確認しない", "病気の家畜を混ぜる"], "清潔な環境は病気予防につながります。", "Kebersihan kandang membantu mencegah penyakit."],
+        ["作業指示", "「午後に苗に水をやってください」の意味はどれですか。", "午後に若い植物へ水を与える", ["朝に収穫する", "夜に機械を洗う", "家畜にえさをやる"], "苗は若い植物、水をやるは水を与えることです。", "Nae adalah bibit/tanaman muda, mizu o yaru berarti menyiram."],
+        ["選別", "出荷前の選別で正しいものはどれですか。", "大きさ、傷、汚れを確認する", ["全部同じ箱に入れる", "傷を見ない", "泥をつけたまま出す"], "選別は品質と信用を守る作業です。", "Sortir berdasarkan ukuran, luka, dan kotoran sebelum pengiriman."],
+        ["温度管理", "ハウス内が暑すぎるときの対応で正しいものはどれですか。", "指示に従い換気や遮光を行う", ["何もしない", "作物に熱湯をかける", "温度計を隠す"], "施設栽培では温度管理が作物に影響します。", "Dalam greenhouse, suhu harus dikendalikan sesuai instruksi."],
+        ["安全", "農作業中に体調が悪くなったときの対応はどれですか。", "作業を止め、責任者へ伝える", ["我慢して続ける", "一人で遠くへ行く", "水分を取らず作業する"], "熱中症などを防ぐため、早めの報告が必要です。", "Jika merasa tidak sehat, berhenti dan laporkan."],
+        ["保管", "農薬を保管するときに正しいものはどれですか。", "決められた場所でラベルが見えるよう保管する", ["飲み物の近くに置く", "別の容器に無表示で入れる", "子どもが触れる場所に置く"], "農薬は誤飲や事故を防ぐため適切に保管します。", "Simpan pestisida di tempat khusus dengan label jelas."]
+      ],
+      hotel: [
+        ["フロント", "チェックイン時にお客様の予約内容を確認するとき、正しいものはどれですか。", "名前、宿泊日、人数、部屋タイプを確認する", ["部屋番号だけを伝える", "確認せず鍵を渡す", "ほかのお客様の情報を見せる"], "チェックインでは予約内容と本人確認を落ち着いて行います。", "Saat check-in, periksa nama, tanggal menginap, jumlah tamu, dan tipe kamar."],
+        ["フロント", "お客様がチェックアウトをしたいと言っています。最もよい対応はどれですか。", "料金と追加利用の有無を確認して精算する", ["確認せず帰ってもらう", "別のお客様の請求を渡す", "領収書を勝手に捨てる"], "チェックアウトでは料金、追加利用、領収書を確認します。", "Saat check-out, periksa biaya, penggunaan tambahan, dan tanda terima."],
+        ["案内", "お客様に朝食会場を聞かれました。正しい対応はどれですか。", "場所、時間、利用方法を分かりやすく案内する", ["知らないと言って終わる", "違う階を案内する", "大声で叱る"], "館内案内では場所、時間、使い方を簡潔に伝えます。", "Saat memberi informasi fasilitas, jelaskan tempat, waktu, dan cara penggunaan."],
+        ["客室", "客室に入る前の正しい対応はどれですか。", "ノックして名乗り、返事を待つ", ["無言で入る", "ドアを開けたまま作業する", "お客様の荷物を勝手に動かす"], "客室ではプライバシーへの配慮が必要です。", "Sebelum masuk kamar, ketuk, sebutkan diri, dan tunggu jawaban."],
+        ["苦情対応", "お客様から騒音の苦情を受けたとき、最もよい対応はどれですか。", "謝罪し、状況を確認して責任者へ報告する", ["気にしないでくださいと言う", "苦情を無視する", "お客様を責める"], "苦情対応では謝罪、確認、報告、対応が基本です。", "Dalam keluhan, minta maaf, cek situasi, laporkan, dan tindak lanjuti."],
+        ["レストラン", "料理を提供するときに確認することで正しいものはどれですか。", "注文内容とテーブル番号を確認する", ["隣のテーブルに出す", "料理名を確認しない", "こぼれてもそのまま出す"], "料理提供では注文内容、席、衛生を確認します。", "Saat menyajikan makanan, cek pesanan, meja, dan kebersihan."],
+        ["レストラン", "食物アレルギーの申し出があったとき、正しい対応はどれですか。", "内容を記録し、責任者や厨房に確認する", ["自分の判断で大丈夫と言う", "確認せず提供する", "笑って流す"], "アレルギー対応は自己判断せず関係者に確認します。", "Untuk alergi, catat dan konfirmasi dengan penanggung jawab atau dapur."],
+        ["安全衛生", "お客様がロビーで転倒したとき、正しい対応はどれですか。", "状態を確認し、責任者へ連絡する", ["すぐに立たせて歩かせる", "見なかったことにする", "写真だけ撮る"], "けがや急病時は状態確認と報告が必要です。", "Jika tamu jatuh, cek kondisi dan hubungi penanggung jawab."],
+        ["安全衛生", "非常口の前に荷物が置かれています。正しい対応はどれですか。", "荷物を移動し、非常口を使える状態にする", ["そのままにする", "見えないように隠す", "非常口を閉める"], "非常口や避難経路は常に使える状態にします。", "Pintu darurat dan jalur evakuasi harus selalu bisa digunakan."],
+        ["個人情報", "お客様の部屋番号を他人に聞かれたとき、正しい対応はどれですか。", "本人確認なしに教えない", ["すぐ教える", "大声で部屋番号を言う", "予約一覧を見せる"], "部屋番号や予約情報は個人情報として守ります。", "Nomor kamar dan informasi reservasi adalah data pribadi yang harus dilindungi."],
+        ["企画広報", "ホテルのイベント情報を案内するとき、正しいものはどれですか。", "日時、場所、料金、予約方法を確認して伝える", ["古い情報をそのまま伝える", "分からないまま説明する", "料金を勝手に変える"], "案内や広報では最新情報を正確に伝えます。", "Saat memberi info acara, sampaikan tanggal, tempat, biaya, dan cara reservasi dengan benar."],
+        ["会計", "料金についてお客様から質問されたとき、正しい対応はどれですか。", "明細を確認し、分かりやすく説明する", ["確認せず高いですと言う", "別のお客様の明細を見せる", "質問を無視する"], "会計では明細を確認し、正確に説明します。", "Untuk pertanyaan biaya, cek rincian dan jelaskan dengan jelas."]
+      ]
+    };
+
+    const constructionTracks = {
+      common: {
+        name: ["共通", "Umum"],
+        label: "建設 共通安全問題風"
+      },
+      civil: {
+        name: ["土木", "Sipil"],
+        label: "建設分野特定技能1号評価試験（土木）風"
+      },
+      building: {
+        name: ["建築", "Bangunan"],
+        label: "建設分野特定技能1号評価試験（建築）風"
+      },
+      lifeline: {
+        name: ["ライフライン・設備", "Lifeline & Peralatan"],
+        label: "建設分野特定技能1号評価試験（ライフライン・設備）風"
+      }
+    };
+
+    const constructionTrackBlueprintSets = {
+      civil: [
+        ["土木・掘削", "地面を掘る作業の前に確認することで最も大切なものはどれですか。", "埋設物、周囲の人、重機の動きを確認する", ["早く掘ることだけを考える", "図面を見ずに掘り始める", "合図者なしで重機に近づく"], "土木の掘削では、埋設物、重機、周囲の安全確認が重要です。", "Saat penggalian sipil, periksa benda tertanam, orang sekitar, dan gerakan alat berat.", "Sebelum menggali tanah, hal yang paling penting untuk diperiksa adalah yang mana?"],
+        ["土木・埋戻し", "掘った場所を埋め戻すとき、正しい作業はどれですか。", "決められた材料を入れ、層ごとに締め固める", ["大きな石だけを入れる", "水たまりをそのまま埋める", "締め固めをしない"], "埋戻しは材料と締固めを守り、沈下を防ぎます。", "Saat menimbun kembali, gunakan bahan yang ditentukan dan padatkan setiap lapisan.", "Saat menimbun kembali tempat yang digali, pekerjaan yang benar adalah yang mana?"],
+        ["土木・道路", "道路舗装の作業で温度管理が必要な材料はどれですか。", "アスファルト合材", ["木材", "紙袋", "飲み水"], "アスファルトは温度が下がると施工品質に影響します。", "Campuran aspal perlu pengelolaan suhu agar kualitas pekerjaan terjaga.", "Dalam pekerjaan perkerasan jalan, bahan yang perlu pengelolaan suhu adalah yang mana?"],
+        ["土木・排水", "側溝や排水管を設置するとき、確認することで正しいものはどれですか。", "水が流れる方向と勾配を確認する", ["見た目だけで置く", "出口をふさぐ", "勾配を逆にする"], "排水設備は水の流れと勾配が重要です。", "Saat memasang saluran, periksa arah aliran air dan kemiringan.", "Saat memasang parit atau pipa drainase, hal yang benar untuk diperiksa adalah yang mana?"],
+        ["土木・コンクリート", "コンクリートを打ち込むとき、正しいものはどれですか。", "型枠や鉄筋の位置を確認してから打ち込む", ["ゴミを入れたまま打ち込む", "鉄筋を勝手に動かす", "固まり始めてから長く放置する"], "打込み前には型枠、鉄筋、清掃状態を確認します。", "Sebelum pengecoran, periksa bekisting, posisi besi tulangan, dan kebersihan.", "Saat menuang beton, tindakan yang benar adalah yang mana?"],
+        ["土木・転圧", "土や砕石を締め固める目的として正しいものはどれですか。", "沈下や崩れを防ぎ、地盤を安定させる", ["作業を遅くするため", "色を変えるため", "水を増やすため"], "転圧は地盤の安定と品質確保のために行います。", "Pemadatan dilakukan untuk menstabilkan tanah dan mencegah penurunan.", "Tujuan memadatkan tanah atau batu pecah adalah yang mana?"],
+        ["土木・測量", "測量補助で杭や印を動かしてよいのはどんなときですか。", "責任者から指示があったとき", ["邪魔なら勝手に動かす", "休憩場所にしたいとき", "見えにくいので捨てる"], "測量の印は位置管理に必要なため、勝手に動かしません。", "Patok dan tanda ukur tidak boleh dipindahkan tanpa instruksi penanggung jawab.", "Dalam bantuan pengukuran, kapan patok atau tanda boleh dipindahkan?"],
+        ["土木・土留め", "深い掘削場所で土砂崩れを防ぐために必要なものはどれですか。", "土留めや法面の安全確認", ["穴の近くで休む", "重機を端に止める", "雨の日も確認しない"], "深い掘削では土留め、法面、端部の安全確認が必要です。", "Pada galian dalam, periksa penahan tanah, lereng, dan tepi galian.", "Pada tempat galian dalam, hal yang diperlukan untuk mencegah runtuhan tanah adalah yang mana?"],
+        ["土木・誘導", "ダンプトラックを誘導するとき、正しい行動はどれですか。", "運転者から見える位置で決められた合図をする", ["車両の真後ろに立つ", "携帯を見ながら合図する", "合図を途中で変える"], "誘導者は見える位置で統一された合図を使います。", "Pemandu harus berdiri di posisi terlihat dan memakai aba-aba yang ditentukan.", "Saat memandu dump truck, tindakan yang benar adalah yang mana?"],
+        ["土木・仮設通路", "現場の仮設通路で大切なことはどれですか。", "段差、ぬかるみ、資材をなくし安全に通れるようにする", ["狭くても資材を置く", "夜は照明を消す", "穴をそのままにする"], "通路は転倒や接触を防ぐため、常に安全に保ちます。", "Jalur sementara harus dijaga aman dari beda tinggi, lumpur, dan material.", "Hal penting pada jalur sementara di lokasi kerja adalah yang mana?"]
+      ],
+      building: [
+        ["建築・墨出し", "墨出しの線を確認するとき、正しいものはどれですか。", "図面と基準線を確認してから作業する", ["線が薄いので勝手に変える", "図面を見ずに作業する", "関係ない場所に印を付ける"], "墨出しは建物の位置や寸法の基準になるため、図面確認が必要です。", "Garis penandaan bangunan harus dicek dengan gambar dan garis acuan.", "Saat memeriksa garis penandaan, tindakan yang benar adalah yang mana?"],
+        ["建築・型枠", "型枠を組み立てる前に確認することで正しいものはどれですか。", "寸法、固定状態、清掃状態を確認する", ["汚れたまま使う", "固定せずにコンクリートを入れる", "寸法を測らない"], "型枠は寸法と固定が品質と安全に直結します。", "Sebelum merakit bekisting, periksa ukuran, pengikatan, dan kebersihan.", "Hal yang benar diperiksa sebelum merakit bekisting adalah yang mana?"],
+        ["建築・鉄筋", "鉄筋を組むとき、正しい行動はどれですか。", "図面の本数、間隔、かぶり厚さを確認する", ["本数を自由に減らす", "踏みつけて曲げる", "さびや汚れを確認しない"], "鉄筋は本数、間隔、かぶり厚さを守ります。", "Saat memasang tulangan, periksa jumlah, jarak, dan tebal selimut beton.", "Saat merakit tulangan, tindakan yang benar adalah yang mana?"],
+        ["建築・足場", "足場を使う前の確認で正しいものはどれですか。", "手すり、床材、昇降設備を確認する", ["手すりを外して作業する", "足場の上で走る", "最大積載を考えない"], "足場では墜落防止と足元の安定が重要です。", "Sebelum memakai perancah, periksa pagar, lantai kerja, dan akses naik turun.", "Pemeriksaan yang benar sebelum memakai perancah adalah yang mana?"],
+        ["建築・内装", "石膏ボードを運ぶとき、正しいものはどれですか。", "割れやすいので二人で持ち、周囲を確認する", ["角を人に向けて走る", "濡れた場所に置く", "通路をふさいで置く"], "内装材は破損と接触事故に注意して扱います。", "Bawa papan gipsum dengan hati-hati, idealnya berdua, dan cek sekitar.", "Saat membawa papan gipsum, tindakan yang benar adalah yang mana?"],
+        ["建築・開口部", "床や壁に開口部があるとき、正しい安全対策はどれですか。", "ふたや手すりを設け、立入禁止を表示する", ["小さい穴なら放置する", "近くに資材を積む", "表示を外す"], "開口部は墜落や転落の危険があるため養生します。", "Lubang lantai atau dinding harus diberi penutup/pagar dan tanda larangan masuk.", "Jika ada bukaan pada lantai atau dinding, tindakan keselamatan yang benar adalah yang mana?"],
+        ["建築・建具", "ドアやサッシを取り付けるとき、確認することで正しいものはどれですか。", "向き、水平、固定状態を確認する", ["重いので一人で無理に持つ", "仮固定のまま使わせる", "指を挟む位置に手を置く"], "建具は向き、水平、固定、安全な持ち方を確認します。", "Saat memasang pintu atau sash, periksa arah, level, dan pengikatan.", "Saat memasang pintu atau sash, hal yang benar untuk diperiksa adalah yang mana?"],
+        ["建築・防水", "防水作業の前に確認することで正しいものはどれですか。", "下地の乾燥、汚れ、天候を確認する", ["雨でもそのまま塗る", "ほこりを残す", "材料の説明を読まない"], "防水は下地状態と天候が品質に影響します。", "Sebelum pekerjaan waterproofing, periksa kekeringan dasar, kotoran, dan cuaca.", "Hal yang benar diperiksa sebelum pekerjaan waterproofing adalah yang mana?"],
+        ["建築・資材搬入", "建築現場で資材を搬入するとき、正しいものはどれですか。", "搬入経路と置き場所を確認し、通路をふさがない", ["避難経路に置く", "高く不安定に積む", "合図なしでクレーン作業をする"], "資材搬入は経路、置き場、荷崩れ防止を確認します。", "Saat membawa material, cek jalur dan tempat penyimpanan agar tidak menghalangi jalan.", "Saat membawa material ke lokasi bangunan, tindakan yang benar adalah yang mana?"],
+        ["建築・仕上げ", "仕上げ材を取り付けた後に確認することで正しいものはどれですか。", "傷、浮き、固定状態を確認する", ["確認せず次の作業へ進む", "傷を隠して報告しない", "余った材料を通路に置く"], "仕上げ後は品質確認と片付けが必要です。", "Setelah memasang material finishing, periksa goresan, bagian terangkat, dan pengikatan.", "Hal yang benar diperiksa setelah memasang material finishing adalah yang mana?"]
+      ],
+      lifeline: [
+        ["設備・配管", "配管を取り付ける前に確認することで正しいものはどれですか。", "管の種類、口径、流れる方向を確認する", ["似ていれば何でも使う", "向きを確認しない", "傷があってもそのまま使う"], "配管は種類、口径、方向、傷の確認が必要です。", "Sebelum memasang pipa, periksa jenis, diameter, arah aliran, dan kerusakan.", "Hal yang benar diperiksa sebelum memasang pipa adalah yang mana?"],
+        ["設備・水道", "水道管の接続後に行う確認として正しいものはどれですか。", "漏水がないか確認する", ["すぐに埋めて確認しない", "水を流さない", "接続部を隠す"], "水道管は接続後に漏水確認を行います。", "Setelah menyambung pipa air, periksa apakah ada kebocoran.", "Pemeriksaan yang benar setelah menyambung pipa air adalah yang mana?"],
+        ["設備・電気", "電気設備の作業前に最も大切な確認はどれですか。", "電源が切れていることを確認する", ["濡れた手で触る", "通電したまま作業する", "工具を床に散らばらせる"], "電気作業では感電防止のため電源確認が最重要です。", "Sebelum pekerjaan listrik, pastikan sumber listrik sudah dimatikan.", "Pemeriksaan paling penting sebelum pekerjaan listrik adalah yang mana?"],
+        ["設備・通信", "通信ケーブルを扱うとき、正しいものはどれですか。", "折り曲げすぎず、表示や接続先を確認する", ["強く引っ張る", "表示を外す", "水たまりに置く"], "通信ケーブルは損傷、表示、接続先の確認が必要です。", "Saat menangani kabel komunikasi, jangan tekuk berlebihan dan periksa label serta tujuan sambungan.", "Saat menangani kabel komunikasi, tindakan yang benar adalah yang mana?"],
+        ["設備・ガス", "ガス配管の近くで作業するとき、正しい行動はどれですか。", "火気を避け、異臭があればすぐ報告する", ["火花を近づける", "においを無視する", "勝手にバルブを開ける"], "ガスは漏れや火気に注意し、異常時は報告します。", "Di dekat pipa gas, hindari api dan laporkan segera jika ada bau tidak normal.", "Saat bekerja dekat pipa gas, tindakan yang benar adalah yang mana?"],
+        ["設備・保温保冷", "配管に保温材を取り付ける目的として正しいものはどれですか。", "熱の損失や結露を防ぐ", ["色を変えるため", "重くするため", "表示を隠すため"], "保温保冷は熱損失、結露、凍結を防ぐために行います。", "Insulasi pipa mencegah kehilangan panas, kondensasi, dan pembekuan.", "Tujuan memasang bahan insulasi pada pipa adalah yang mana?"],
+        ["設備・板金", "建築板金で金属板を扱うとき、正しいものはどれですか。", "切り口で手を切らないよう手袋を使う", ["素手で強く押す", "端を人に向けて振る", "落下防止を考えない"], "金属板は切り口と落下に注意して扱います。", "Saat menangani lembaran logam, gunakan sarung tangan dan cegah jatuh.", "Saat menangani lembaran logam dalam pekerjaan sheet metal, tindakan yang benar adalah yang mana?"],
+        ["設備・機器据付", "設備機器を設置するとき、確認することで正しいものはどれですか。", "水平、固定、周囲の作業スペースを確認する", ["仮置きのまま運転する", "一人で無理に持ち上げる", "説明書を見ない"], "機器据付では固定、水平、安全な作業スペースを確認します。", "Saat memasang peralatan, periksa level, pengikatan, dan ruang kerja.", "Saat memasang peralatan fasilitas, hal yang benar untuk diperiksa adalah yang mana?"],
+        ["設備・試運転", "設備の試運転前に行うことで正しいものはどれですか。", "接続、固定、安全カバーを確認する", ["人が近くにいても知らせない", "異音がしても続ける", "記録を残さない"], "試運転前は接続、固定、安全装置、周囲を確認します。", "Sebelum uji operasi, periksa sambungan, pengikatan, penutup keselamatan, dan sekitar.", "Hal yang benar dilakukan sebelum uji operasi peralatan adalah yang mana?"],
+        ["設備・埋設管", "地中の配管やケーブル付近を掘るとき、正しいものはどれですか。", "図面と位置を確認し、必要に応じて手掘りにする", ["重機で一気に掘る", "埋設表示を無視する", "場所を確認しない"], "埋設管やケーブルの近くでは破損防止の確認が必要です。", "Saat menggali dekat pipa atau kabel bawah tanah, periksa gambar dan posisi, lalu gali manual jika perlu.", "Saat menggali dekat pipa atau kabel bawah tanah, tindakan yang benar adalah yang mana?"]
+      ]
+    };
+
+    const scenePrefixes = [
+      "本番対策",
+      "作業前確認",
+      "現場判断",
+      "安全確認",
+      "復習問題",
+      "直前チェック",
+      "語彙確認",
+      "場面問題",
+      "実技判断",
+      "重要問題"
+    ];
+
+    const questionTranslations = {
+      "利用者が自分で服を着たいと言っています。介護職の対応で最もよいものはどれですか。": "Pengguna mengatakan ingin memakai pakaian sendiri. Tindakan petugas perawatan yang paling tepat adalah yang mana?",
+      "「移乗」の意味として正しいものはどれですか。": "Apa arti yang benar dari kata ijou atau pindah posisi?",
+      "車いすを押す前に確認することで最も大切なものはどれですか。": "Hal paling penting untuk diperiksa sebelum mendorong kursi roda adalah yang mana?",
+      "利用者の体を動かす前の声かけでよいものはどれですか。": "Ucapan yang tepat sebelum menggerakkan tubuh pengguna adalah yang mana?",
+      "介護記録に書く内容として適切なものはどれですか。": "Isi yang tepat untuk ditulis dalam catatan perawatan adalah yang mana?",
+      "高い場所で作業するとき、最も重要なものはどれですか。": "Saat bekerja di tempat tinggi, hal yang paling penting adalah yang mana?",
+      "工具を使う前に行うことで正しいものはどれですか。": "Hal yang benar dilakukan sebelum memakai alat adalah yang mana?",
+      "重機の近くで作業するとき、正しい行動はどれですか。": "Saat bekerja di dekat alat berat, tindakan yang benar adalah yang mana?",
+      "建設現場で安全な服装はどれですか。": "Pakaian yang aman di lokasi konstruksi adalah yang mana?",
+      "床に資材が散らばっています。まず行うこととして正しいものはどれですか。": "Material berserakan di lantai. Hal pertama yang benar dilakukan adalah yang mana?",
+      "ガラス面の水を上から下へきれいに取る道具はどれですか。": "Alat untuk menarik air pada permukaan kaca dari atas ke bawah adalah yang mana?",
+      "床がぬれているとき、利用者の安全のために置くものはどれですか。": "Saat lantai basah, benda yang dipasang untuk keselamatan pengguna adalah yang mana?",
+      "洗剤を使うときに正しいものはどれですか。": "Hal yang benar saat menggunakan deterjen adalah yang mana?",
+      "清掃作業の最後に行うことで正しいものはどれですか。": "Hal yang benar dilakukan pada akhir pekerjaan pembersihan adalah yang mana?",
+      "洋式大便器を清掃するとき、衛生上よい行動はどれですか。": "Saat membersihkan toilet duduk, tindakan yang baik secara higienis adalah yang mana?",
+      "食品工場で作業を始める前に最も正しい行動はどれですか。": "Sebelum mulai bekerja di pabrik makanan, tindakan yang paling benar adalah yang mana?",
+      "製品に髪の毛が入ることを防ぐ対策として正しいものはどれですか。": "Tindakan yang benar untuk mencegah rambut masuk ke produk adalah yang mana?",
+      "HACCPで特に重要な考え方はどれですか。": "Konsep yang sangat penting dalam HACCP adalah yang mana?",
+      "5Sに含まれないものはどれですか。": "Yang tidak termasuk dalam 5S adalah yang mana?",
+      "機械の調子が悪いとき、正しい行動はどれですか。": "Saat kondisi mesin tidak baik, tindakan yang benar adalah yang mana?",
+      "農薬を使うときに正しい行動はどれですか。": "Tindakan yang benar saat menggunakan pestisida adalah yang mana?",
+      "収穫した野菜の扱いで正しいものはどれですか。": "Cara menangani sayuran yang sudah dipanen dengan benar adalah yang mana?",
+      "農業機械を点検するとき、安全のために正しいものはどれですか。": "Saat memeriksa mesin pertanian, hal yang benar untuk keselamatan adalah yang mana?",
+      "家畜の様子がいつもと違うとき、正しい行動はどれですか。": "Saat kondisi ternak berbeda dari biasanya, tindakan yang benar adalah yang mana?",
+      "「午前中にハウスの換気をしてください」の意味として正しいものはどれですか。": "Arti yang benar dari 'Tolong ventilasi house pada pagi hari' adalah yang mana?",
+      "利用者の部屋に入る前の対応で最もよいものはどれですか。": "Tindakan terbaik sebelum masuk ke kamar pengguna adalah yang mana?",
+      "食事で利用者が自分で食べられるとき、最もよい介助はどれですか。": "Saat pengguna bisa makan sendiri, bantuan yang paling tepat adalah yang mana?",
+      "排泄介助の後に行うことで正しいものはどれですか。": "Hal yang benar dilakukan setelah membantu toileting adalah yang mana?",
+      "利用者の顔色が悪く、いつもより元気がありません。最もよい対応はどれですか。": "Wajah pengguna terlihat pucat dan kurang sehat dari biasanya. Tindakan terbaik adalah yang mana?",
+      "歩行介助で転倒を防ぐために大切なことはどれですか。": "Hal penting untuk mencegah jatuh saat membantu berjalan adalah yang mana?",
+      "むせやすい利用者への食事介助で正しいものはどれですか。": "Bantuan makan yang benar untuk pengguna yang mudah tersedak adalah yang mana?",
+      "入浴前に確認することで大切なものはどれですか。": "Hal penting yang diperiksa sebelum mandi adalah yang mana?",
+      "介護記録で正しい書き方はどれですか。": "Cara menulis catatan perawatan yang benar adalah yang mana?",
+      "同じ質問を何度もする利用者への対応でよいものはどれですか。": "Respons yang baik kepada pengguna yang menanyakan hal yang sama berulang kali adalah yang mana?",
+      "利用者が転倒した直後の対応で正しいものはどれですか。": "Tindakan yang benar segera setelah pengguna jatuh adalah yang mana?",
+      "薬の介助で正しいものはどれですか。": "Hal yang benar dalam bantuan minum obat adalah yang mana?",
+      "聞き取りにくい利用者と話すときによい方法はどれですか。": "Cara yang baik saat berbicara dengan pengguna yang sulit mendengar adalah yang mana?",
+      "現場に入るときの基本的な保護具として正しいものはどれですか。": "Alat pelindung dasar yang benar saat masuk ke lokasi kerja adalah yang mana?",
+      "足場で作業するときに正しい行動はどれですか。": "Tindakan yang benar saat bekerja di scaffolding adalah yang mana?",
+      "通路に材料が置かれている場合の対応で正しいものはどれですか。": "Tindakan yang benar jika ada material di jalur lewat adalah yang mana?",
+      "重機の旋回範囲に入る前に必要なことはどれですか。": "Hal yang perlu dilakukan sebelum masuk ke area putar alat berat adalah yang mana?",
+      "電動工具を使う前に正しい確認はどれですか。": "Pemeriksaan yang benar sebelum memakai alat listrik adalah yang mana?",
+      "吊り荷の下でしてはいけないことはどれですか。": "Hal yang tidak boleh dilakukan di bawah beban gantung adalah yang mana?",
+      "溶接作業の近くで確認すべきことはどれですか。": "Hal yang harus diperiksa di dekat pekerjaan las adalah yang mana?",
+      "立入禁止の表示がある場所で正しい行動はどれですか。": "Tindakan yang benar di tempat dengan tanda dilarang masuk adalah yang mana?",
+      "現場で危険な状態を見つけたときの対応はどれですか。": "Tindakan saat menemukan kondisi berbahaya di lokasi kerja adalah yang mana?",
+      "重い物を運ぶときに正しいものはどれですか。": "Hal yang benar saat membawa barang berat adalah yang mana?",
+      "仮設電源を使うときに避けるべきことはどれですか。": "Hal yang harus dihindari saat memakai listrik sementara adalah yang mana?",
+      "初めての作業をするとき、最初に行うことはどれですか。": "Saat melakukan pekerjaan baru pertama kali, hal pertama yang dilakukan adalah yang mana?",
+      "床を水拭きした後に必要な安全対策はどれですか。": "Tindakan keselamatan yang diperlukan setelah mengepel lantai dengan air adalah yang mana?",
+      "使用後のモップの扱いで正しいものはどれですか。": "Cara menangani mop setelah digunakan yang benar adalah yang mana?",
+      "酸性洗剤と塩素系洗剤について正しいものはどれですか。": "Hal yang benar tentang deterjen asam dan deterjen klorin adalah yang mana?",
+      "ガラス清掃でスクイジーを使う目的はどれですか。": "Tujuan memakai squeegee saat membersihkan kaca adalah yang mana?",
+      "トイレ清掃で交差汚染を防ぐ方法はどれですか。": "Cara mencegah kontaminasi silang saat membersihkan toilet adalah yang mana?",
+      "ごみ袋を交換するときに正しいものはどれですか。": "Hal yang benar saat mengganti kantong sampah adalah yang mana?",
+      "清掃前に確認することで正しいものはどれですか。": "Hal yang benar diperiksa sebelum membersihkan adalah yang mana?",
+      "血液のような汚れを見つけたときの対応はどれですか。": "Tindakan saat menemukan noda seperti darah adalah yang mana?",
+      "ほうきとちりとりの使い方で正しいものはどれですか。": "Cara memakai sapu dan pengki yang benar adalah yang mana?",
+      "清掃後の確認で正しいものはどれですか。": "Hal yang benar diperiksa setelah pembersihan adalah yang mana?",
+      "利用者が近くを通るときの対応で正しいものはどれですか。": "Tindakan yang benar saat pengguna lewat di dekat area kerja adalah yang mana?",
+      "洗剤を薄めるときに正しいものはどれですか。": "Hal yang benar saat mengencerkan deterjen adalah yang mana?",
+      "食品を扱う前の手洗いで正しいものはどれですか。": "Cara mencuci tangan yang benar sebelum menangani makanan adalah yang mana?",
+      "作業場に入る前の服装確認で正しいものはどれですか。": "Pemeriksaan pakaian yang benar sebelum masuk area kerja adalah yang mana?",
+      "冷蔵品の管理で正しいものはどれですか。": "Pengelolaan produk dingin yang benar adalah yang mana?",
+      "アレルゲンの混入を防ぐ対応で正しいものはどれですか。": "Tindakan yang benar untuk mencegah tercampurnya alergen adalah yang mana?",
+      "金属片の混入を防ぐために正しいものはどれですか。": "Hal yang benar untuk mencegah masuknya serpihan logam adalah yang mana?",
+      "重要管理点で行うべきことはどれですか。": "Hal yang harus dilakukan pada titik kendali penting adalah yang mana?",
+      "整理の意味として正しいものはどれですか。": "Arti seiri yang benar adalah yang mana?",
+      "生肉を扱った器具について正しい対応はどれですか。": "Penanganan yang benar untuk alat yang digunakan pada daging mentah adalah yang mana?",
+      "製品に異物らしいものを見つけたときの対応はどれですか。": "Tindakan saat menemukan benda yang tampak seperti benda asing pada produk adalah yang mana?",
+      "機械の清掃をするときに正しいものはどれですか。": "Hal yang benar saat membersihkan mesin adalah yang mana?",
+      "原材料を使う前に確認することはどれですか。": "Hal yang diperiksa sebelum memakai bahan baku adalah yang mana?",
+      "作業後の清掃で正しいものはどれですか。": "Hal yang benar dalam pembersihan setelah pekerjaan adalah yang mana?",
+      "農薬散布前に確認することで正しいものはどれですか。": "Hal yang benar diperiksa sebelum menyemprot pestisida adalah yang mana?",
+      "刈払機を使う前の確認で正しいものはどれですか。": "Pemeriksaan yang benar sebelum memakai mesin pemotong rumput adalah yang mana?",
+      "収穫物の品質を守る方法として正しいものはどれですか。": "Cara yang benar untuk menjaga kualitas hasil panen adalah yang mana?",
+      "肥料を使うときに正しいものはどれですか。": "Hal yang benar saat menggunakan pupuk adalah yang mana?",
+      "強風の日の農薬散布で正しい判断はどれですか。": "Keputusan yang benar saat menyemprot pestisida pada hari berangin kencang adalah yang mana?",
+      "家畜のえさやりで大切なことはどれですか。": "Hal penting saat memberi makan ternak adalah yang mana?",
+      "畜舎の衛生管理で正しいものはどれですか。": "Pengelolaan kebersihan kandang yang benar adalah yang mana?",
+      "「午後に苗に水をやってください」の意味はどれですか。": "Arti dari 'Tolong sirami bibit pada sore hari' adalah yang mana?",
+      "出荷前の選別で正しいものはどれですか。": "Hal yang benar dalam sortir sebelum pengiriman adalah yang mana?",
+      "ハウス内が暑すぎるときの対応で正しいものはどれですか。": "Tindakan yang benar saat suhu di dalam greenhouse terlalu panas adalah yang mana?",
+      "農作業中に体調が悪くなったときの対応はどれですか。": "Tindakan saat merasa tidak sehat saat bekerja di pertanian adalah yang mana?",
+      "農薬を保管するときに正しいものはどれですか。": "Cara menyimpan pestisida yang benar adalah yang mana?",
+      "予約したお客様の名前が見つからないとき、最もよい対応はどれですか。": "Saat nama tamu yang reservasi tidak ditemukan, tindakan terbaik adalah yang mana?",
+      "お客様から部屋が寒いと言われました。最もよい対応はどれですか。": "Saat tamu mengatakan kamarnya dingin, tindakan terbaik adalah yang mana?",
+      "客室清掃中に忘れ物を見つけたとき、正しい対応はどれですか。": "Saat menemukan barang tertinggal ketika membersihkan kamar tamu, tindakan yang benar adalah yang mana?",
+      "お客様が食物アレルギーについて質問しました。最もよい対応はどれですか。": "Saat tamu bertanya tentang alergi makanan, tindakan terbaik adalah yang mana?",
+      "館内で火災警報が鳴ったとき、正しい行動はどれですか。": "Saat alarm kebakaran berbunyi di dalam gedung, tindakan yang benar adalah yang mana?",
+      "チェックイン時にお客様の予約内容を確認するとき、正しいものはどれですか。": "Saat memeriksa isi reservasi tamu ketika check-in, hal yang benar adalah yang mana?",
+      "お客様がチェックアウトをしたいと言っています。最もよい対応はどれですか。": "Saat tamu mengatakan ingin check-out, tindakan terbaik adalah yang mana?",
+      "お客様に朝食会場を聞かれました。正しい対応はどれですか。": "Saat tamu menanyakan tempat sarapan, tindakan yang benar adalah yang mana?",
+      "客室に入る前の正しい対応はどれですか。": "Tindakan yang benar sebelum masuk ke kamar tamu adalah yang mana?",
+      "お客様から騒音の苦情を受けたとき、最もよい対応はどれですか。": "Saat menerima keluhan kebisingan dari tamu, tindakan terbaik adalah yang mana?",
+      "料理を提供するときに確認することで正しいものはどれですか。": "Hal yang benar untuk diperiksa saat menyajikan makanan adalah yang mana?",
+      "食物アレルギーの申し出があったとき、正しい対応はどれですか。": "Saat ada pemberitahuan alergi makanan, tindakan yang benar adalah yang mana?",
+      "お客様がロビーで転倒したとき、正しい対応はどれですか。": "Saat tamu jatuh di lobi, tindakan yang benar adalah yang mana?",
+      "非常口の前に荷物が置かれています。正しい対応はどれですか。": "Ada barang di depan pintu darurat. Tindakan yang benar adalah yang mana?",
+      "お客様の部屋番号を他人に聞かれたとき、正しい対応はどれですか。": "Saat orang lain menanyakan nomor kamar tamu, tindakan yang benar adalah yang mana?",
+      "ホテルのイベント情報を案内するとき、正しいものはどれですか。": "Saat menjelaskan informasi acara hotel, hal yang benar adalah yang mana?",
+      "料金についてお客様から質問されたとき、正しい対応はどれですか。": "Saat tamu bertanya tentang biaya, tindakan yang benar adalah yang mana?"
+    };
+
+    function baseQuestionText(text) {
+      return text.replace(/^【[^】]+】/, "");
+    }
+
+    function questionIndonesian(question) {
+      return question.qid || questionTranslations[baseQuestionText(question.q)] || "Terjemahan bahasa Indonesia untuk soal ini belum disiapkan.";
+    }
+
+    const choiceTranslations = {
+      care: {
+        "からかう": "Mengejek.",
+        "すぐに無理やり立たせる": "Langsung memaksa berdiri.",
+        "そのまま放置する": "Membiarkannya begitu saja.",
+        "だまってすぐ動かす": "Menggerakkan tanpa bicara.",
+        "できないと決めつける": "Langsung menganggap tidak bisa.",
+        "できるところは本人にしてもらい、難しいところを手伝う": "Biarkan bagian yang bisa dilakukan sendiri, bantu bagian yang sulit.",
+        "むせても続ける": "Tetap melanjutkan walaupun tersedak.",
+        "テレビのチャンネル": "Saluran TV.",
+        "ドアを開けたまま着替えを手伝う": "Membantu ganti pakaian dengan pintu terbuka.",
+        "ノックして声をかけ、返事を待つ": "Mengetuk, memanggil, lalu menunggu jawaban.",
+        "ブレーキと足の位置": "Rem dan posisi kaki.",
+        "ベッドから車いすなどへ移ること": "Berpindah dari tempat tidur ke kursi roda dan sejenisnya.",
+        "一人で判断して帰る": "Memutuskan sendiri lalu pergi.",
+        "一度に大量に口へ入れる": "Memasukkan banyak makanan sekaligus ke mulut.",
+        "事実を具体的に書く": "Menulis fakta secara konkret.",
+        "今から右に向きを変えますね": "Sekarang saya akan mengubah posisi Anda ke kanan.",
+        "他の利用者の前で大きな声で話す": "Berbicara keras di depan pengguna lain.",
+        "体温を測ること": "Mengukur suhu tubuh.",
+        "体調と浴室の安全を確認する": "Memeriksa kondisi tubuh dan keamanan kamar mandi.",
+        "体調不良でも無理に入浴する": "Memaksa mandi walaupun kondisi tubuh buruk.",
+        "何も報告しない": "Tidak melapor apa pun.",
+        "何も書かない": "Tidak menulis apa pun.",
+        "余った薬を別の人に渡す": "Memberikan obat sisa kepada orang lain.",
+        "全部食べさせる": "Menyuapi semuanya.",
+        "利用者のペースに合わせ、足元と周囲を確認する": "Mengikuti tempo pengguna serta memeriksa kaki dan sekitar.",
+        "利用者の好きな食べ物": "Makanan kesukaan pengguna.",
+        "利用者の悪口を書く": "Menulis hal buruk tentang pengguna.",
+        "動かす前に状態を確認し、職員を呼ぶ": "Memeriksa kondisi sebelum menggerakkan dan memanggil staf.",
+        "勝手に薬を飲ませる": "Memberi obat tanpa izin/prosedur.",
+        "勝手に量を増やす": "Menambah dosis/jumlah sendiri.",
+        "危ないので着替えをやめてもらう": "Meminta berhenti ganti pakaian karena berbahaya.",
+        "名前を確認しない": "Tidak memeriksa nama.",
+        "周囲に内容を大声で知らせる": "Memberitahukan isi pembicaraan keras-keras kepada sekitar.",
+        "大声で責める": "Menyalahkan dengan suara keras.",
+        "姿勢を整え、ゆっくり食べてもらう": "Mengatur posisi tubuh dan meminta makan pelan-pelan.",
+        "家族にだけ手伝ってもらう": "Hanya meminta keluarga membantu.",
+        "寝たまま早く食べさせる": "Menyuapi cepat saat masih berbaring.",
+        "床が濡れていても走らせる": "Membiarkan berlari walaupun lantai basah.",
+        "後ろから押す": "Mendorong dari belakang.",
+        "怒って無視する": "Marah lalu mengabaikan.",
+        "急いで無言で入る": "Masuk terburu-buru tanpa bicara.",
+        "急がせる": "Memburu-buru.",
+        "悪口を書く": "Menulis hinaan/hal buruk.",
+        "想像で書く": "Menulis berdasarkan dugaan.",
+        "手洗いを省略する": "Melewati cuci tangan.",
+        "手袋をしたまま食事介助をする": "Membantu makan dengan sarung tangan yang sama.",
+        "手袋を外し、手洗い・消毒を行う": "Melepas sarung tangan, mencuci tangan, dan disinfeksi.",
+        "早くしてください": "Tolong cepat.",
+        "時間がかかるので全部手伝う": "Membantu semuanya karena memakan waktu.",
+        "時間がかかるので食事を片付ける": "Membereskan makanan karena memakan waktu.",
+        "服の色": "Warna pakaian.",
+        "本人を強く叱る": "Memarahi pengguna dengan keras.",
+        "様子を観察し、責任者へ報告する": "Mengamati kondisi dan melapor kepada penanggung jawab.",
+        "正面からゆっくり、はっきり話す": "Berbicara dari depan dengan pelan dan jelas.",
+        "汚れた物を利用者の近くに置く": "Menaruh barang kotor di dekat pengguna.",
+        "決められた薬と時間を確認する": "Memeriksa obat dan waktu yang ditentukan.",
+        "温度を確認しない": "Tidak memeriksa suhu.",
+        "空欄のままにする": "Membiarkan kosong.",
+        "聞こえないと決めつける": "Langsung menganggap tidak mendengar.",
+        "背中を向けて早口で話す": "Berbicara cepat sambil membelakangi.",
+        "自分でしてください": "Silakan lakukan sendiri.",
+        "自分の気分だけを書く": "Hanya menulis perasaan diri sendiri.",
+        "荷物を持たせて走らせる": "Meminta membawa barang dan berlari.",
+        "落ち着いて短くわかりやすく答える": "Menjawab dengan tenang, singkat, dan mudah dipahami.",
+        "薬を飲むこと": "Minum obat.",
+        "見た事実を具体的に書く": "Menulis fakta yang dilihat secara konkret.",
+        "見守りながら必要な部分だけ手伝う": "Mengawasi dan membantu hanya bagian yang diperlukan.",
+        "食事をすること": "Makan."
+      },
+      agriculture: {
+        "すぐに責任者へ報告する": "Segera melapor kepada penanggung jawab.",
+        "ふん尿を処理し、清潔を保つ": "Mengolah kotoran/urin dan menjaga kebersihan.",
+        "エンジンを止めてから確認する": "Memeriksa setelah mematikan mesin.",
+        "ラベル、天候、防護具を確認する": "Memeriksa label, cuaca, dan alat pelindung.",
+        "ラベルを読み、決められた量を守る": "Membaca label dan mengikuti jumlah yang ditentukan.",
+        "一人で遠くへ行く": "Pergi jauh sendirian.",
+        "人の近くで振り回す": "Mengayunkan alat di dekat orang.",
+        "何もしない": "Tidak melakukan apa pun.",
+        "何も見なかったことにする": "Berpura-pura tidak melihat apa pun.",
+        "作業を止め、責任者へ伝える": "Menghentikan pekerjaan dan memberi tahu penanggung jawab.",
+        "作物に熱湯をかける": "Menyiram tanaman dengan air panas.",
+        "保護具なしで使う": "Memakai tanpa alat pelindung.",
+        "傷をつけないよう丁寧に扱う": "Menangani dengan hati-hati agar tidak rusak.",
+        "傷を見ない": "Tidak memeriksa luka/kerusakan.",
+        "全部同じ箱に入れる": "Memasukkan semuanya ke kotak yang sama.",
+        "刃、燃料、周囲の人を確認する": "Memeriksa mata pisau, bahan bakar, dan orang di sekitar.",
+        "別の容器に無表示で入れる": "Memasukkan ke wadah lain tanpa label.",
+        "動いている刃に手を近づける": "Mendekatkan tangan ke mata pisau yang bergerak.",
+        "勝手に薬を飲ませる": "Memberi obat tanpa izin/prosedur.",
+        "午前中に温室の空気を入れ替える": "Mengganti udara rumah kaca pada pagi hari.",
+        "午後に収穫する": "Memanen pada sore hari.",
+        "午後に若い植物へ水を与える": "Menyiram tanaman muda pada sore hari.",
+        "古いえさを確認せず与える": "Memberi pakan lama tanpa diperiksa.",
+        "土や傷みを確認して丁寧に扱う": "Memeriksa tanah/kotoran dan kerusakan, lalu menangani dengan hati-hati.",
+        "多いほどよいと考える": "Berpikir semakin banyak semakin baik.",
+        "多いほどよいので増やす": "Menambah karena dianggap semakin banyak semakin baik.",
+        "夜にえさをやる": "Memberi pakan pada malam hari.",
+        "夜に機械を洗う": "Mencuci mesin pada malam hari.",
+        "大きさ、傷、汚れを確認する": "Memeriksa ukuran, kerusakan, dan kotoran.",
+        "大きな音で追いかける": "Mengejar dengan suara keras.",
+        "子どもが触れる場所に置く": "Menaruh di tempat yang bisa disentuh anak-anak.",
+        "家畜にえさをやる": "Memberi pakan ternak.",
+        "我慢して続ける": "Menahan diri dan terus bekerja.",
+        "投げて箱に入れる": "Melempar ke dalam kotak.",
+        "投げる": "Melempar.",
+        "指示に従い換気や遮光を行う": "Melakukan ventilasi atau peneduhan sesuai instruksi.",
+        "暑い場所に長時間置く": "Menaruh lama di tempat panas.",
+        "朝に収穫する": "Memanen pada pagi hari.",
+        "水を与えない": "Tidak memberi air.",
+        "水分を取らず作業する": "Bekerja tanpa minum/cairan.",
+        "水路に捨てる": "Membuang ke saluran air.",
+        "水飲み場を確認しない": "Tidak memeriksa tempat minum.",
+        "汚れても確認しない": "Tidak memeriksa walaupun kotor.",
+        "汚れを放置する": "Membiarkan kotoran.",
+        "決められた場所でラベルが見えるよう保管する": "Menyimpan di tempat yang ditentukan dengan label terlihat.",
+        "泥をつけたまま出す": "Mengirim dalam keadaan masih berlumpur.",
+        "泥を確認しない": "Tidak memeriksa lumpur.",
+        "温度計を隠す": "Menyembunyikan termometer.",
+        "異常を無視する": "Mengabaikan kelainan.",
+        "異音がしても続ける": "Tetap memakai walaupun ada suara tidak normal.",
+        "病気の家畜を混ぜる": "Mencampur ternak sakit dengan yang lain.",
+        "直射日光に長く置く": "Menaruh lama di bawah sinar matahari langsung.",
+        "種類と量を確認して使う": "Memeriksa jenis dan jumlah sebelum memakai.",
+        "素手で扱う": "Menangani dengan tangan kosong.",
+        "素手で混ぜる": "Mencampur dengan tangan kosong.",
+        "説明を聞かずに使う": "Memakai tanpa mendengar penjelasan.",
+        "説明を読まない": "Tidak membaca penjelasan.",
+        "農薬を買いに行く": "Pergi membeli pestisida.",
+        "量、時間、家畜の様子を確認する": "Memeriksa jumlah, waktu, dan kondisi ternak.",
+        "量を増やしてまく": "Menambah jumlah lalu menyemprot/menabur.",
+        "量を自由に増やす": "Menambah jumlah sesuka hati.",
+        "防護具を外す": "Melepas alat pelindung.",
+        "風が強い日に周りを見ずにまく": "Menyemprot saat angin kuat tanpa melihat sekitar.",
+        "風上に人がいても散布する": "Tetap menyemprot walaupun ada orang di arah angin.",
+        "風向きを見ない": "Tidak melihat arah angin.",
+        "飛散の危険があるため避ける": "Menghindari karena ada bahaya penyebaran.",
+        "飲み物の近くに置く": "Menaruh di dekat minuman."
+      },
+      construction: {
+        "そのままにする": "Membiarkannya begitu saja.",
+        "そのまま走る": "Berlari begitu saja.",
+        "コードの損傷を確認する": "Memeriksa kerusakan kabel.",
+        "コードや刃の状態を確認する": "Memeriksa kondisi kabel dan mata pisau.",
+        "サンダル": "Sandal.",
+        "サンダルで入る": "Masuk memakai sandal.",
+        "ヘルメットと安全靴を着用する": "Memakai helm dan sepatu keselamatan.",
+        "ヘルメットなし": "Tanpa helm.",
+        "ヘルメットを手に持つだけにする": "Hanya memegang helm di tangan.",
+        "ヘルメットを脱ぐ": "Melepas helm.",
+        "一人で合図なしに作業する": "Bekerja sendiri tanpa aba-aba.",
+        "上を飛び越える": "Melompati dari atas.",
+        "人に向けて振る": "Mengayunkan ke arah orang.",
+        "人に向ける": "Mengarahkan ke orang.",
+        "作業を止め、責任者へ報告する": "Menghentikan pekerjaan dan melapor kepada penanggung jawab.",
+        "保護具なしで作業する": "Bekerja tanpa alat pelindung.",
+        "保護具を外す": "Melepas alat pelindung.",
+        "写真だけ撮って帰る": "Hanya mengambil foto lalu pulang.",
+        "勝手に続ける": "Melanjutkan sesuka hati.",
+        "友人だけ入れる": "Membiarkan hanya teman masuk.",
+        "合図を確認する": "Memastikan aba-aba.",
+        "合図者や運転者に確認する": "Memastikan kepada pemberi aba-aba atau operator.",
+        "吊り荷の下に入る": "Masuk ke bawah beban gantung.",
+        "周囲を確認する": "Memeriksa sekitar.",
+        "壊れていても使う": "Tetap memakai meskipun rusak.",
+        "壊れていないか点検する": "Memeriksa apakah tidak rusak.",
+        "大声だけで自由に動く": "Bergerak bebas hanya dengan berteriak.",
+        "安全帯を使う": "Menggunakan sabuk pengaman.",
+        "安全帯を使わない": "Tidak menggunakan sabuk pengaman.",
+        "後ろから急に入る": "Masuk tiba-tiba dari belakang.",
+        "急いで作業する": "Bekerja terburu-buru.",
+        "手すりや足元を確認して作業する": "Memeriksa pegangan dan pijakan sebelum bekerja.",
+        "手順と危険ポイントを確認する": "Memeriksa prosedur dan titik bahaya.",
+        "携帯を見ながら歩く": "Berjalan sambil melihat ponsel.",
+        "整理して通路を確保する": "Merapikan dan memastikan jalur lewat.",
+        "早さだけを優先する": "Mengutamakan kecepatan saja.",
+        "暗い場所に移す": "Memindahkan ke tempat gelap.",
+        "暗くして作業する": "Bekerja dalam keadaan gelap.",
+        "材料を整理し、通路を確保する": "Merapikan material dan memastikan jalur lewat.",
+        "汚れていても確認しない": "Tidak memeriksa meskipun kotor.",
+        "決められた合図者の指示に従う": "Mengikuti instruksi pemberi aba-aba yang ditentukan.",
+        "決められた電源を使う": "Menggunakan sumber listrik yang ditentukan.",
+        "消火器の場所を知らない": "Tidak mengetahui lokasi alat pemadam.",
+        "漏電に注意する": "Berhati-hati terhadap kebocoran listrik.",
+        "濡れた場所でむき出しのコードを使う": "Memakai kabel terbuka di tempat basah.",
+        "濡れた手で扱う": "Menangani dengan tangan basah.",
+        "火花を見ない": "Tidak memperhatikan percikan api.",
+        "無理をせず、必要なら二人で運ぶ": "Tidak memaksakan diri, bawa berdua jika perlu.",
+        "無言で近づく": "Mendekat tanpa bicara.",
+        "燃えやすい物が近くにないか確認する": "Memastikan tidak ada benda mudah terbakar di dekatnya.",
+        "用途と違う使い方をする": "Menggunakan tidak sesuai fungsi.",
+        "立入禁止を守る": "Mematuhi larangan masuk.",
+        "紙を近くに置く": "Menaruh kertas di dekatnya.",
+        "腰を丸めて急に持つ": "Mengangkat tiba-tiba dengan punggung membungkuk.",
+        "表示を外す": "Melepas tanda.",
+        "袖や裾が作業の邪魔にならない作業服": "Pakaian kerja dengan lengan dan ujung celana yang tidak mengganggu.",
+        "見なかったことにする": "Berpura-pura tidak melihat.",
+        "視界をふさいで運ぶ": "Membawa barang sampai menutup pandangan.",
+        "許可なく入らない": "Tidak masuk tanpa izin.",
+        "説明を聞かず始める": "Memulai tanpa mendengar penjelasan.",
+        "資材を下へ投げる": "Melempar material ke bawah.",
+        "走って運ぶ": "Membawa sambil berlari.",
+        "足場の端で走る": "Berlari di tepi scaffolding.",
+        "近道なので入る": "Masuk karena dianggap jalan pintas.",
+        "運転者に見えない場所に立つ": "Berdiri di tempat yang tidak terlihat operator.",
+        "重機の後ろで休む": "Beristirahat di belakang alat berat.",
+        "長いひもが出た服": "Pakaian dengan tali panjang keluar.",
+        "埋設物、周囲の人、重機の動きを確認する": "Memeriksa benda tertanam, orang sekitar, dan gerakan alat berat.",
+        "早く掘ることだけを考える": "Hanya memikirkan menggali dengan cepat.",
+        "図面を見ずに掘り始める": "Mulai menggali tanpa melihat gambar.",
+        "合図者なしで重機に近づく": "Mendekati alat berat tanpa pemberi aba-aba.",
+        "決められた材料を入れ、層ごとに締め固める": "Memasukkan bahan yang ditentukan dan memadatkan setiap lapisan.",
+        "大きな石だけを入れる": "Memasukkan hanya batu besar.",
+        "水たまりをそのまま埋める": "Menimbun genangan air begitu saja.",
+        "締め固めをしない": "Tidak melakukan pemadatan.",
+        "アスファルト合材": "Campuran aspal.",
+        "木材": "Kayu.",
+        "紙袋": "Kantong kertas.",
+        "飲み水": "Air minum.",
+        "水が流れる方向と勾配を確認する": "Memeriksa arah aliran air dan kemiringan.",
+        "見た目だけで置く": "Meletakkan hanya berdasarkan tampilan.",
+        "出口をふさぐ": "Menutup jalan keluar.",
+        "勾配を逆にする": "Membalik kemiringan.",
+        "型枠や鉄筋の位置を確認してから打ち込む": "Menuang setelah memeriksa posisi bekisting dan tulangan.",
+        "ゴミを入れたまま打ち込む": "Menuang beton dengan sampah masih di dalam.",
+        "鉄筋を勝手に動かす": "Memindahkan tulangan sesuka hati.",
+        "固まり始めてから長く放置する": "Membiarkan terlalu lama setelah mulai mengeras.",
+        "沈下や崩れを防ぎ、地盤を安定させる": "Mencegah penurunan atau runtuh dan menstabilkan tanah.",
+        "作業を遅くするため": "Untuk memperlambat pekerjaan.",
+        "色を変えるため": "Untuk mengubah warna.",
+        "水を増やすため": "Untuk menambah air.",
+        "責任者から指示があったとき": "Saat ada instruksi dari penanggung jawab.",
+        "邪魔なら勝手に動かす": "Memindahkan sendiri jika mengganggu.",
+        "休憩場所にしたいとき": "Saat ingin menjadikannya tempat istirahat.",
+        "見えにくいので捨てる": "Membuang karena sulit terlihat.",
+        "土留めや法面の安全確認": "Memeriksa keamanan penahan tanah dan lereng.",
+        "穴の近くで休む": "Beristirahat di dekat lubang.",
+        "重機を端に止める": "Memarkir alat berat di tepi.",
+        "雨の日も確認しない": "Tidak memeriksa walaupun hari hujan.",
+        "運転者から見える位置で決められた合図をする": "Memberi aba-aba yang ditentukan dari posisi terlihat operator.",
+        "車両の真後ろに立つ": "Berdiri tepat di belakang kendaraan.",
+        "携帯を見ながら合図する": "Memberi aba-aba sambil melihat ponsel.",
+        "合図を途中で変える": "Mengubah aba-aba di tengah jalan.",
+        "段差、ぬかるみ、資材をなくし安全に通れるようにする": "Menghilangkan beda tinggi, lumpur, dan material agar jalur aman dilewati.",
+        "狭くても資材を置く": "Menaruh material walaupun jalur sempit.",
+        "夜は照明を消す": "Mematikan lampu pada malam hari.",
+        "穴をそのままにする": "Membiarkan lubang begitu saja.",
+        "図面と基準線を確認してから作業する": "Bekerja setelah memeriksa gambar dan garis acuan.",
+        "線が薄いので勝手に変える": "Mengubah garis sendiri karena terlihat tipis.",
+        "図面を見ずに作業する": "Bekerja tanpa melihat gambar.",
+        "関係ない場所に印を付ける": "Memberi tanda di tempat yang tidak berkaitan.",
+        "寸法、固定状態、清掃状態を確認する": "Memeriksa ukuran, kondisi pengikatan, dan kebersihan.",
+        "汚れたまま使う": "Memakai dalam keadaan kotor.",
+        "固定せずにコンクリートを入れる": "Menuang beton tanpa pengikatan.",
+        "寸法を測らない": "Tidak mengukur ukuran.",
+        "図面の本数、間隔、かぶり厚さを確認する": "Memeriksa jumlah, jarak, dan tebal selimut beton sesuai gambar.",
+        "本数を自由に減らす": "Mengurangi jumlah sesuka hati.",
+        "踏みつけて曲げる": "Menginjak hingga bengkok.",
+        "さびや汚れを確認しない": "Tidak memeriksa karat atau kotoran.",
+        "手すり、床材、昇降設備を確認する": "Memeriksa pagar, lantai kerja, dan akses naik turun.",
+        "手すりを外して作業する": "Bekerja dengan melepas pagar.",
+        "足場の上で走る": "Berlari di atas perancah.",
+        "最大積載を考えない": "Tidak memperhatikan beban maksimum.",
+        "割れやすいので二人で持ち、周囲を確認する": "Membawa berdua karena mudah pecah dan memeriksa sekitar.",
+        "角を人に向けて走る": "Berlari dengan sudut material mengarah ke orang.",
+        "濡れた場所に置く": "Menaruh di tempat basah.",
+        "通路をふさいで置く": "Menaruh hingga menghalangi jalur.",
+        "ふたや手すりを設け、立入禁止を表示する": "Memasang penutup atau pagar dan tanda dilarang masuk.",
+        "小さい穴なら放置する": "Membiarkan jika lubangnya kecil.",
+        "近くに資材を積む": "Menumpuk material di dekatnya.",
+        "向き、水平、固定状態を確認する": "Memeriksa arah, level, dan kondisi pengikatan.",
+        "重いので一人で無理に持つ": "Memaksakan membawa sendiri karena berat.",
+        "仮固定のまま使わせる": "Membiarkan digunakan saat masih terikat sementara.",
+        "指を挟む位置に手を置く": "Meletakkan tangan di posisi yang bisa menjepit jari.",
+        "下地の乾燥、汚れ、天候を確認する": "Memeriksa kekeringan dasar, kotoran, dan cuaca.",
+        "雨でもそのまま塗る": "Tetap mengecat/melapisi saat hujan.",
+        "ほこりを残す": "Membiarkan debu.",
+        "材料の説明を読まない": "Tidak membaca penjelasan bahan.",
+        "搬入経路と置き場所を確認し、通路をふさがない": "Memeriksa jalur masuk dan tempat penempatan agar tidak menghalangi jalan.",
+        "避難経路に置く": "Menaruh di jalur evakuasi.",
+        "高く不安定に積む": "Menumpuk tinggi dan tidak stabil.",
+        "合図なしでクレーン作業をする": "Melakukan pekerjaan crane tanpa aba-aba.",
+        "傷、浮き、固定状態を確認する": "Memeriksa goresan, bagian terangkat, dan kondisi pengikatan.",
+        "確認せず次の作業へ進む": "Melanjutkan pekerjaan berikutnya tanpa memeriksa.",
+        "傷を隠して報告しない": "Menyembunyikan kerusakan dan tidak melapor.",
+        "余った材料を通路に置く": "Menaruh sisa material di jalur lewat.",
+        "管の種類、口径、流れる方向を確認する": "Memeriksa jenis pipa, diameter, dan arah aliran.",
+        "似ていれば何でも使う": "Memakai apa saja jika terlihat mirip.",
+        "向きを確認しない": "Tidak memeriksa arah.",
+        "傷があってもそのまま使う": "Tetap memakai walaupun ada kerusakan.",
+        "漏水がないか確認する": "Memeriksa apakah tidak ada kebocoran air.",
+        "すぐに埋めて確認しない": "Langsung menimbun tanpa memeriksa.",
+        "水を流さない": "Tidak mengalirkan air.",
+        "接続部を隠す": "Menyembunyikan bagian sambungan.",
+        "電源が切れていることを確認する": "Memastikan sumber listrik sudah dimatikan.",
+        "濡れた手で触る": "Menyentuh dengan tangan basah.",
+        "通電したまま作業する": "Bekerja saat listrik masih menyala.",
+        "工具を床に散らばらせる": "Membiarkan alat berserakan di lantai.",
+        "折り曲げすぎず、表示や接続先を確認する": "Tidak menekuk berlebihan dan memeriksa label serta tujuan sambungan.",
+        "強く引っ張る": "Menarik dengan kuat.",
+        "水たまりに置く": "Menaruh di genangan air.",
+        "火気を避け、異臭があればすぐ報告する": "Menghindari api dan segera melapor jika ada bau tidak normal.",
+        "火花を近づける": "Mendekatkan percikan api.",
+        "においを無視する": "Mengabaikan bau.",
+        "勝手にバルブを開ける": "Membuka valve sesuka hati.",
+        "熱の損失や結露を防ぐ": "Mencegah kehilangan panas dan kondensasi.",
+        "重くするため": "Untuk membuatnya berat.",
+        "表示を隠すため": "Untuk menyembunyikan label/tanda.",
+        "切り口で手を切らないよう手袋を使う": "Memakai sarung tangan agar tangan tidak terluka oleh tepi potongan.",
+        "素手で強く押す": "Menekan kuat dengan tangan kosong.",
+        "端を人に向けて振る": "Mengayunkan tepi material ke arah orang.",
+        "落下防止を考えない": "Tidak memikirkan pencegahan jatuh.",
+        "水平、固定、周囲の作業スペースを確認する": "Memeriksa level, pengikatan, dan ruang kerja sekitar.",
+        "仮置きのまま運転する": "Mengoperasikan saat masih diletakkan sementara.",
+        "一人で無理に持ち上げる": "Memaksakan mengangkat sendiri.",
+        "説明書を見ない": "Tidak melihat buku petunjuk.",
+        "接続、固定、安全カバーを確認する": "Memeriksa sambungan, pengikatan, dan penutup keselamatan.",
+        "人が近くにいても知らせない": "Tidak memberi tahu walaupun ada orang di dekatnya.",
+        "異音がしても続ける": "Tetap melanjutkan walaupun ada suara tidak normal.",
+        "記録を残さない": "Tidak meninggalkan catatan.",
+        "図面と位置を確認し、必要に応じて手掘りにする": "Memeriksa gambar dan posisi, lalu menggali manual jika perlu.",
+        "重機で一気に掘る": "Menggali sekaligus dengan alat berat.",
+        "埋設表示を無視する": "Mengabaikan tanda benda tertanam.",
+        "場所を確認しない": "Tidak memeriksa lokasi."
+      },
+      cleaning: {
+        "ごみを隅に寄せる": "Menggeser sampah ke sudut.",
+        "ごみを隠す": "Menyembunyikan sampah.",
+        "ごみを集めてちりとりに入れる": "Mengumpulkan sampah dan memasukkannya ke pengki.",
+        "ごみを集める": "Mengumpulkan sampah.",
+        "ごみ袋だけ": "Hanya kantong sampah.",
+        "すぐ水をまく": "Langsung menyiram air.",
+        "すぐ表示板を片付ける": "Langsung membereskan papan tanda.",
+        "ちりとり": "Pengki.",
+        "ほうき": "Sapu.",
+        "ガラスの水を切る": "Menarik air dari kaca.",
+        "スクイジー": "Squeegee.",
+        "ラベルを捨てる": "Membuang label.",
+        "ラベルを見ない": "Tidak melihat label.",
+        "中身がこぼれないよう口を閉じる": "Menutup mulut kantong agar isi tidak tumpah.",
+        "人に踏ませる": "Membiarkan orang menginjaknya.",
+        "人の通行を確認しない": "Tidak memeriksa lalu lintas orang.",
+        "作業を一時止め、安全に通ってもらう": "Menghentikan pekerjaan sementara dan membiarkan orang lewat dengan aman.",
+        "作業中表示板": "Papan tanda sedang bekerja.",
+        "作業場所、道具、安全表示を確認する": "Memeriksa area kerja, alat, dan tanda keselamatan.",
+        "便器を洗う": "Membersihkan toilet.",
+        "便器用のクロスを他の場所にも使う": "Memakai kain toilet untuk area lain.",
+        "分別を確認しない": "Tidak memeriksa pemilahan.",
+        "別容器にラベルなしで入れる": "Memasukkan ke wadah lain tanpa label.",
+        "利用者に知らせない": "Tidak memberi tahu pengguna.",
+        "同じクロスを全部に使う": "Memakai kain yang sama untuk semua area.",
+        "場所ごとにクロスを使い分ける": "Menggunakan kain berbeda sesuai area.",
+        "場所ごとに決められたクロスを使い分ける": "Menggunakan kain yang ditentukan untuk setiap area.",
+        "床が乾くまで表示板を置く": "Menaruh papan tanda sampai lantai kering.",
+        "床を乾燥させる": "Mengeringkan lantai.",
+        "床を掃く": "Menyapu lantai.",
+        "床用ブラシ": "Sikat lantai.",
+        "強くするため自由に混ぜる": "Mencampur bebas agar lebih kuat.",
+        "強くなるので混ぜる": "Mencampur karena dianggap menjadi lebih kuat.",
+        "手に直接つける": "Menempelkan langsung ke tangan.",
+        "手袋なしで作業する": "Bekerja tanpa sarung tangan.",
+        "手袋を使わない": "Tidak memakai sarung tangan.",
+        "手順に従い、必要な保護具を使う": "Mengikuti prosedur dan memakai alat pelindung yang diperlukan.",
+        "時計": "Jam.",
+        "普通の紙で隠す": "Menutupinya dengan kertas biasa.",
+        "水や洗剤をきれいに切る": "Menarik air atau deterjen dengan bersih.",
+        "水をかける": "Menyiram air.",
+        "汚れたまま次に使う": "Memakai lagi dalam keadaan kotor.",
+        "汚れた道具をそのまま保管する": "Menyimpan alat kotor begitu saja.",
+        "汚れを隠す": "Menyembunyikan kotoran.",
+        "汚れ残り、忘れ物、道具の置き忘れを確認する": "Memeriksa sisa kotoran, barang tertinggal, dan alat tertinggal.",
+        "決められた割合を守る": "Mengikuti perbandingan yang ditentukan.",
+        "洗って乾かし、決められた場所に保管する": "Mencuci, mengeringkan, dan menyimpan di tempat yang ditentukan.",
+        "洗剤を混ぜる": "Mencampur deterjen.",
+        "混ぜると危険なので混ぜない": "Tidak mencampur karena berbahaya.",
+        "濃いほどよいと考える": "Berpikir semakin pekat semakin baik.",
+        "濡れたまま放置する": "Membiarkannya tetap basah.",
+        "無視して作業を続ける": "Mengabaikan dan melanjutkan pekerjaan.",
+        "用具を洗い、決められた場所に戻す": "Mencuci alat dan mengembalikannya ke tempat yang ditentukan.",
+        "目分量だけで大量に入れる": "Memasukkan banyak hanya dengan perkiraan.",
+        "種類を確認して決められた濃度で使う": "Memeriksa jenis dan memakai dengan konsentrasi yang ditentukan.",
+        "紙コップ": "Gelas kertas.",
+        "素手で拭く": "Mengelap dengan tangan kosong.",
+        "表示板を永久に置く": "Menaruh papan tanda selamanya.",
+        "表示板を置きっぱなしにする": "Membiarkan papan tanda tetap terpasang.",
+        "袋を引きずる": "Menyeret kantong.",
+        "見ないで終了する": "Selesai tanpa memeriksa.",
+        "走って確認する": "Memeriksa sambil berlari.",
+        "道をふさぐ": "Menghalangi jalan.",
+        "道具をその場に置いたまま帰る": "Meninggalkan alat di tempat kerja lalu pulang.",
+        "道具を探しながら作業する": "Bekerja sambil mencari alat.",
+        "鋭利物を素手で押し込む": "Mendorong benda tajam dengan tangan kosong.",
+        "食品の近くに置く": "Menaruh di dekat makanan.",
+        "香りで判断する": "Menilai dari bau/aroma."
+      },
+      food: {
+        "そのまま無理に使う": "Memaksakan memakai begitu saja.",
+        "そのまま野菜に使う": "Memakai langsung untuk sayuran.",
+        "においだけで決める": "Memutuskan hanya dari bau.",
+        "カバーを外して運転する": "Mengoperasikan dengan penutup dilepas.",
+        "上司に報告し、決められた手順に従う": "Melapor kepada atasan dan mengikuti prosedur yang ditentukan.",
+        "休憩する": "Beristirahat.",
+        "作業を止めて責任者に報告する": "Menghentikan pekerjaan dan melapor kepada penanggung jawab.",
+        "作業中だけ洗う": "Mencuci hanya saat sedang bekerja.",
+        "作業中に髪をとかす": "Menyisir rambut saat bekerja.",
+        "停止を確認してから行う": "Melakukan setelah memastikan mesin berhenti.",
+        "動いたまま手を入れる": "Memasukkan tangan saat mesin masih bergerak.",
+        "勝手に手を入れて直す": "Memasukkan tangan dan memperbaiki sendiri.",
+        "危害を予測し、重要な工程を管理する": "Memprediksi bahaya dan mengelola proses penting.",
+        "原材料表示と作業順序を確認する": "Memeriksa label bahan baku dan urutan kerja.",
+        "取り除いて黙って続ける": "Mengambilnya diam-diam lalu melanjutkan.",
+        "古いものを隠す": "Menyembunyikan barang lama.",
+        "同じ器具を洗わず使う": "Memakai alat yang sama tanpa dicuci.",
+        "問題が起きてから考える": "Berpikir setelah masalah terjadi.",
+        "器具の破損や部品の脱落を確認する": "Memeriksa kerusakan alat dan bagian yang lepas.",
+        "基準を守り、記録を残す": "Mengikuti standar dan meninggalkan catatan.",
+        "壊れた器具を使う": "Memakai alat yang rusak.",
+        "外靴で入る": "Masuk dengan sepatu luar.",
+        "少量なら気にしない": "Tidak peduli jika jumlahnya sedikit.",
+        "布で軽く拭くだけ": "Hanya mengelap ringan dengan kain.",
+        "常温に長く置く": "Menaruh lama pada suhu ruang.",
+        "帽子やヘアネットを正しく着ける": "Memakai topi atau hairnet dengan benar.",
+        "帽子を浅くかぶる": "Memakai topi terlalu dangkal.",
+        "床を濡らす": "Membasahi lantai.",
+        "必要な物と不要な物を分ける": "Memisahkan barang yang diperlukan dan tidak diperlukan.",
+        "感覚だけで判断する": "Menilai hanya berdasarkan perasaan.",
+        "手を洗い、作業服と帽子を正しく着用する": "Mencuci tangan dan memakai pakaian kerja serta topi dengan benar.",
+        "手袋だけすれば手洗いは不要": "Jika memakai sarung tangan, cuci tangan tidak perlu.",
+        "手袋をすれば洗わない": "Tidak mencuci tangan jika memakai sarung tangan.",
+        "整理": "Seiri/menyortir.",
+        "昨日の道具をそのまま使う": "Memakai alat kemarin begitu saja.",
+        "時計やアクセサリーをつけたまま入る": "Masuk dengan jam atau aksesori masih dipakai.",
+        "暑い場所で解凍する": "Mencairkan di tempat panas.",
+        "期限、表示、状態を確認する": "Memeriksa tanggal, label, dan kondisi.",
+        "毛髪や私物が出ていないか確認する": "Memastikan rambut dan barang pribadi tidak keluar.",
+        "水だけかけて終わる": "Hanya menyiram air lalu selesai.",
+        "水で少し濡らすだけ": "Hanya membasahi sedikit dengan air.",
+        "汚れを残す": "Meninggalkan kotoran.",
+        "決められた手順で洗浄し、記録する": "Mencuci sesuai prosedur dan mencatat.",
+        "決められた温度で保管し、記録する": "Menyimpan pada suhu yang ditentukan dan mencatat.",
+        "洗浄・消毒してから別の食品に使う": "Mencuci dan disinfeksi sebelum dipakai untuk makanan lain.",
+        "清掃": "Membersihkan.",
+        "温度計を見ない": "Tidak melihat termometer.",
+        "点検しない": "Tidak memeriksa.",
+        "異常を隠す": "Menyembunyikan kelainan.",
+        "異音を無視する": "Mengabaikan suara tidak normal.",
+        "睡眠": "Tidur.",
+        "石けんで洗い、必要に応じて消毒する": "Mencuci dengan sabun dan disinfeksi jika perlu.",
+        "自分で食べて確認する": "Memakan sendiri untuk memeriksa.",
+        "落ちた物をそのまま戻す": "Mengembalikan benda yang jatuh begitu saja.",
+        "表示を確認しない": "Tidak memeriksa label/tampilan.",
+        "表示を見ない": "Tidak melihat label/tampilan.",
+        "見た目がきれいなら使う": "Memakai jika terlihat bersih.",
+        "見なかったことにする": "Berpura-pura tidak melihat.",
+        "記録をしない": "Tidak mencatat.",
+        "記録をしないで感覚で管理する": "Mengelola dengan perasaan tanpa catatan.",
+        "記録を後でまとめて想像する": "Membuat catatan nanti berdasarkan dugaan.",
+        "音を大きくする": "Membesarkan suara.",
+        "髪を出して作業する": "Bekerja dengan rambut keluar."
+      },
+      hotel: {
+        "名前、予約日、予約番号を確認する": "Memeriksa nama, tanggal reservasi, dan nomor reservasi.",
+        "予約がないと言ってすぐ帰ってもらう": "Mengatakan tidak ada reservasi lalu langsung meminta tamu pulang.",
+        "別のお客様の部屋を案内する": "Mengarahkan ke kamar tamu lain.",
+        "確認せず空いている部屋に入れる": "Memasukkan ke kamar kosong tanpa memeriksa.",
+        "謝罪し、空調や毛布の対応を確認する": "Meminta maaf lalu memeriksa AC atau selimut.",
+        "我慢してくださいと言う": "Mengatakan tolong tahan saja.",
+        "何も確認せず別の仕事をする": "Melakukan pekerjaan lain tanpa memeriksa apa pun.",
+        "ほかのお客様に相談する": "Berkonsultasi dengan tamu lain.",
+        "決められた手順で保管し、責任者へ報告する": "Menyimpan sesuai prosedur dan melapor kepada penanggung jawab.",
+        "自分で持ち帰る": "Membawa pulang sendiri.",
+        "捨てる": "Membuang.",
+        "次のお客様に渡す": "Memberikan kepada tamu berikutnya.",
+        "内容を確認し、分からない場合は責任者に確認する": "Memeriksa isi pertanyaan dan bertanya kepada penanggung jawab jika tidak tahu.",
+        "大丈夫だと思うと言う": "Mengatakan sepertinya aman.",
+        "確認せず料理を出す": "Menyajikan makanan tanpa memeriksa.",
+        "質問を無視する": "Mengabaikan pertanyaan.",
+        "手順に従い、お客様を安全な場所へ案内する": "Mengikuti prosedur dan mengarahkan tamu ke tempat aman.",
+        "警報を止めて何もしない": "Mematikan alarm lalu tidak melakukan apa pun.",
+        "エレベーターで避難させる": "Mengevakuasi dengan lift.",
+        "一人で先に外へ出る": "Keluar lebih dulu sendirian.",
+        "名前、宿泊日、人数、部屋タイプを確認する": "Memeriksa nama, tanggal menginap, jumlah tamu, dan tipe kamar.",
+        "部屋番号だけを伝える": "Hanya memberi tahu nomor kamar.",
+        "確認せず鍵を渡す": "Memberikan kunci tanpa memeriksa.",
+        "ほかのお客様の情報を見せる": "Memperlihatkan informasi tamu lain.",
+        "料金と追加利用の有無を確認して精算する": "Memeriksa biaya dan penggunaan tambahan, lalu melakukan pembayaran.",
+        "確認せず帰ってもらう": "Meminta pulang tanpa memeriksa.",
+        "別のお客様の請求を渡す": "Memberikan tagihan tamu lain.",
+        "領収書を勝手に捨てる": "Membuang tanda terima sesuka hati.",
+        "場所、時間、利用方法を分かりやすく案内する": "Menjelaskan tempat, waktu, dan cara penggunaan dengan mudah dipahami.",
+        "知らないと言って終わる": "Mengakhiri dengan mengatakan tidak tahu.",
+        "違う階を案内する": "Mengarahkan ke lantai yang salah.",
+        "大声で叱る": "Memarahi dengan suara keras.",
+        "ノックして名乗り、返事を待つ": "Mengetuk, menyebutkan diri, lalu menunggu jawaban.",
+        "無言で入る": "Masuk tanpa bicara.",
+        "ドアを開けたまま作業する": "Bekerja dengan pintu tetap terbuka.",
+        "お客様の荷物を勝手に動かす": "Memindahkan barang tamu tanpa izin.",
+        "謝罪し、状況を確認して責任者へ報告する": "Meminta maaf, memeriksa situasi, lalu melapor kepada penanggung jawab.",
+        "気にしないでくださいと言う": "Mengatakan jangan dipikirkan.",
+        "苦情を無視する": "Mengabaikan keluhan.",
+        "お客様を責める": "Menyalahkan tamu.",
+        "注文内容とテーブル番号を確認する": "Memeriksa isi pesanan dan nomor meja.",
+        "隣のテーブルに出す": "Menyajikan ke meja sebelah.",
+        "料理名を確認しない": "Tidak memeriksa nama makanan.",
+        "こぼれてもそのまま出す": "Tetap menyajikan walaupun tumpah.",
+        "内容を記録し、責任者や厨房に確認する": "Mencatat isi dan mengonfirmasi kepada penanggung jawab atau dapur.",
+        "自分の判断で大丈夫と言う": "Mengatakan aman berdasarkan penilaian sendiri.",
+        "確認せず提供する": "Menyediakan tanpa memeriksa.",
+        "笑って流す": "Menertawakan dan membiarkan begitu saja.",
+        "状態を確認し、責任者へ連絡する": "Memeriksa kondisi dan menghubungi penanggung jawab.",
+        "すぐに立たせて歩かせる": "Langsung membuat berdiri dan berjalan.",
+        "見なかったことにする": "Berpura-pura tidak melihat.",
+        "写真だけ撮る": "Hanya mengambil foto.",
+        "荷物を移動し、非常口を使える状態にする": "Memindahkan barang agar pintu darurat bisa digunakan.",
+        "そのままにする": "Membiarkannya begitu saja.",
+        "見えないように隠す": "Menyembunyikan agar tidak terlihat.",
+        "非常口を閉める": "Menutup pintu darurat.",
+        "本人確認なしに教えない": "Tidak memberi tahu tanpa verifikasi identitas.",
+        "すぐ教える": "Langsung memberi tahu.",
+        "大声で部屋番号を言う": "Mengucapkan nomor kamar dengan suara keras.",
+        "予約一覧を見せる": "Memperlihatkan daftar reservasi.",
+        "日時、場所、料金、予約方法を確認して伝える": "Memeriksa dan menyampaikan tanggal, tempat, biaya, dan cara reservasi.",
+        "古い情報をそのまま伝える": "Menyampaikan informasi lama begitu saja.",
+        "分からないまま説明する": "Menjelaskan walaupun belum tahu.",
+        "料金を勝手に変える": "Mengubah biaya sesuka hati.",
+        "明細を確認し、分かりやすく説明する": "Memeriksa rincian dan menjelaskan dengan mudah dipahami.",
+        "確認せず高いですと言う": "Mengatakan mahal tanpa memeriksa.",
+        "別のお客様の明細を見せる": "Memperlihatkan rincian tamu lain."
+      }
+    };
+
+    function choiceIndonesian(choice) {
+      return choiceTranslations[currentField]?.[choice] || "";
+    }
+
+    function choiceContent(choice) {
+      const translated = showIndonesianChoices ? choiceIndonesian(choice) : "";
+      return `${formatJapanese(choice)}${translated ? `<span class="choice-id">${escapeHtml(translated)}</span>` : ""}`;
+    }
+
+    function rotateQuestion(seed, index) {
+      const correct = seed[2];
+      const wrongs = seed[3];
+      const choices = [correct, ...wrongs];
+      const shift = index % choices.length;
+      const rotated = choices.slice(shift).concat(choices.slice(0, shift));
+      return {
+        type: seed[0],
+        q: `【${scenePrefixes[index % scenePrefixes.length]} ${index + 1}】${seed[1]}`,
+        choices: rotated,
+        answer: rotated.indexOf(correct),
+        exp: seed[4],
+        id: seed[5],
+        qid: seed[6] || ""
+      };
+    }
+
+    function expandQuestionBanks() {
+      Object.entries(blueprintSets).forEach(([key, blueprints]) => {
+        const bank = fields[key].questions;
+        let index = 0;
+        while (bank.length < 300) {
+          bank.push(rotateQuestion(blueprints[index % blueprints.length], index));
+          index += 1;
+        }
+      });
+    }
+
+    const constructionTrackBanks = {};
+
+    function expandConstructionTrackBanks() {
+      constructionTrackBanks.common = fields.construction.questions;
+      Object.entries(constructionTrackBlueprintSets).forEach(([key, blueprints]) => {
+        const bank = [];
+        let index = 0;
+        while (bank.length < 300) {
+          bank.push(rotateQuestion(blueprints[index % blueprints.length], index));
+          index += 1;
+        }
+        constructionTrackBanks[key] = bank;
+      });
+    }
+
+    expandQuestionBanks();
+    expandConstructionTrackBanks();
+
+    let currentField = "care";
+    let currentQuestion = 0;
+    let constructionTrack = "common";
+    let selected = false;
+    let showIndonesianQuestion = false;
+    let showIndonesianChoices = false;
+    let showRuby = false;
+    let quizChoiceKey = "";
+    let quizChoiceOrder = [];
+    let uiMode = "both";
+    let examState = null;
+    let examTimer = null;
+
+    const tabs = document.querySelector(".tabs");
+    const modeButtons = document.querySelectorAll(".mode");
+    const sections = document.querySelectorAll(".section");
+
+    const examConfigs = {
+      care: { questions: 45, minutes: 60, passRate: 60, label: "介護技能評価試験風" },
+      construction: { questions: 50, minutes: 100, passRate: 65, label: "建設 学科+実技風" },
+      cleaning: { questions: 30, minutes: 40, passRate: 60, label: "ビルクリーニング判断試験風" },
+      food: { questions: 30, minutes: 80, passRate: 65, label: "飲食料品製造業 学科+実技風" },
+      agriculture: { questions: 40, minutes: 60, passRate: 60, label: "農業 学科+実技+日本語風" },
+      hotel: { questions: 30, minutes: 60, passRate: 65, label: "宿泊技能測定試験風" }
+    };
+
+    const uiLabels = {
+      appTitle: ["特定技能 試験対策アプリ", "Aplikasi Persiapan Ujian SSW"],
+      appSubtitle: ["インドネシア人学習者向け・6分野対応", "Untuk pembelajar Indonesia - 6 bidang"],
+      languageLabel: ["表示言語", "Bahasa UI"],
+      heroTitle: ["SSW試験対策を、先生にも学習者にも使いやすく。", "Latihan SSW yang mudah dipakai guru dan peserta."],
+      heroCopy: [
+        "問題は日本語で本番に近く、操作画面は日本語・インドネシア語・両方から選べます。",
+        "Soal tetap berbahasa Jepang seperti ujian, sementara UI dapat dipilih: Jepang, Indonesia, atau dua bahasa."
+      ],
+      statFields: ["対象分野", "Bidang"],
+      statQuestions: ["問題数", "Jumlah soal"],
+      statIndonesian: ["インドネシア語対応", "Dukungan Indonesia"],
+      sideNotice: [
+        "注意：本番問題の再現ではありません。公開範囲と公開教材から作成したオリジナル模擬問題です。",
+        "Catatan: Ini bukan salinan soal asli. Soal dibuat mandiri berdasarkan cakupan dan materi yang dipublikasikan."
+      ],
+      overviewTab: ["出題傾向", "Pola Soal"],
+      quizTab: ["練習", "Latihan"],
+      examTab: ["本番模試", "Simulasi"],
+      planTab: ["学習計画", "Rencana"],
+      keyThemes: ["重点テーマ", "Tema Penting"],
+      pitfalls: ["つまずきやすい点", "Kesulitan Umum"],
+      studyPlan: ["4-6週間学習計画", "Rencana Belajar 4-6 Minggu"],
+      operationIdea: [
+        "運用案：授業では日本語問題を解かせ、解説はインドネシア語で確認。翌日に同じテーマを日本語だけで再テストします。",
+        "Saran kelas: Kerjakan soal Jepang, cek penjelasan Indonesia, lalu ulangi tema yang sama esok hari hanya dengan bahasa Jepang."
+      ],
+      miniQuiz: ["練習", "Latihan"],
+      examPractice: ["本番模試", "Simulasi Ujian"],
+      examResult: ["本番模試 結果", "Hasil Simulasi"],
+      showIndonesian: ["問題文のインドネシア語訳", "Terjemahan soal"],
+      showIndonesianChoices: ["選択肢のインドネシア語訳", "Terjemahan pilihan"],
+      showRuby: ["漢字のふりがな", "Furigana kanji"],
+      questionBank: ["300問バンク", "Bank 300 soal"],
+      shuffleQuestion: ["シャッフル", "Acak"],
+      previous: ["前の問題", "Sebelumnya"],
+      next: ["次の問題", "Berikutnya"],
+      startExam: ["本番模試を開始", "Mulai Simulasi"],
+      submitExam: ["提出して採点", "Kirim & Nilai"],
+      restartExam: ["もう一度ランダム模試", "Ulangi Simulasi Acak"],
+      backExamSetup: ["設定画面に戻る", "Kembali ke Awal"],
+      format: ["形式", "Format"],
+      questionCount: ["問題数", "Jumlah soal"],
+      timeLimit: ["制限時間", "Waktu"],
+      answered: ["回答済み", "Terjawab"],
+      scorePass: ["合格ライン到達", "Mencapai Target Lulus"],
+      scoreFail: ["再学習が必要", "Perlu Belajar Lagi"],
+      correct: ["正解", "Benar"],
+      wrongQuestions: ["間違えた問題", "Soal yang Salah"],
+      allCorrect: ["全問正解です。", "Semua jawaban benar."],
+      explanation: ["解説", "Penjelasan"],
+      metaCenter: ["試験の中心", "Fokus ujian"],
+      metaFormat: ["問題形式", "Format soal"],
+      metaFocus: ["重点", "Fokus"],
+      footerNote: [
+        "作成日：2026-05-09。教材作成時は、各試験実施団体の最新ページで試験形式・範囲・受験条件を再確認してください。",
+        "Dibuat: 2026-05-09. Saat memakai materi, cek kembali format, cakupan, dan syarat ujian di situs penyelenggara terbaru."
+      ]
+    };
+
+    const fieldUi = {
+      care: {
+        name: ["介護", "Perawatan"],
+        summary: [
+          "日本語コミュニケーションと生活支援技術の比重が高い分野。技能評価試験と介護日本語評価試験の両方を意識します。",
+          "Bidang dengan banyak komunikasi Jepang dan bantuan kehidupan. Perlu belajar ujian keterampilan dan bahasa Jepang perawatan."
+        ]
+      },
+      construction: {
+        name: ["建設", "Konstruksi"],
+        summary: [
+          "安全、工具、作業手順、図や写真の判断が重要。土木・建築・ライフライン・設備の3区分に分けて対策します。",
+          "Fokus pada keselamatan, alat, prosedur kerja, dan penilaian gambar. Latihan dibagi menjadi tiga: sipil, bangunan, dan lifeline/peralatan."
+        ]
+      },
+      cleaning: {
+        name: ["ビルクリーニング", "Pembersihan Gedung"],
+        summary: [
+          "道具・洗剤・作業順序を写真や場面で判断する力が重要。実技作業の流れを体で覚えると得点につながります。",
+          "Peserta perlu memilih alat, deterjen, dan urutan kerja dari situasi atau gambar. Latihan alur praktik sangat membantu."
+        ]
+      },
+      food: {
+        name: ["飲食料品製造業", "Produksi Makanan"],
+        summary: [
+          "公式サンプルが少ないため、公式テキストと非公式練習問題から傾向を整理する価値が高い分野です。",
+          "Karena contoh resmi sedikit, bidang ini perlu banyak latihan dari teks resmi dan pola soal latihan."
+        ]
+      },
+      agriculture: {
+        name: ["農業", "Pertanian"],
+        summary: [
+          "耕種農業と畜産農業に分かれます。農作業の知識に加えて、作業指示を日本語で理解する力が必要です。",
+          "Terbagi menjadi tanaman dan peternakan. Selain pengetahuan kerja, pemahaman instruksi Jepang juga penting."
+        ]
+      },
+      hotel: {
+        name: ["宿泊", "Perhotelan"],
+        summary: [
+          "フロント、接客、客室、レストランサービス、安全衛生など、宿泊施設での場面対応力が重要な分野です。",
+          "Bidang hotel menekankan respons situasi di front office, layanan tamu, kamar, restoran, keselamatan, dan higiene."
+        ]
+      }
+    };
+
+    const rubyGlossary = [
+      ["日本語コミュニケーション", "にほんごコミュニケーション"], ["インドネシア語", "インドネシアご"],
+      ["技能評価試験", "ぎのうひょうかしけん"], ["介護日本語評価試験", "かいごにほんごひょうかしけん"],
+      ["飲食料品製造業", "いんしょくりょうひんせいぞうぎょう"], ["ビルクリーニング", "ビルクリーニング"],
+      ["本番対策", "ほんばんたいさく"], ["作業前確認", "さぎょうまえかくにん"], ["現場判断", "げんばはんだん"],
+      ["安全確認", "あんぜんかくにん"], ["復習問題", "ふくしゅうもんだい"], ["直前チェック", "ちょくぜんチェック"],
+      ["語彙確認", "ごいかくにん"], ["場面問題", "ばめんもんだい"], ["実技判断", "じつぎはんだん"], ["重要問題", "じゅうようもんだい"],
+      ["出題傾向", "しゅつだいけいこう"], ["重点テーマ", "じゅうてんテーマ"], ["学習計画", "がくしゅうけいかく"],
+      ["試験対策", "しけんたいさく"], ["問題形式", "もんだいけいしき"], ["試験範囲", "しけんはんい"],
+      ["合否判定", "ごうひはんてい"], ["点数表示", "てんすうひょうじ"], ["制限時間", "せいげんじかん"],
+      ["問題数", "もんだいすう"], ["回答済み", "かいとうずみ"], ["合格ライン", "ごうかくライン"],
+      ["間違えた", "まちがえた"], ["正解", "せいかい"], ["不正解", "ふせいかい"],
+      ["重要", "じゅうよう"], ["必要", "ひつよう"], ["大切", "たいせつ"], ["基本", "きほん"],
+      ["理解", "りかい"], ["説明", "せつめい"], ["確認", "かくにん"], ["判断", "はんだん"],
+      ["問題", "もんだい"], ["場面", "ばめん"], ["行動", "こうどう"], ["状態", "じょうたい"],
+      ["手順", "てじゅん"], ["時間", "じかん"], ["場所", "ばしょ"], ["方法", "ほうほう"],
+      ["内容", "ないよう"], ["意味", "いみ"], ["記録", "きろく"], ["事実", "じじつ"],
+      ["具体的", "ぐたいてき"], ["質問", "しつもん"], ["返事", "へんじ"], ["家族", "かぞく"],
+      ["本人", "ほんにん"], ["自分", "じぶん"], ["全部", "ぜんぶ"], ["一人", "ひとり"],
+      ["他の", "ほかの"], ["同じ", "おなじ"], ["何度", "なんど"], ["何も", "なにも"],
+      ["防ぐ", "ふせぐ"], ["防ぎます", "ふせぎます"], ["防止", "ぼうし"], ["予防", "よぼう"],
+      ["見て", "みて"], ["見た", "みた"], ["見つけた", "みつけた"], ["見なかった", "みなかった"],
+      ["見ない", "みない"], ["見えない", "みえない"], ["見る", "みる"], ["見ます", "みます"],
+      ["決められた", "きめられた"], ["決める", "きめる"], ["行う", "おこなう"], ["行います", "おこないます"],
+      ["入る", "はいる"], ["入って", "はいって"], ["入れ替える", "いれかえる"], ["量", "りょう"],
+      ["物", "もの"], ["表示", "ひょうじ"], ["人", "ひと"], ["水", "みず"], ["手", "て"],
+      ["手洗い", "てあらい"], ["濡れた", "ぬれた"], ["濡れて", "ぬれて"], ["隠す", "かくす"],
+      ["隠れる", "かくれる"], ["外す", "はずす"], ["外し", "はずし"], ["続ける", "つづける"],
+      ["続けます", "つづけます"], ["続けて", "つづけて"], ["運ぶ", "はこぶ"], ["運びます", "はこびます"],
+      ["出る", "でる"], ["出た", "でた"], ["急いで", "いそいで"], ["急がせる", "いそがせる"],
+      ["持つ", "もつ"], ["持たせる", "もたせる"], ["走る", "はしる"], ["走らせる", "はしらせる"],
+      ["無理", "むり"], ["知らせる", "しらせる"], ["知らない", "しらない"], ["無視", "むし"],
+      ["残す", "のこす"], ["残り", "のこり"], ["分かれる", "わかれる"], ["分ける", "わける"],
+      ["清潔", "せいけつ"], ["洗う", "あらう"], ["洗い", "あらい"], ["洗って", "あらって"],
+      ["放置", "ほうち"], ["処理", "しょり"], ["早く", "はやく"], ["早さ", "はやさ"],
+      ["大きい", "おおきい"], ["大きな", "おおきな"], ["合わせ", "あわせ"], ["増やす", "ふやす"],
+      ["従う", "したがう"], ["従います", "したがいます"], ["別の", "べつの"], ["避ける", "さける"],
+      ["集める", "あつめる"], ["服装", "ふくそう"], ["順序", "じゅんじょ"], ["使う", "つかう"],
+      ["使います", "つかいます"], ["使って", "つかって"], ["使える", "つかえる"], ["読む", "よむ"],
+      ["読み", "よみ"], ["考える", "かんがえる"], ["考え方", "かんがえかた"], ["長い", "ながい"],
+      ["不要", "ふよう"], ["異常", "いじょう"], ["向き", "むき"], ["近づける", "ちかづける"],
+      ["壊れて", "こわれて"], ["投げる", "なげる"], ["無言", "むごん"], ["交換", "こうかん"],
+      ["停止", "ていし"], ["混入", "こんにゅう"], ["基準", "きじゅん"], ["影響", "えいきょう"],
+      ["取り", "とり"], ["取る", "とる"], ["声", "こえ"], ["気づいたら", "きづいたら"],
+      ["気分", "きぶん"], ["悪い", "わるい"], ["悪く", "わるく"], ["悪口", "わるぐち"],
+      ["入れる", "いれる"], ["入れます", "いれます"], ["入れた", "いれた"], ["入って", "はいって"], ["入らない", "はいらない"],
+      ["介助", "かいじょ"], ["対策", "たいさく"], ["大量", "たいりょう"], ["大声", "おおごえ"], ["大きく", "おおきく"],
+      ["出して", "だして"], ["出る", "でる"], ["出た", "でた"], ["濡れ", "ぬれ"], ["長時間", "ちょうじかん"],
+      ["長く", "ながく"], ["読み取れない", "よみとれない"], ["読む", "よむ"], ["持って", "もって"], ["持つ", "もつ"],
+      ["口へ", "くちへ"], ["直射日光", "ちょくしゃにっこう"], ["向きを", "むきを"], ["向ける", "むける"],
+      ["落ちる", "おちる"], ["落ちた", "おちた"], ["紙", "かみ"], ["捨てる", "すてる"], ["菌", "きん"],
+      ["洗わず", "あらわず"], ["洗い", "あらい"], ["与える", "あたえる"], ["与えない", "あたえない"],
+      ["想像", "そうぞう"], ["改善", "かいぜん"], ["事故", "じこ"], ["通行", "つうこう"], ["決める", "きめる"],
+      ["転倒時", "てんとうじ"], ["帰る", "かえる"], ["聞く", "きく"], ["聞かず", "きかず"], ["聞こえない", "きこえない"],
+      ["急に", "きゅうに"], ["急ぐ", "いそぐ"], ["保つ", "たもつ"], ["時計", "とけい"], ["古い", "ふるい"],
+      ["傷み", "いたみ"], ["傷を", "きずを"], ["泥", "どろ"], ["優先", "ゆうせん"], ["通る", "とおる"],
+      ["写真", "しゃしん"], ["畜産", "ちくさん"], ["丁寧", "ていねい"], ["種類", "しゅるい"], ["置いて", "おいて"],
+      ["置かれて", "おかれて"], ["置き", "おき"], ["多い", "おおい"], ["名前", "なまえ"], ["混ぜ", "まぜ"],
+      ["自己判断", "じこはんだん"], ["準備", "じゅんび"], ["使用", "しよう"], ["感覚", "かんかく"],
+      ["答える", "こたえる"], ["答えず", "こたえず"], ["行わない", "おこなわない"], ["振る", "ふる"],
+      ["動いて", "うごいて"], ["適した", "てきした"], ["暗記", "あんき"], ["少し", "すこし"],
+      ["軽く", "かるく"], ["暑い", "あつい"], ["音", "おと"], ["強い風", "つよいかぜ"], ["毎日", "まいにち"],
+      ["部分", "ぶぶん"], ["省略", "しょうりゃく"], ["元気", "げんき"], ["変化", "へんか"], ["様子", "ようす"],
+      ["誤嚥", "ごえん"], ["一度", "いちど"], ["不良", "ふりょう"], ["指示", "しじ"], ["保護", "ほご"],
+      ["場合", "ばあい"], ["周辺", "しゅうへん"], ["携帯", "けいたい"], ["火花", "ひばな"], ["悪臭", "あくしゅう"],
+      ["汚染", "おせん"], ["目的", "もくてき"], ["便器", "べんき"], ["増殖", "ぞうしょく"], ["監視", "かんし"],
+      ["休憩", "きゅうけい"], ["異音", "いおん"], ["健康", "けんこう"], ["環境", "かんきょう"], ["病気", "びょうき"],
+      ["短く", "みじかく"], ["取り除いて", "とりのぞいて"], ["開けた", "あけた"], ["叱る", "しかる"],
+      ["荷物", "にもつ"], ["寝たまま", "ねたまま"], ["整え", "ととのえ"], ["具体的", "ぐたいてき"],
+      ["端", "はし"], ["飛び越える", "とびこえる"], ["飛ばす", "とばす"],
+      ["前", "まえ"], ["後", "あと"], ["午前中", "ごぜんちゅう"], ["午後", "ごご"],
+      ["上", "うえ"], ["下", "した"], ["中", "なか"], ["近く", "ちかく"], ["周囲", "しゅうい"],
+      ["右", "みぎ"], ["位置", "いち"], ["足元", "あしもと"], ["頭部", "とうぶ"],
+      ["利用者", "りようしゃ"], ["介護職", "かいごしょく"], ["介護", "かいご"], ["生活支援", "せいかつしえん"],
+      ["介護日本語", "かいごにほんご"], ["尊厳", "そんげん"], ["自立支援", "じりつしえん"], ["見守り", "みまもり"],
+      ["移乗", "いじょう"], ["移る", "うつる"], ["移動", "いどう"], ["歩行", "ほこう"],
+      ["排泄", "はいせつ"], ["入浴", "にゅうよく"], ["浴室", "よくしつ"], ["食事", "しょくじ"],
+      ["服薬", "ふくやく"], ["体温", "たいおん"], ["認知症", "にんちしょう"], ["緊急時", "きんきゅうじ"],
+      ["声かけ", "こえかけ"], ["体調", "たいちょう"], ["顔色", "かおいろ"], ["責任者", "せきにんしゃ"],
+      ["報告", "ほうこく"], ["観察", "かんさつ"], ["転倒", "てんとう"], ["姿勢", "しせい"],
+      ["感染", "かんせん"], ["感染予防", "かんせんよぼう"], ["消毒", "しょうどく"], ["手袋", "てぶくろ"],
+      ["車いす", "くるまいす"], ["ブレーキ", "ブレーキ"], ["足の位置", "あしのいち"],
+      ["部屋", "へや"], ["入室前", "にゅうしつまえ"], ["悪口", "わるぐち"], ["薬", "くすり"],
+      ["食べ物", "たべもの"], ["飲む", "のむ"], ["測る", "はかる"], ["押す", "おす"],
+      ["押す前", "おすまえ"], ["動かす", "うごかす"], ["動作", "どうさ"], ["書く", "かく"],
+      ["書き方", "かきかた"], ["聞き取り", "ききとり"], ["読み取り", "よみとり"],
+      ["建設", "けんせつ"], ["土木", "どぼく"], ["建築", "けんちく"], ["施工", "せこう"],
+      ["現場", "げんば"], ["作業", "さぎょう"], ["作業服", "さぎょうふく"], ["作業場", "さぎょうば"],
+      ["高所作業", "こうしょさぎょう"], ["足場", "あしば"], ["工具", "こうぐ"], ["電動工具", "でんどうこうぐ"],
+      ["重機", "じゅうき"], ["運転者", "うんてんしゃ"], ["合図", "あいず"], ["合図者", "あいずしゃ"],
+      ["安全帯", "あんぜんたい"], ["安全靴", "あんぜんぐつ"], ["保護具", "ほごぐ"], ["防護具", "ぼうごぐ"],
+      ["墜落", "ついらく"], ["墜落防止", "ついらくぼうし"], ["落下物", "らっかぶつ"], ["吊り荷", "つりに"],
+      ["玉掛け", "たまがけ"], ["旋回範囲", "せんかいはんい"], ["火気", "かき"], ["火災予防", "かさいよぼう"],
+      ["消火準備", "しょうかじゅんび"], ["消火器", "しょうかき"], ["溶接", "ようせつ"], ["標識", "ひょうしき"],
+      ["立入禁止", "たちいりきんし"], ["仮設電源", "かせつでんげん"], ["漏電", "ろうでん"], ["感電", "かんでん"],
+      ["資材", "しざい"], ["材料", "ざいりょう"], ["通路", "つうろ"], ["整理整頓", "せいりせいとん"],
+      ["運搬", "うんぱん"], ["重量物", "じゅうりょうぶつ"], ["損傷", "そんしょう"], ["危険箇所", "きけんかしょ"],
+      ["役割", "やくわり"], ["手順", "てじゅん"], ["使用前点検", "しようまえてんけん"],
+      ["清掃", "せいそう"], ["用具", "ようぐ"], ["道具", "どうぐ"], ["洗剤", "せんざい"],
+      ["酸性洗剤", "さんせいせんざい"], ["塩素系洗剤", "えんそけいせんざい"], ["希釈", "きしゃく"],
+      ["希釈倍率", "きしゃくばいりつ"], ["床", "ゆか"], ["濡れた床", "ぬれたゆか"], ["表示板", "ひょうじばん"],
+      ["作業中表示板", "さぎょうちゅうひょうじばん"], ["水拭き", "みずぶき"], ["乾拭き", "からぶき"],
+      ["水切り", "みずきり"], ["水を切る", "みずをきる"], ["ガラス面", "ガラスめん"], ["洋式大便器", "ようしきだいべんき"],
+      ["衛生", "えいせい"], ["交差汚染", "こうさおせん"], ["ごみ袋", "ごみぶくろ"], ["分別", "ぶんべつ"],
+      ["中身", "なかみ"], ["鋭利物", "えいりぶつ"], ["血液", "けつえき"], ["体液", "たいえき"],
+      ["品質", "ひんしつ"], ["仕上げ", "しあげ"], ["忘れ物", "わすれもの"], ["置き忘れ", "おきわすれ"],
+      ["食品", "しょくひん"], ["食品工場", "しょくひんこうじょう"], ["食品安全", "しょくひんあんぜん"],
+      ["食品衛生", "しょくひんえいせい"], ["食中毒", "しょくちゅうどく"], ["食中毒予防", "しょくちゅうどくよぼう"],
+      ["一般衛生", "いっぱんえいせい"], ["製造工程", "せいぞうこうてい"], ["工程", "こうてい"],
+      ["管理", "かんり"], ["重要管理点", "じゅうようかんりてん"], ["温度管理", "おんどかんり"],
+      ["冷蔵品", "れいぞうひん"], ["常温", "じょうおん"], ["解凍", "かいとう"], ["原材料", "げんざいりょう"],
+      ["期限表示", "きげんひょうじ"], ["期限", "きげん"], ["作業服", "さぎょうふく"], ["帽子", "ぼうし"],
+      ["髪の毛", "かみのけ"], ["毛髪", "もうはつ"], ["異物", "いぶつ"], ["異物混入", "いぶつこんにゅう"],
+      ["金属片", "きんぞくへん"], ["器具", "きぐ"], ["破損", "はそん"], ["部品", "ぶひん"], ["脱落", "だつらく"],
+      ["洗浄", "せんじょう"], ["少量", "しょうりょう"], ["健康被害", "けんこうひがい"], ["交差汚染", "こうさおせん"],
+      ["農業", "のうぎょう"], ["耕種農業", "こうしゅのうぎょう"], ["畜産農業", "ちくさんのうぎょう"],
+      ["農作業", "のうさぎょう"], ["作業指示", "さぎょうしじ"], ["農薬", "のうやく"], ["農薬散布", "のうやくさんぷ"],
+      ["使用基準", "しようきじゅん"], ["天候", "てんこう"], ["強風", "きょうふう"], ["風向き", "かざむき"],
+      ["飛散", "ひさん"], ["飛散防止", "ひさんぼうし"], ["農業機械", "のうぎょうきかい"], ["機械", "きかい"],
+      ["刈払機", "かりはらいき"], ["燃料", "ねんりょう"], ["燃油", "ねんゆ"], ["刃", "は"],
+      ["収穫", "しゅうかく"], ["収穫物", "しゅうかくぶつ"], ["野菜", "やさい"], ["直射日光", "ちょくしゃにっこう"],
+      ["肥料", "ひりょう"], ["作物", "さくもつ"], ["植物", "しょくぶつ"], ["苗", "なえ"], ["ハウス", "ハウス"],
+      ["換気", "かんき"], ["温室", "おんしつ"], ["選別", "せんべつ"], ["出荷", "しゅっか"],
+      ["家畜", "かちく"], ["畜舎", "ちくしゃ"], ["飼養管理", "しようかんり"], ["病気予防", "びょうきよぼう"],
+      ["水飲み場", "みずのみば"], ["家畜の様子", "かちくのようす"], ["ふん尿", "ふんにょう"],
+      ["作業を始める", "さぎょうをはじめる"], ["作業を止め", "さぎょうをとめ"], ["作業を止める", "さぎょうをとめる"],
+      ["着たい", "きたい"], ["着替え", "きがえ"], ["着用", "ちゃくよう"], ["着ける", "つける"], ["手伝って", "てつだって"],
+      ["手伝う", "てつだう"], ["全部", "ぜんぶ"], ["難しい", "むずかしい"], ["危ない", "あぶない"],
+      ["正しい", "ただしい"], ["正しく", "ただしく"], ["必要", "ひつよう"], ["自由", "じゆう"], ["素手", "すで"], ["直接", "ちょくせつ"],
+      ["言っています", "いっています"], ["最も", "もっとも"], ["時間", "じかん"], ["家族", "かぞく"],
+      ["入る", "はいる"], ["入って", "はいって"], ["部屋", "へや"], ["返事", "へんじ"], ["待つ", "まつ"],
+      ["食べられる", "たべられる"], ["食べてもらう", "たべてもらう"], ["食べさせる", "たべさせる"],
+      ["飲ませる", "のませる"], ["飲む", "のむ"], ["測る", "はかる"], ["押す", "おす"], ["動かす", "うごかす"],
+      ["書く", "かく"], ["書き方", "かきかた"], ["見た", "みた"], ["見つけた", "みつけた"],
+      ["見つけたとき", "みつけたとき"], ["見守り", "みまもり"], ["守る", "まもる"], ["守ります", "まもります"],
+      ["声かけ", "こえかけ"], ["同じ", "おなじ"], ["落ち着いて", "おちついて"], ["呼ぶ", "よぶ"],
+      ["立たせる", "たたせる"], ["渡す", "わたす"], ["聞き取りにくい", "ききとりにくい"], ["話す", "はなす"],
+      ["近く", "ちかく"], ["走る", "はしる"], ["置く", "おく"], ["使う", "つかう"], ["使わない", "つかわない"],
+      ["使い方", "つかいかた"], ["使い分ける", "つかいわける"], ["混ぜる", "まぜる"], ["薄める", "うすめる"],
+      ["洗う", "あらう"], ["洗って", "あらって"], ["乾かし", "かわかし"], ["戻す", "もどす"], ["片付け", "かたづけ"],
+      ["置きっぱなし", "おきっぱなし"], ["閉じる", "とじる"], ["引きずる", "ひきずる"], ["押し込む", "おしこむ"],
+      ["拭く", "ふく"], ["水拭き", "みずぶき"], ["乾拭き", "からぶき"], ["水切り", "みずきり"], ["水を切る", "みずをきる"],
+      ["床", "ゆか"], ["汚れ", "よごれ"], ["汚れて", "よごれて"], ["ごみ袋", "ごみぶくろ"], ["中身", "なかみ"],
+      ["食品を扱う", "しょくひんをあつかう"], ["扱う", "あつかう"], ["扱い", "あつかい"], ["扱った", "あつかった"], ["強く", "つよく"],
+      ["髪の毛", "かみのけ"], ["作業場", "さぎょうば"],
+      ["作業服", "さぎょうふく"], ["外靴", "そとぐつ"], ["冷蔵品", "れいぞうひん"], ["生肉", "なまにく"],
+      ["常温", "じょうおん"], ["少量", "しょうりょう"], ["勝手に", "かってに"], ["記録", "きろく"],
+      ["農薬散布", "のうやくさんぷ"], ["強風", "きょうふう"], ["風向き", "かざむき"], ["刈払機", "かりはらいき"],
+      ["収穫物", "しゅうかくぶつ"], ["収穫した", "しゅうかくした"], ["傷をつけない", "きずをつけない"],
+      ["若い", "わかい"], ["水をやって", "みずをやって"], ["水を与える", "みずをあたえる"], ["暑すぎる", "あつすぎる"],
+      ["遠く", "とおく"], ["体調", "たいちょう"], ["悪く", "わるく"], ["保管する", "ほかんする"],
+      ["利用者", "りようしゃ"], ["介護職", "かいごしょく"], ["対応", "たいおう"], ["自立支援", "じりつしえん"],
+      ["本人", "ほんにん"], ["移乗", "いじょう"], ["車いす", "くるまいす"], ["確認", "かくにん"],
+      ["食事", "しょくじ"], ["薬", "くすり"], ["体温", "たいおん"], ["測る", "はかる"],
+      ["安全", "あんぜん"], ["周囲", "しゅうい"], ["体", "からだ"], ["動かす", "うごかす"],
+      ["説明", "せつめい"], ["同意", "どうい"], ["記録", "きろく"], ["適切", "てきせつ"],
+      ["事実", "じじつ"], ["具体的", "ぐたいてき"], ["観察", "かんさつ"], ["尊厳", "そんげん"],
+      ["部屋", "へや"], ["入る", "はいる"], ["返事", "へんじ"], ["待つ", "まつ"],
+      ["排泄", "はいせつ"], ["手袋", "てぶくろ"], ["消毒", "しょうどく"], ["感染", "かんせん"],
+      ["顔色", "かおいろ"], ["責任者", "せきにんしゃ"], ["報告", "ほうこく"], ["歩行", "ほこう"],
+      ["転倒", "てんとう"], ["姿勢", "しせい"], ["入浴", "にゅうよく"], ["浴室", "よくしつ"],
+      ["認知症", "にんちしょう"], ["質問", "しつもん"], ["緊急時", "きんきゅうじ"], ["服薬", "ふくやく"],
+      ["建設", "けんせつ"], ["現場", "げんば"], ["保護具", "ほごぐ"], ["安全帯", "あんぜんたい"],
+      ["共通安全問題", "きょうつうあんぜんもんだい"], ["共通安全", "きょうつうあんぜん"], ["共通", "きょうつう"],
+      ["高所作業", "こうしょさぎょう"], ["足場", "あしば"], ["工具", "こうぐ"], ["点検", "てんけん"],
+      ["重機", "じゅうき"], ["合図", "あいず"], ["運転者", "うんてんしゃ"], ["作業服", "さぎょうふく"],
+      ["資材", "しざい"], ["通路", "つうろ"], ["整理", "せいり"], ["確保", "かくほ"],
+      ["電動工具", "でんどうこうぐ"], ["吊り荷", "つりに"], ["溶接", "ようせつ"], ["火気", "かき"],
+      ["標識", "ひょうしき"], ["立入禁止", "たちいりきんし"], ["仮設電源", "かせつでんげん"], ["感電", "かんでん"],
+      ["ライフライン・設備", "ライフライン・せつび"], ["ライフライン", "ライフライン"], ["設備", "せつび"],
+      ["土木", "どぼく"], ["建築", "けんちく"], ["掘削", "くっさく"], ["埋戻し", "うめもどし"],
+      ["埋設物", "まいせつぶつ"], ["埋設管", "まいせつかん"], ["埋設表示", "まいせつひょうじ"],
+      ["地面", "じめん"], ["地盤", "じばん"], ["土砂崩れ", "どしゃくずれ"], ["土留め", "どどめ"],
+      ["法面", "のりめん"], ["締め固める", "しめかためる"], ["締め固め", "しめかため"], ["締固め", "しめかため"],
+      ["転圧", "てんあつ"], ["沈下", "ちんか"], ["砕石", "さいせき"], ["勾配", "こうばい"],
+      ["側溝", "そっこう"], ["排水管", "はいすいかん"], ["排水", "はいすい"], ["道路舗装", "どうろほそう"],
+      ["アスファルト合材", "アスファルトごうざい"], ["測量補助", "そくりょうほじょ"], ["測量", "そくりょう"],
+      ["杭", "くい"], ["仮設通路", "かせつつうろ"], ["段差", "だんさ"], ["ぬかるみ", "ぬかるみ"],
+      ["墨出し", "すみだし"], ["基準線", "きじゅんせん"], ["寸法", "すんぽう"], ["型枠", "かたわく"],
+      ["鉄筋", "てっきん"], ["本数", "ほんすう"], ["間隔", "かんかく"], ["かぶり厚さ", "かぶりあつさ"],
+      ["床材", "ゆかざい"], ["昇降設備", "しょうこうせつび"], ["最大積載", "さいだいせきさい"],
+      ["石膏ボード", "せっこうボード"], ["開口部", "かいこうぶ"], ["建具", "たてぐ"], ["サッシ", "サッシ"],
+      ["水平", "すいへい"], ["仮固定", "かりこてい"], ["防水", "ぼうすい"], ["下地", "したじ"],
+      ["資材搬入", "しざいはんにゅう"], ["搬入経路", "はんにゅうけいろ"], ["避難経路", "ひなんけいろ"],
+      ["仕上げ材", "しあげざい"], ["仕上げ", "しあげ"], ["管", "かん"], ["口径", "こうけい"],
+      ["配管", "はいかん"], ["水道管", "すいどうかん"], ["漏水", "ろうすい"], ["接続部", "せつぞくぶ"],
+      ["電気設備", "でんきせつび"], ["通電", "つうでん"], ["通信ケーブル", "つうしんケーブル"],
+      ["接続先", "せつぞくさき"], ["ガス配管", "ガスはいかん"], ["異臭", "いしゅう"], ["バルブ", "バルブ"],
+      ["保温保冷", "ほおんほれい"], ["保温材", "ほおんざい"], ["結露", "けつろ"], ["熱の損失", "ねつのそんしつ"],
+      ["建築板金", "けんちくばんきん"], ["金属板", "きんぞくばん"], ["切り口", "きりくち"],
+      ["機器据付", "ききすえつけ"], ["設備機器", "せつびきき"], ["作業スペース", "さぎょうスペース"],
+      ["試運転", "しうんてん"], ["安全カバー", "あんぜんカバー"], ["手掘り", "てぼり"],
+      ["清掃", "せいそう"], ["洗剤", "せんざい"], ["床", "ゆか"], ["表示板", "ひょうじばん"],
+      ["水拭き", "みずぶき"], ["用具", "ようぐ"], ["保管", "ほかん"], ["酸性", "さんせい"],
+      ["塩素系", "えんそけい"], ["危険", "きけん"], ["有害", "ゆうがい"], ["交差汚染", "こうさおせん"],
+      ["洋式大便器", "ようしきだいべんき"], ["衛生", "えいせい"], ["分別", "ぶんべつ"], ["希釈", "きしゃく"],
+      ["食品", "しょくひん"], ["工場", "こうじょう"], ["作業", "さぎょう"], ["作業服", "さぎょうふく"],
+      ["帽子", "ぼうし"], ["髪の毛", "かみのけ"], ["製品", "せいひん"], ["異物混入", "いぶつこんにゅう"],
+      ["重要管理点", "じゅうようかんりてん"], ["工程", "こうてい"], ["管理", "かんり"], ["温度", "おんど"],
+      ["冷蔵品", "れいぞうひん"], ["原材料", "げんざいりょう"], ["期限", "きげん"], ["洗浄", "せんじょう"],
+      ["農薬", "のうやく"], ["農業", "のうぎょう"], ["機械", "きかい"], ["収穫", "しゅうかく"],
+      ["野菜", "やさい"], ["家畜", "かちく"], ["畜舎", "ちくしゃ"], ["肥料", "ひりょう"],
+      ["散布", "さんぷ"], ["防護具", "ぼうごぐ"], ["強風", "きょうふう"], ["天候", "てんこう"],
+      ["苗", "なえ"], ["換気", "かんき"], ["選別", "せんべつ"], ["出荷", "しゅっか"],
+      ["品質", "ひんしつ"], ["作業指示", "さぎょうしじ"],
+      ["宿泊技能測定試験", "しゅくはくぎのうそくていしけん"], ["宿泊施設", "しゅくはくしせつ"], ["宿泊", "しゅくはく"],
+      ["お客様", "おきゃくさま"], ["フロント", "フロント"], ["接客", "せっきゃく"], ["客室", "きゃくしつ"], ["客室清掃", "きゃくしつせいそう"],
+      ["レストランサービス", "レストランサービス"], ["安全衛生", "あんぜんえいせい"], ["企画", "きかく"], ["広報", "こうほう"],
+      ["予約内容", "よやくないよう"], ["予約情報", "よやくじょうほう"], ["予約番号", "よやくばんごう"], ["予約一覧", "よやくいちらん"],
+      ["予約日", "よやくび"], ["予約方法", "よやくほうほう"], ["予約", "よやく"], ["宿泊日", "しゅくはくび"],
+      ["人数", "にんずう"], ["部屋タイプ", "へやタイプ"], ["部屋番号", "へやばんごう"], ["鍵", "かぎ"],
+      ["チェックイン", "チェックイン"], ["チェックアウト", "チェックアウト"], ["館内", "かんない"], ["館内案内", "かんないあんない"],
+      ["朝食会場", "ちょうしょくかいじょう"], ["朝食", "ちょうしょく"], ["会場", "かいじょう"], ["階", "かい"],
+      ["空調", "くうちょう"], ["毛布", "もうふ"], ["苦情対応", "くじょうたいおう"], ["苦情", "くじょう"],
+      ["騒音", "そうおん"], ["謝罪", "しゃざい"], ["状況", "じょうきょう"], ["依頼", "いらい"],
+      ["注文内容", "ちゅうもんないよう"], ["注文", "ちゅうもん"], ["テーブル番号", "テーブルばんごう"], ["料理名", "りょうりめい"],
+      ["料理提供", "りょうりていきょう"], ["料理", "りょうり"], ["提供", "ていきょう"], ["厨房", "ちゅうぼう"],
+      ["食物アレルギー", "しょくもつアレルギー"], ["アレルギー", "アレルギー"], ["申し出", "もうしで"],
+      ["火災警報", "かさいけいほう"], ["火災", "かさい"], ["警報", "けいほう"], ["避難", "ひなん"],
+      ["非常口", "ひじょうぐち"], ["避難経路", "ひなんけいろ"], ["経路", "けいろ"], ["エレベーター", "エレベーター"],
+      ["ロビー", "ロビー"], ["本人確認", "ほんにんかくにん"], ["個人情報", "こじんじょうほう"], ["情報発信", "じょうほうはっしん"],
+      ["イベント情報", "イベントじょうほう"], ["最新情報", "さいしんじょうほう"], ["料金", "りょうきん"], ["会計", "かいけい"],
+      ["明細", "めいさい"], ["精算", "せいさん"], ["追加利用", "ついかりよう"], ["領収書", "りょうしゅうしょ"],
+      ["請求", "せいきゅう"], ["名乗り", "なのり"], ["連絡", "れんらく"], ["先に", "さきに"],
+      ["教えない", "おしえない"], ["伝える", "つたえる"], ["伝わる", "つたわる"], ["鳴った", "なった"],
+      ["移動し", "いどうし"], ["閉める", "しめる"], ["終わる", "おわる"], ["空いている", "あいている"],
+      ["見つからない", "みつからない"], ["聞かれました", "きかれました"], ["聞かれた", "きかれた"],
+      ["言われました", "いわれました"], ["言っています", "いっています"], ["言って", "いって"], ["思う", "おもう"]
+    ].sort((a, b) => b[0].length - a[0].length);
+
+    const kanjiReadings = {
+      "一": "いち", "上": "うえ", "下": "した", "中": "なか", "人": "ひと", "口": "くち", "大": "おお",
+      "小": "しょう", "手": "て", "日": "にち", "月": "げつ", "木": "もく", "水": "みず", "火": "ひ",
+      "土": "つち", "分": "ぶん", "今": "いま", "午": "ご", "内": "ない", "方": "ほう", "何": "なに",
+      "正": "ただ", "必": "ひつ", "要": "よう", "使": "つか", "前": "まえ", "後": "あと", "見": "み",
+      "防": "ふせ", "場": "ば", "所": "しょ", "置": "お", "判": "はん", "断": "だん", "決": "き",
+      "守": "まも", "物": "もの", "近": "ちか", "表": "ひょう", "示": "じ", "入": "はい", "汚": "よご",
+      "量": "りょう", "重": "じゅう", "行": "おこな", "扱": "あつか", "混": "ま", "洗": "あら",
+      "介": "かい", "助": "じょ", "順": "じゅん", "濡": "ぬ", "状": "じょう", "態": "たい",
+      "本": "ほん", "番": "ばん", "対": "たい", "策": "さく", "復": "ふく", "習": "しゅう",
+      "問": "もん", "題": "だい", "実": "じつ", "技": "ぎ", "時": "じ", "間": "かん",
+      "語": "ご", "彙": "い", "面": "めん", "直": "ちょく", "道": "どう", "具": "ぐ",
+      "切": "き", "走": "はし", "器": "き", "隠": "かく", "外": "はず", "続": "つづ",
+      "話": "はな", "運": "うん", "書": "か", "出": "だ", "足": "あし", "元": "もと",
+      "食": "た", "急": "いそ", "持": "も", "無": "む", "理": "り", "知": "し",
+      "与": "あた", "視": "し", "残": "のこ", "止": "と", "最": "もっと", "取": "と",
+      "声": "こえ", "清": "せい", "潔": "けつ", "基": "き", "放": "ほう", "勝": "かっ",
+      "処": "しょ", "素": "す", "早": "はや", "合": "あ", "増": "ふ", "従": "したが",
+      "法": "ほう", "調": "ちょう", "同": "どう", "聞": "き", "傷": "きず", "作": "さく",
+      "別": "べつ", "避": "さ", "集": "あつ", "読": "よ", "服": "ふく", "装": "そう",
+      "片": "かた", "付": "づ", "考": "かんが", "意": "い", "味": "み", "自": "じ",
+      "伝": "つた", "強": "つよ", "用": "よう", "様": "よう", "不": "ふ", "異": "い",
+      "常": "じょう", "飲": "の", "押": "お", "向": "む", "壊": "こわ", "長": "なが",
+      "投": "な", "刃": "は", "袋": "ふくろ", "言": "い", "予": "よ", "交": "こう",
+      "換": "かん", "材": "ざい", "停": "てい", "少": "すこ", "基": "き", "準": "じゅん",
+      "影": "えい", "響": "きょう", "飛": "ひ", "散": "さん", "悪": "わる", "気": "き",
+      "紙": "かみ", "乾": "かわ", "捨": "す", "菌": "きん", "暑": "あつ", "多": "おお",
+      "想": "そう", "像": "ぞう", "改": "かい", "善": "ぜん", "事": "じ", "故": "こ",
+      "通": "つう", "落": "お", "帰": "かえ", "保": "ほ", "計": "けい", "古": "ふる",
+      "泥": "どろ", "損": "そん", "優": "ゆう", "先": "せん", "植": "しょく", "若": "わか",
+      "写": "しゃ", "真": "しん", "畜": "ちく", "産": "さん", "丁": "てい", "寧": "ねい",
+      "種": "しゅ", "類": "るい", "護": "ご", "移": "い", "由": "ゆう", "整": "せい",
+      "頓": "とん", "着": "き", "者": "しゃ", "己": "こ", "備": "び", "替": "か",
+      "容": "よう", "計": "けい", "感": "かん", "覚": "かく", "飼": "し", "養": "よう",
+      "他": "ほか", "答": "こた", "振": "ふ", "動": "うご", "込": "こ", "暗": "あん",
+      "戻": "もど", "軽": "かる", "音": "おと", "毒": "どく", "嚥": "えん", "旋": "せん",
+      "回": "かい", "範": "はん", "囲": "い", "災": "さい", "消": "しょう", "準": "じゅん",
+      "害": "がい", "健": "けん", "康": "こう", "射": "しゃ", "光": "こう", "病": "びょう",
+      "室": "しつ", "部": "ぶ", "省": "しょう", "略": "りゃく", "荷": "に", "箇": "か",
+      "指": "し", "頭": "とう", "墜": "つい", "周": "しゅう", "辺": "へん", "携": "けい",
+      "帯": "たい", "玉": "たま", "掛": "か", "花": "はな", "臭": "しゅう", "染": "せん",
+      "目": "もく", "的": "てき", "便": "べん", "全": "ぜん", "身": "み", "靴": "くつ",
+      "毛": "もう", "私": "し", "蔵": "ぞう", "解": "かい", "凍": "とう", "破": "は",
+      "品": "ひん", "脱": "だつ", "監": "かん", "休": "きゅう", "憩": "けい", "風": "かぜ",
+      "子": "こ", "序": "じょ", "誤": "ご", "料": "りょう", "度": "ど", "拭": "ふ", "初": "はじ",
+      "忘": "わす", "髪": "かみ", "名": "な", "温": "おん", "農": "のう", "立": "た", "適": "てき",
+      "刈": "か", "払": "はら", "効": "こう", "果": "か", "変": "へん", "化": "か", "鋭": "えい",
+      "利": "り", "金": "きん", "属": "ぞく", "燃": "ねん", "環": "かん", "境": "きょう",
+      "短": "みじか", "開": "あ", "叱": "しか", "寝": "ね", "良": "よ", "端": "はし", "越": "こ",
+      "歩": "ある", "流": "なが", "始": "はじ", "滑": "すべ", "次": "つぎ", "香": "かお",
+      "掃": "そう", "広": "ひろ", "引": "ひ", "閉": "と", "減": "へ", "探": "さが", "石": "せき",
+      "応": "おう", "浅": "あさ", "殖": "しょく", "被": "ひ", "箱": "はこ", "夜": "よる",
+      "路": "ろ", "尿": "にょう", "設": "せつ", "栽": "さい", "培": "ばい", "援": "えん",
+      "請": "せい", "空": "そら", "欄": "らん", "安": "あん", "心": "しん", "職": "しょく",
+      "員": "いん", "配": "はい", "慮": "りょ", "許": "きょ", "可": "か", "搬": "はん",
+      "協": "きょう", "力": "りょく", "電": "でん", "源": "げん", "漏": "ろう", "役": "やく",
+      "割": "わり", "血": "けつ", "液": "えき", "資": "し", "終": "しゅう", "了": "りょう",
+      "永": "えい", "久": "きゅう", "倍": "ばい", "率": "りつ", "生": "せい", "肉": "にく",
+      "証": "しょう", "拠": "きょ", "熱": "ねつ", "湯": "ゆ", "症": "しょう", "我": "が",
+      "慢": "まん", "怒": "おこ", "責": "せき", "呼": "よ", "余": "よ", "渡": "わた",
+      "相": "あい", "背": "せ", "友": "とも", "機": "き", "濃": "こ", "撮": "さつ",
+      "腰": "こし", "丸": "まる", "界": "かい", "二": "に", "注": "ちゅう", "踏": "ふ",
+      "普": "ふ", "燥": "そう", "仕": "し", "隅": "すみ", "寄": "よ", "薄": "うす",
+      "布": "ぬの", "疑": "うたが", "除": "のぞ", "黙": "だま", "遵": "じゅん",
+      "転": "てん", "朝": "あさ", "信": "しん", "施": "し", "遮": "しゃ", "遠": "とお",
+      "触": "ふ", "試": "し", "験": "けん", "形": "けい", "式": "しき", "練": "れん",
+      "点": "てん", "耕": "こう", "労": "ろう", "働": "どう", "科": "か", "公": "こう",
+      "選": "えら", "違": "ちが", "活": "かつ", "支": "し", "模": "も", "識": "しき",
+      "文": "ぶん", "記": "き", "択": "たく", "図": "ず", "区": "く", "礎": "そ",
+      "定": "てい", "受": "じゅ", "築": "ちく", "経": "けい", "画": "かく", "案": "あん",
+      "比": "ひ", "野": "や", "会": "かい", "反": "はん", "毎": "まい", "含": "ふく",
+      "危": "き", "位": "い", "評": "ひょう", "価": "か", "能": "のう", "非": "ひ",
+      "型": "けい", "現": "げん", "肢": "し", "製": "せい", "造": "ぞう", "業": "ぎょう",
+      "地": "ち", "就": "しゅう", "家": "か", "族": "ぞく", "母": "ぼ", "国": "こく",
+      "工": "こう", "邪": "じゃ", "魔": "ま", "得": "とく", "撤": "てっ", "去": "きょ",
+      "値": "ち", "章": "しょう", "因": "いん", "睡": "すい", "眠": "みん", "両": "りょう",
+      "成": "せい", "難": "むずか", "好": "す", "色": "いろ", "右": "みぎ", "慣": "な",
+      "標": "ひょう", "巻": "ま", "袖": "そで", "裾": "すそ", "有": "ゆう", "致": "ち",
+      "学": "がく", "高": "たか", "建": "けん", "途": "と", "術": "じゅつ", "接": "せつ",
+      "傾": "けい", "般": "ぱん", "況": "きょう", "当": "とう", "細": "こま", "例": "れい",
+      "昨": "さく", "特": "とく", "析": "せき", "測": "はか", "起": "お", "司": "し",
+      "加": "くわ", "湿": "しつ", "務": "む", "否": "ひ", "関": "かん", "油": "ゆ",
+      "追": "お", "買": "か"
+    };
+
+    function escapeHtml(text) {
+      return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function uiHtml(key) {
+      const pair = uiLabels[key] || [key, key];
+      if (uiMode === "ja") return escapeHtml(pair[0]);
+      if (uiMode === "id") return escapeHtml(pair[1]);
+      return `${escapeHtml(pair[0])}<span class="ui-sub">${escapeHtml(pair[1])}</span>`;
+    }
+
+    function uiPlain(key) {
+      const pair = uiLabels[key] || [key, key];
+      if (uiMode === "id") return pair[1];
+      if (uiMode === "both") return `${pair[0]} / ${pair[1]}`;
+      return pair[0];
+    }
+
+    function fieldHtml(key) {
+      const pair = fieldUi[key]?.name || [fields[key].name, fields[key].name];
+      if (uiMode === "ja") return escapeHtml(pair[0]);
+      if (uiMode === "id") return escapeHtml(pair[1]);
+      return `${escapeHtml(pair[0])}<span class="ui-sub">${escapeHtml(pair[1])}</span>`;
+    }
+
+    function fieldSummaryHtml(key) {
+      const pair = fieldUi[key]?.summary || [fields[key].summary, fields[key].summary];
+      if (uiMode === "ja") return escapeHtml(pair[0]);
+      if (uiMode === "id") return escapeHtml(pair[1]);
+      return `${escapeHtml(pair[0])}<span class="bi">Bahasa Indonesia: ${escapeHtml(pair[1])}</span>`;
+    }
+
+    function metaLabelHtml(label) {
+      const map = {
+        "試験の中心": "metaCenter",
+        "問題形式": "metaFormat",
+        "重点": "metaFocus"
+      };
+      return map[label] ? uiHtml(map[label]) : escapeHtml(label);
+    }
+
+    function questionCountHtml(count) {
+      if (uiMode === "id") return `${count} soal`;
+      if (uiMode === "both") return `${count}問<span class="ui-sub">${count} soal</span>`;
+      return `${count}問`;
+    }
+
+    function minuteHtml(minutes) {
+      if (uiMode === "id") return `${minutes} menit`;
+      if (uiMode === "both") return `${minutes}分<span class="ui-sub">${minutes} menit</span>`;
+      return `${minutes}分`;
+    }
+
+    function trackNameHtml(key) {
+      const pair = constructionTracks[key].name;
+      if (uiMode === "ja") return escapeHtml(pair[0]);
+      if (uiMode === "id") return escapeHtml(pair[1]);
+      return `${escapeHtml(pair[0])}<span class="ui-sub">${escapeHtml(pair[1])}</span>`;
+    }
+
+    function constructionTrackSelectorHtml() {
+      if (currentField !== "construction") return "";
+      return `
+        <div class="track-switch" aria-label="建設区分選択">
+          <span class="track-label">建設区分<span class="ui-sub">Subbidang konstruksi</span></span>
+          <div class="track-buttons">
+            ${Object.keys(constructionTracks).map(key => `
+              <button class="track-btn ${constructionTrack === key ? "active" : ""}" data-construction-track="${key}" type="button">
+                ${trackNameHtml(key)}
+              </button>
+            `).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    function attachConstructionTrackControls() {
+      document.querySelectorAll("[data-construction-track]").forEach(button => {
+        button.addEventListener("click", () => {
+          if (constructionTrack === button.dataset.constructionTrack) return;
+          constructionTrack = button.dataset.constructionTrack;
+          currentQuestion = 0;
+          selected = false;
+          quizChoiceKey = "";
+          quizChoiceOrder = [];
+          resetExam();
+          render();
+        });
+      });
+    }
+
+    function activeQuestionBank() {
+      if (currentField === "construction") {
+        return constructionTrackBanks[constructionTrack] || fields.construction.questions;
+      }
+      return fields[currentField].questions;
+    }
+
+    function activeExamConfig() {
+      const config = examConfigs[currentField];
+      if (currentField !== "construction") return config;
+      if (constructionTrack === "common") {
+        return {
+          ...config,
+          label: constructionTracks.common.label
+        };
+      }
+      return {
+        ...config,
+        label: `${constructionTracks[constructionTrack].label}（共通18問＋区分32問）`
+      };
+    }
+
+    function activeExamQuestions(config) {
+      if (currentField !== "construction" || constructionTrack === "common") {
+        return shuffle(activeQuestionBank()).slice(0, config.questions);
+      }
+      const commonCount = 18;
+      const trackCount = config.questions - commonCount;
+      return [
+        ...shuffle(constructionTrackBanks.common).slice(0, commonCount),
+        ...shuffle(constructionTrackBanks[constructionTrack]).slice(0, trackCount)
+      ];
+    }
+
+    function applyUiLanguage() {
+      ["appTitle", "appSubtitle", "languageLabel", "heroTitle", "heroCopy", "statFields", "statQuestions", "statIndonesian", "sideNotice", "footerNote"].forEach(id => {
+        const element = document.getElementById(id);
+        if (element) element.innerHTML = uiHtml(id);
+      });
+      document.querySelectorAll(".mode").forEach(button => {
+        button.innerHTML = uiHtml(button.dataset.uiKey);
+      });
+      document.querySelectorAll(".tab").forEach(button => {
+        button.innerHTML = fieldHtml(button.dataset.field);
+      });
+      document.querySelectorAll(".seg-btn").forEach(button => {
+        button.classList.toggle("active", button.dataset.uiMode === uiMode);
+      });
+    }
+
+    function rubyText(text) {
+      const placeholders = [];
+      let marked = escapeHtml(text);
+      rubyGlossary.forEach(([term, reading]) => {
+        const escapedTerm = escapeHtml(term);
+        marked = marked.split(escapedTerm).join(`@@RUBY${placeholders.length}@@`);
+        placeholders.push(`<ruby>${escapedTerm}<rt>${reading}</rt></ruby>`);
+      });
+      placeholders.forEach((html, index) => {
+        marked = marked.split(`@@RUBY${index}@@`).join(html);
+      });
+      return marked;
+    }
+
+    function formatJapanese(text) {
+      return showRuby ? rubyText(text) : escapeHtml(text);
+    }
+
+    const sectionTranslations = {
+      care: {
+        trends: [
+          "Soal sering menanyakan tindakan yang menjaga martabat pengguna.",
+          "Pahami urutan bantuan kehidupan sehari-hari seperti makan, toileting, berpindah, dan mandi.",
+          "Dalam bahasa Jepang perawatan, kosakata kerja, percakapan, dan bacaan catatan sering ditanyakan.",
+          "Belajar dengan memahami dalam bahasa Indonesia dulu, lalu ubah ke ungkapan Jepang yang dipakai di tempat kerja."
+        ],
+        pitfalls: [
+          "Peserta sering memilih jawaban yang sopan, tetapi tidak mengecek keselamatan.",
+          "Makna mimamori, dukungan kemandirian, dan privasi belum bisa dijelaskan dalam bahasa Jepang.",
+          "Sulit membaca ungkapan pendek dalam catatan perawatan."
+        ],
+        plan: [
+          "Hafalkan kosakata tubuh, gerakan perawatan, dan situasi kehidupan dalam bahasa Jepang dan Indonesia.",
+          "Ulangi soal prosedur makan, toileting, berpindah, dan mandi.",
+          "Kerjakan percakapan dan bacaan bahasa Jepang perawatan setiap hari.",
+          "Latihan simulasi 45 soal dan buat catatan kesalahan."
+        ]
+      },
+      construction: {
+        trends: [
+          "Keselamatan kerja seperti sabuk pengaman, helm, dan pencegahan jatuh sangat penting.",
+          "Latihan membaca foto atau gambar untuk memilih alat, pekerjaan, dan titik bahaya yang benar.",
+          "Kosakata khusus perlu disesuaikan dengan kategori ujian: sipil, bangunan, atau lifeline/peralatan.",
+          "Peserta berpengalaman harus menjawab berdasarkan aturan keselamatan Jepang, bukan kebiasaan di negara asal."
+        ],
+        pitfalls: [
+          "Pengalaman kerja di negara asal kadang berbeda dengan prosedur standar Jepang.",
+          "Kosakata rambu, alat pelindung, dan aba-aba belum hafal.",
+          "Salah memilih atau mencampur kategori ujian: sipil, bangunan, atau lifeline/peralatan."
+        ],
+        plan: [
+          "Hafalkan kosakata keselamatan, alat pelindung, dan rambu memakai kartu foto.",
+          "Pelajari kosakata penting dan nama alat sesuai kategori ujian.",
+          "Kerjakan soal benar-salah setiap hari.",
+          "Latihan waktu untuk 30 soal teori dan 20 soal praktik."
+        ]
+      },
+      cleaning: {
+        trends: [
+          "Peserta harus bisa memilih alat dan deterjen yang cocok untuk tempat pembersihan.",
+          "Urutan kerja dari persiapan, keselamatan saat bekerja, sampai beres-beres sangat penting.",
+          "Perlu membedakan istilah seperti lap basah, lap kering, squeegee, dan mop.",
+          "Latihan melihat foto untuk menilai jenis kotoran atau kesalahan kerja sangat efektif."
+        ],
+        pitfalls: [
+          "Belum memahami alasan bahan kimia pembersih tidak boleh dicampur.",
+          "Nama alat belum hafal dalam bahasa Jepang.",
+          "Sering lupa tahap akhir seperti merapikan alat dan melepas tanda kerja."
+        ],
+        plan: [
+          "Cocokkan nama alat dengan foto.",
+          "Hafalkan urutan kerja lantai, kaca, dan toilet.",
+          "Latihan soal deterjen, tanda keselamatan, dan pembatasan area.",
+          "Latihan soal berbasis foto dan cek gerakan praktik."
+        ]
+      },
+      food: {
+        trends: [
+          "Materi utama adalah keamanan pangan, higiene umum, proses produksi, HACCP, dan keselamatan kerja.",
+          "Praktik menekankan penilaian situasi dari gambar dan pemahaman rencana kerja.",
+          "Karena contoh resmi sulit ditemukan, teks resmi perlu diubah menjadi banyak soal latihan.",
+          "Untuk peserta Indonesia, HACCP, alergen, benda asing, dan 5S lebih mudah dipahami dengan contoh nyata."
+        ],
+        pitfalls: [
+          "Perbedaan antara bersih dan disinfeksi masih belum jelas.",
+          "Risiko alergen dan kontaminasi silang sering dianggap ringan.",
+          "Sulit menjelaskan alasan pentingnya suhu, catatan, dan cuci tangan."
+        ],
+        plan: [
+          "Pelajari dasar keamanan pangan dan keracunan makanan.",
+          "Pelajari 5S, cuci tangan, pakaian kerja, dan pencegahan benda asing.",
+          "Pelajari HACCP, titik kendali penting, dan pencatatan.",
+          "Ulangi soal penilaian praktik dan perencanaan kerja."
+        ]
+      },
+      agriculture: {
+        trends: [
+          "Tentukan sejak awal apakah belajar pertanian tanaman atau peternakan karena materinya berbeda.",
+          "Kosakata praktik seperti mesin, pestisida, pupuk, suhu, kelembapan, dan ternak cukup banyak.",
+          "Kemampuan memahami instruksi kerja dalam bahasa Jepang sangat memengaruhi hasil.",
+          "Karena banyak pekerjaan di daerah, hubungkan persiapan ujian dengan bahasa Jepang kehidupan sehari-hari."
+        ],
+        pitfalls: [
+          "Aturan keselamatan pestisida dan mesin sering dianggap ringan.",
+          "Kosakata pertanian tanaman dan peternakan tercampur.",
+          "Instruksi bahasa Jepang tentang cuaca dan jadwal kerja sulit dibaca."
+        ],
+        plan: [
+          "Pilih kategori tanaman atau peternakan dan pelajari kosakata dasar.",
+          "Pelajari keselamatan, pestisida, mesin, dan bahan bakar.",
+          "Pelajari prosedur kerja dan soal penilaian foto.",
+          "Latihan bahasa Jepang instruksi pertanian dan simulasi soal."
+        ]
+      },
+      hotel: {
+        trends: [
+          "Soal cenderung menanyakan bahasa Jepang untuk melayani tamu dengan sopan dan memastikan informasi.",
+          "Peserta perlu menilai beberapa situasi seperti front office, kamar, dan restoran.",
+          "Pahami alur reservasi, check-in, pertanyaan tamu, dan penanganan keluhan.",
+          "Dalam keselamatan dan higiene, respons pada kebakaran, cedera, kondisi tidak sehat, dan alergi makanan sangat penting."
+        ],
+        pitfalls: [
+          "Hanya memakai kata-kata sopan, tetapi lupa konfirmasi atau laporan.",
+          "Salah memeriksa angka seperti informasi reservasi, nomor kamar, waktu, dan jumlah tamu.",
+          "Menangani keluhan atau keadaan darurat berdasarkan keputusan sendiri."
+        ],
+        plan: [
+          "Pelajari kosakata dasar hotel, keigo, dan ungkapan untuk memberi arahan.",
+          "Latih alur reservasi, check-in, dan check-out.",
+          "Kerjakan soal layanan restoran, alergi, dan higiene.",
+          "Latih penanganan keluhan, keselamatan, dan keadaan darurat dengan format simulasi ujian."
+        ]
+      }
+    };
+
+    function bilingualList(items, translations) {
+      return items.map((item, index) => `
+        <li>
+          ${formatJapanese(item)}
+          <span class="bi">Bahasa Indonesia: ${escapeHtml(translations[index] || "")}</span>
+        </li>
+      `).join("");
+    }
+
+    Object.entries(fields).forEach(([key, field]) => {
+      const button = document.createElement("button");
+      button.className = "tab";
+      button.dataset.field = key;
+      button.innerHTML = fieldHtml(key);
+      button.setAttribute("aria-selected", key === currentField ? "true" : "false");
+      button.addEventListener("click", () => {
+        currentField = key;
+        currentQuestion = 0;
+        selected = false;
+        quizChoiceKey = "";
+        quizChoiceOrder = [];
+        resetExam();
+        document.querySelectorAll(".tab").forEach(tab => tab.setAttribute("aria-selected", "false"));
+        button.setAttribute("aria-selected", "true");
+        render();
+      });
+      tabs.appendChild(button);
+    });
+
+    document.querySelectorAll(".seg-btn").forEach(button => {
+      button.addEventListener("click", () => {
+        uiMode = button.dataset.uiMode;
+        applyUiLanguage();
+        render();
+      });
+    });
+
+    modeButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        modeButtons.forEach(item => item.classList.remove("active"));
+        sections.forEach(section => section.classList.remove("active"));
+        button.classList.add("active");
+        document.getElementById(button.dataset.mode).classList.add("active");
+      });
+    });
+
+    function render() {
+      const field = fields[currentField];
+      const translations = sectionTranslations[currentField];
+      applyUiLanguage();
+      document.getElementById("fieldTitle").innerHTML = fieldHtml(currentField);
+      document.getElementById("fieldSummary").innerHTML = fieldSummaryHtml(currentField);
+      document.getElementById("fieldMeta").innerHTML = field.meta.map(item => `
+        <div class="meta">
+          <span class="label">${metaLabelHtml(item[0])}</span>
+          <strong>${item[1]}</strong>
+        </div>
+      `).join("");
+
+      document.getElementById("overview").innerHTML = `
+        <h3>${fieldHtml(currentField)} ${uiHtml("overviewTab")}</h3>
+        ${constructionTrackSelectorHtml()}
+        <div class="grid-two">
+          <div class="box">
+            <h4>${uiHtml("keyThemes")}</h4>
+            <ul>${bilingualList(field.trends, translations.trends)}</ul>
+          </div>
+          <div class="box">
+            <h4>${uiHtml("pitfalls")}</h4>
+            <ul>${bilingualList(field.pitfalls, translations.pitfalls)}</ul>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("plan").innerHTML = `
+        <h3>${fieldHtml(currentField)} ${uiHtml("studyPlan")}</h3>
+        ${constructionTrackSelectorHtml()}
+        <div class="box">
+          <ul>${bilingualList(field.plan, translations.plan)}</ul>
+        </div>
+        <div class="notice">${uiHtml("operationIdea")}</div>
+      `;
+
+      renderQuiz();
+      renderExam();
+      attachConstructionTrackControls();
+    }
+
+    function renderQuiz() {
+      const bank = activeQuestionBank();
+      if (currentQuestion >= bank.length) currentQuestion = 0;
+      const question = bank[currentQuestion];
+      const total = bank.length;
+      const orderedChoices = currentQuizChoiceOrder(question);
+      const questionIdClass = showIndonesianQuestion ? "question-id show" : "question-id";
+      document.getElementById("quiz").innerHTML = `
+        <h3>${fieldHtml(currentField)} ${uiHtml("miniQuiz")}</h3>
+        ${constructionTrackSelectorHtml()}
+        <div class="quiz-tools">
+          <div>
+            <label class="toggle" for="toggleIndonesianQuestion">
+              <input type="checkbox" id="toggleIndonesianQuestion" ${showIndonesianQuestion ? "checked" : ""}>
+              ${uiHtml("showIndonesian")}
+            </label>
+            <label class="toggle" for="toggleIndonesianChoices">
+              <input type="checkbox" id="toggleIndonesianChoices" ${showIndonesianChoices ? "checked" : ""}>
+              ${uiHtml("showIndonesianChoices")}
+            </label>
+            <label class="toggle" for="toggleRuby">
+              <input type="checkbox" id="toggleRuby" ${showRuby ? "checked" : ""}>
+              ${uiHtml("showRuby")}
+            </label>
+          </div>
+          <span class="badge">${uiHtml("questionBank")}</span>
+        </div>
+        <div class="progress" aria-label="進捗"><div style="width:${((currentQuestion + 1) / total) * 100}%"></div></div>
+        <div class="quiz-card">
+          <div class="question-head">
+            <span class="badge">${question.type}</span>
+            <span>${currentQuestion + 1} / ${total}</span>
+          </div>
+          <p class="question">${formatJapanese(question.q)}</p>
+          <p class="${questionIdClass}" id="questionIndonesian">${questionIndonesian(question)}</p>
+          <div class="choices">
+            ${orderedChoices.map(item => `<button class="choice" data-index="${item.originalIndex}">${choiceContent(item.choice)}</button>`).join("")}
+          </div>
+          <div class="explain" id="explain">
+            <strong>${uiPlain("explanation")}：</strong>${formatJapanese(question.exp)}<br>
+            <strong>Bahasa Indonesia：</strong>${question.id}
+          </div>
+          <div class="quiz-actions">
+            <button class="btn secondary" id="prevQuestion">${uiHtml("previous")}</button>
+            <button class="btn secondary" id="shuffleQuestion">${uiHtml("shuffleQuestion")}</button>
+            <button class="btn" id="nextQuestion">${uiHtml("next")}</button>
+          </div>
+        </div>
+      `;
+
+      selected = false;
+      document.getElementById("toggleIndonesianQuestion").addEventListener("change", event => {
+        showIndonesianQuestion = event.target.checked;
+        document.getElementById("questionIndonesian").classList.toggle("show", showIndonesianQuestion);
+      });
+      document.getElementById("toggleIndonesianChoices").addEventListener("change", event => {
+        showIndonesianChoices = event.target.checked;
+        renderQuiz();
+      });
+      document.getElementById("toggleRuby").addEventListener("change", event => {
+        showRuby = event.target.checked;
+        renderQuiz();
+      });
+      document.querySelectorAll(".choice").forEach(button => {
+        button.addEventListener("click", () => answerQuestion(Number(button.dataset.index)));
+      });
+      document.getElementById("prevQuestion").addEventListener("click", () => {
+        currentQuestion = (currentQuestion - 1 + total) % total;
+        quizChoiceKey = "";
+        renderQuiz();
+      });
+      document.getElementById("shuffleQuestion").addEventListener("click", () => {
+        if (total <= 1) return;
+        let nextQuestion = currentQuestion;
+        while (nextQuestion === currentQuestion) {
+          nextQuestion = Math.floor(Math.random() * total);
+        }
+        currentQuestion = nextQuestion;
+        quizChoiceKey = "";
+        renderQuiz();
+      });
+      document.getElementById("nextQuestion").addEventListener("click", () => {
+        currentQuestion = (currentQuestion + 1) % total;
+        quizChoiceKey = "";
+        renderQuiz();
+      });
+      attachConstructionTrackControls();
+    }
+
+    function answerQuestion(index) {
+      if (selected) return;
+      selected = true;
+      const question = activeQuestionBank()[currentQuestion];
+      document.querySelectorAll(".choice").forEach(button => {
+        const choiceIndex = Number(button.dataset.index);
+        if (choiceIndex === question.answer) button.classList.add("correct");
+        if (choiceIndex === index && choiceIndex !== question.answer) button.classList.add("wrong");
+      });
+      document.getElementById("explain").classList.add("show");
+    }
+
+    function shuffle(items) {
+      const copied = [...items];
+      for (let i = copied.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copied[i], copied[j]] = [copied[j], copied[i]];
+      }
+      return copied;
+    }
+
+    function shuffledChoiceOrder(question) {
+      return shuffle(question.choices.map((choice, originalIndex) => ({ choice, originalIndex })));
+    }
+
+    function currentQuizChoiceOrder(question) {
+      const trackKey = currentField === "construction" ? constructionTrack : "";
+      const key = `${currentField}:${trackKey}:${currentQuestion}`;
+      if (quizChoiceKey !== key || quizChoiceOrder.length === 0) {
+        quizChoiceKey = key;
+        quizChoiceOrder = shuffledChoiceOrder(question);
+      }
+      return quizChoiceOrder;
+    }
+
+    function resetExam() {
+      if (examTimer) {
+        clearInterval(examTimer);
+        examTimer = null;
+      }
+      examState = null;
+    }
+
+    function formatTime(seconds) {
+      const minutes = Math.floor(seconds / 60);
+      const rest = seconds % 60;
+      return `${String(minutes).padStart(2, "0")}:${String(rest).padStart(2, "0")}`;
+    }
+
+    function startExam() {
+      const config = activeExamConfig();
+      const questions = shuffle(activeExamQuestions(config))
+        .map(question => ({
+          ...question,
+          displayChoices: shuffledChoiceOrder(question)
+        }));
+      examState = {
+        questions,
+        answers: Array(questions.length).fill(null),
+        current: 0,
+        timeLeft: config.minutes * 60,
+        completed: false
+      };
+      if (examTimer) clearInterval(examTimer);
+      examTimer = setInterval(() => {
+        if (!examState || examState.completed) return;
+        examState.timeLeft -= 1;
+        if (examState.timeLeft <= 0) {
+          finishExam();
+          return;
+        }
+        const timer = document.getElementById("examTimer");
+        if (timer) timer.textContent = formatTime(examState.timeLeft);
+      }, 1000);
+      renderExam();
+    }
+
+    function finishExam() {
+      if (!examState) return;
+      examState.completed = true;
+      if (examTimer) {
+        clearInterval(examTimer);
+        examTimer = null;
+      }
+      renderExam();
+    }
+
+    function answerExam(index) {
+      if (!examState || examState.completed) return;
+      examState.answers[examState.current] = index;
+      renderExam();
+    }
+
+    function renderExam() {
+      const container = document.getElementById("exam");
+      const config = activeExamConfig();
+      if (!examState) {
+        container.innerHTML = `
+          <h3>${fieldHtml(currentField)} ${uiHtml("examPractice")}</h3>
+          ${constructionTrackSelectorHtml()}
+          <div class="exam-summary">
+            <div class="meta"><span class="label">${uiHtml("format")}</span><strong>${config.label}</strong></div>
+            <div class="meta"><span class="label">${uiHtml("questionCount")}</span><strong>${questionCountHtml(config.questions)}</strong></div>
+            <div class="meta"><span class="label">${uiHtml("timeLimit")}</span><strong>${minuteHtml(config.minutes)}</strong></div>
+          </div>
+          <div class="box">
+            <p>${currentField === "construction" && constructionTrack !== "common" ? "この模試は、共通安全問題18問と選択した区分の問題32問をミックスして出題します。" : "この模試は、現在の300問バンクからランダムに出題します。"}終了後に点数、合否判定、間違えた問題の復習リストを表示します。</p>
+            <span class="bi">Bahasa Indonesia: ${currentField === "construction" && constructionTrack !== "common" ? "Simulasi ini mencampur 18 soal keselamatan umum dan 32 soal dari subbidang yang dipilih." : "Simulasi ini mengambil soal secara acak dari bank 300 soal."} Setelah selesai, skor, hasil lulus/tidak, dan daftar soal salah akan ditampilkan.</span>
+          </div>
+          <div class="quiz-actions">
+            <button class="btn" id="startExam">${uiHtml("startExam")}</button>
+          </div>
+        `;
+        document.getElementById("startExam").addEventListener("click", startExam);
+        attachConstructionTrackControls();
+        return;
+      }
+
+      if (examState.completed) {
+        renderExamResult(container, config);
+        return;
+      }
+
+      const question = examState.questions[examState.current];
+      const selectedAnswer = examState.answers[examState.current];
+      const answered = examState.answers.filter(answer => answer !== null).length;
+      const orderedChoices = question.displayChoices || shuffledChoiceOrder(question);
+      question.displayChoices = orderedChoices;
+      const questionIdClass = showIndonesianQuestion ? "question-id show" : "question-id";
+      container.innerHTML = `
+        <h3>${fieldHtml(currentField)} ${uiHtml("examPractice")}</h3>
+        ${constructionTrackSelectorHtml()}
+        <div class="quiz-tools">
+          <div>
+            <label class="toggle" for="examToggleIndonesianQuestion">
+              <input type="checkbox" id="examToggleIndonesianQuestion" ${showIndonesianQuestion ? "checked" : ""}>
+              ${uiHtml("showIndonesian")}
+            </label>
+            <label class="toggle" for="examToggleIndonesianChoices">
+              <input type="checkbox" id="examToggleIndonesianChoices" ${showIndonesianChoices ? "checked" : ""}>
+              ${uiHtml("showIndonesianChoices")}
+            </label>
+            <label class="toggle" for="examToggleRuby">
+              <input type="checkbox" id="examToggleRuby" ${showRuby ? "checked" : ""}>
+              ${uiHtml("showRuby")}
+            </label>
+          </div>
+          <span class="badge" id="examTimer">${formatTime(examState.timeLeft)}</span>
+        </div>
+        <div class="progress" aria-label="進捗"><div style="width:${((examState.current + 1) / examState.questions.length) * 100}%"></div></div>
+        <div class="quiz-card">
+          <div class="question-head">
+            <span class="badge">${question.type}</span>
+            <span>${examState.current + 1} / ${examState.questions.length}　${uiPlain("answered")} ${answered}</span>
+          </div>
+          <p class="question">${formatJapanese(question.q)}</p>
+          <p class="${questionIdClass}" id="examQuestionIndonesian">${questionIndonesian(question)}</p>
+          <div class="choices">
+            ${orderedChoices.map(item => `<button class="choice ${selectedAnswer === item.originalIndex ? "selected" : ""}" data-index="${item.originalIndex}">${choiceContent(item.choice)}</button>`).join("")}
+          </div>
+          <div class="quiz-actions">
+            <button class="btn secondary" id="examPrev">${uiHtml("previous")}</button>
+            <button class="btn secondary" id="examNext">${uiHtml("next")}</button>
+            <button class="btn warning" id="finishExam">${uiHtml("submitExam")}</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("examToggleIndonesianQuestion").addEventListener("change", event => {
+        showIndonesianQuestion = event.target.checked;
+        document.getElementById("examQuestionIndonesian").classList.toggle("show", showIndonesianQuestion);
+      });
+      document.getElementById("examToggleIndonesianChoices").addEventListener("change", event => {
+        showIndonesianChoices = event.target.checked;
+        renderExam();
+      });
+      document.getElementById("examToggleRuby").addEventListener("change", event => {
+        showRuby = event.target.checked;
+        renderExam();
+      });
+      document.querySelectorAll("#exam .choice").forEach(button => {
+        button.addEventListener("click", () => answerExam(Number(button.dataset.index)));
+      });
+      document.getElementById("examPrev").addEventListener("click", () => {
+        examState.current = (examState.current - 1 + examState.questions.length) % examState.questions.length;
+        renderExam();
+      });
+      document.getElementById("examNext").addEventListener("click", () => {
+        examState.current = (examState.current + 1) % examState.questions.length;
+        renderExam();
+      });
+      document.getElementById("finishExam").addEventListener("click", finishExam);
+      attachConstructionTrackControls();
+    }
+
+    function renderExamResult(container, config) {
+      const correct = examState.questions.filter((question, index) => examState.answers[index] === question.answer).length;
+      const total = examState.questions.length;
+      const score = Math.round((correct / total) * 100);
+      const passed = score >= config.passRate;
+      const wrongItems = examState.questions
+        .map((question, index) => ({ question, index, answer: examState.answers[index] }))
+        .filter(item => item.answer !== item.question.answer);
+      container.innerHTML = `
+        <h3>${fieldHtml(currentField)} ${uiHtml("examResult")}</h3>
+        <div class="score-panel">
+          <div class="score">${score}%</div>
+          <div>
+            <h4 class="${passed ? "result-pass" : "result-fail"}">${passed ? uiHtml("scorePass") : uiHtml("scoreFail")}</h4>
+            <p>${correct} / ${total} ${uiPlain("correct")}。${uiPlain("scorePass")} ${config.passRate}%。</p>
+            <span class="bi">Bahasa Indonesia: Benar ${correct} dari ${total} soal. Target lulus simulasi ini adalah ${config.passRate}% atau lebih.</span>
+          </div>
+        </div>
+        <div class="quiz-actions">
+          <button class="btn" id="restartExam">${uiHtml("restartExam")}</button>
+          <button class="btn secondary" id="backExamSetup">${uiHtml("backExamSetup")}</button>
+        </div>
+        <h4>${uiHtml("wrongQuestions")}</h4>
+        <div class="review-list">
+          ${wrongItems.length ? wrongItems.slice(0, 12).map(item => `
+            <div class="review-item">
+              <strong>${item.index + 1}. ${formatJapanese(item.question.q)}</strong>
+              <span class="bi">Bahasa Indonesia: ${escapeHtml(questionIndonesian(item.question))}</span>
+              <p>${uiPlain("correct")}：${formatJapanese(item.question.choices[item.question.answer])}</p>
+              <p>${uiPlain("explanation")}：${formatJapanese(item.question.exp)}</p>
+              <span class="bi">${escapeHtml(item.question.id)}</span>
+            </div>
+          `).join("") : `<div class="review-item"><strong>${uiHtml("allCorrect")}</strong></div>`}
+        </div>
+      `;
+      document.getElementById("restartExam").addEventListener("click", startExam);
+      document.getElementById("backExamSetup").addEventListener("click", () => {
+        resetExam();
+        renderExam();
+      });
+    }
+
+    initPasswordGate();
+    render();
+  </script>
+</body>
+</html>
