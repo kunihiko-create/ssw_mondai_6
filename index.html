@@ -359,6 +359,41 @@
       background: #fbfcfd;
     }
 
+    .track-switch.compact {
+      align-items: stretch;
+      flex-direction: column;
+      padding: 10px;
+    }
+
+    .topic-summary {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .topic-current {
+      min-width: 0;
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .topic-toggle {
+      min-height: 34px;
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      background: white;
+      color: var(--accent);
+      cursor: pointer;
+      font-weight: 900;
+      padding: 6px 10px;
+    }
+
+    .track-switch.compact .track-buttons {
+      margin-top: 8px;
+    }
+
     .track-label {
       color: var(--muted);
       font-size: 13px;
@@ -368,7 +403,7 @@
 
     .track-buttons {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: 6px;
       flex: 1;
     }
@@ -792,6 +827,12 @@
       }
       .track-label {
         white-space: normal;
+      }
+      .topic-summary {
+        grid-template-columns: minmax(0, 1fr) auto;
+      }
+      .topic-summary .track-label {
+        grid-column: 1 / -1;
       }
       .track-buttons {
         grid-template-columns: 1fr;
@@ -1706,6 +1747,213 @@
       return question.qid || questionTranslations[baseQuestionText(question.q)] || "Terjemahan bahasa Indonesia untuk soal ini belum disiapkan.";
     }
 
+    const foodTopicDefinitions = {
+      hygiene: {
+        name: ["食品衛生・食中毒", "Higiene pangan & keracunan makanan"],
+        count: 45,
+        cases: [
+          ["生の鶏肉を切った包丁を、洗わずにサラダ用野菜へ使おうとしています。", "Pisau bekas ayam mentah akan dipakai untuk sayuran salad tanpa dicuci.", "包丁とまな板を洗浄・消毒してから使う", "Cuci dan sanitasi pisau serta talenan sebelum dipakai.", "生肉の菌が加熱しない食品へ移ると食中毒の原因になります。", "Bakteri dari daging mentah dapat berpindah ke makanan yang tidak dipanaskan dan menyebabkan keracunan makanan."],
+          ["作業者に下痢と発熱がありますが、本人は作業を続けたいと言っています。", "Pekerja mengalami diare dan demam, tetapi ingin tetap bekerja.", "作業を止め、責任者へ体調を報告する", "Hentikan pekerjaan dan laporkan kondisi tubuh kepada penanggung jawab.", "体調不良時は食品を汚染する危険があるため、自己判断で作業を続けません。", "Saat kondisi tubuh buruk, ada risiko mencemari makanan, jadi jangan melanjutkan pekerjaan dengan keputusan sendiri."],
+          ["加熱後の食品を大きな容器のまま常温で長く冷ましています。", "Makanan setelah dipanaskan didinginkan lama pada suhu ruang dalam wadah besar.", "決められた時間と温度で素早く冷却する", "Dinginkan dengan cepat sesuai waktu dan suhu yang ditentukan.", "温度が下がる途中で菌が増えやすいため、冷却条件を守ります。", "Saat suhu turun, bakteri mudah berkembang, jadi aturan pendinginan harus diikuti."],
+          ["床に落ちた原材料を、見た目がきれいだから使おうとしています。", "Bahan baku jatuh ke lantai dan akan dipakai karena terlihat bersih.", "隔離して責任者へ報告し、指示を受ける", "Pisahkan, laporkan kepada penanggung jawab, dan ikuti instruksi.", "床に落ちた食品は目に見えない汚染がある可能性があります。", "Makanan yang jatuh ke lantai mungkin tercemar walaupun tidak terlihat."],
+          ["手洗い場の石けんが切れていることに気づきました。", "Sabun di tempat cuci tangan habis.", "補充または報告し、手洗いできる状態にする", "Isi ulang atau laporkan agar cuci tangan bisa dilakukan.", "正しい手洗いができない状態では衛生管理が崩れます。", "Jika cuci tangan tidak bisa dilakukan dengan benar, pengendalian higiene menjadi lemah."],
+          ["冷蔵庫の扉が開いたままで、庫内温度が上がっています。", "Pintu lemari pendingin terbuka dan suhu di dalam naik.", "扉を閉めて温度を確認し、異常を報告する", "Tutup pintu, periksa suhu, dan laporkan jika tidak normal.", "温度上昇は菌の増殖や品質低下につながります。", "Kenaikan suhu dapat menyebabkan bakteri berkembang dan mutu turun."],
+          ["作業場で害虫の死骸を見つけました。", "Ditemukan bangkai serangga di area kerja.", "製品を守り、清掃と報告をすぐ行う", "Lindungi produk, lalu segera bersihkan dan laporkan.", "害虫は食品汚染の原因になるため、放置してはいけません。", "Hama dapat menyebabkan pencemaran makanan, jadi tidak boleh dibiarkan."],
+          ["トイレの後、急いでいるため手洗いを短く済ませようとしています。", "Setelah dari toilet, pekerja ingin mencuci tangan sebentar karena terburu-buru.", "手順どおりに手洗いと消毒を行う", "Lakukan cuci tangan dan sanitasi sesuai prosedur.", "トイレ後は特に食品を汚染しやすいため、手順を省略しません。", "Setelah dari toilet, risiko mencemari makanan tinggi, jadi prosedur tidak boleh dipersingkat."],
+          ["食品を扱う台の近くに個人の飲み物が置かれています。", "Minuman pribadi diletakkan dekat meja penanganan makanan.", "食品区域へ私物を持ち込まない", "Jangan membawa barang pribadi ke area makanan.", "私物は異物混入や衛生不良の原因になります。", "Barang pribadi dapat menyebabkan benda asing masuk dan menurunkan higiene."],
+          ["加熱温度を測ったのに、記録欄が空欄のままです。", "Suhu pemanasan sudah diukur, tetapi kolom catatan masih kosong.", "測定したらすぐ正確に記録する", "Catat segera dan akurat setelah mengukur.", "記録は安全を確認した証拠になり、後でまとめ書きしません。", "Catatan menjadi bukti keamanan dan tidak boleh ditulis belakangan secara sembarang."],
+          ["消毒液の濃度が分からないまま作業台に使おうとしています。", "Larutan sanitasi akan dipakai pada meja kerja tanpa mengetahui konsentrasinya.", "濃度を確認し、基準外なら作り直す", "Periksa konsentrasi dan buat ulang jika di luar standar.", "濃度が低すぎても高すぎても安全な管理になりません。", "Konsentrasi yang terlalu rendah atau tinggi tidak menghasilkan pengendalian yang aman."],
+          ["包装前の作業台に食品くずと水分が残っています。", "Ada sisa makanan dan air di meja kerja sebelum pengemasan.", "洗浄してから消毒し、乾いた状態で使う", "Cuci lalu sanitasi, dan gunakan saat kondisinya kering.", "汚れが残ったままでは消毒の効果が下がります。", "Jika kotoran masih tersisa, efektivitas sanitasi menurun."],
+          ["盛り付け担当者が咳をしていて、マスクも正しく着けていません。", "Petugas penyajian batuk dan masker tidak dipakai dengan benar.", "責任者へ報告し、必要に応じて交代する", "Laporkan kepada penanggung jawab dan ganti petugas jika perlu.", "体調やマスクの不備は食品への飛沫汚染につながります。", "Kondisi tubuh dan masker yang tidak benar dapat menyebabkan kontaminasi droplet."],
+          ["生食用と加熱用の原料が同じ容器に入っています。", "Bahan untuk dimakan mentah dan bahan untuk dipanaskan berada dalam wadah yang sama.", "用途ごとに容器を分け、表示する", "Pisahkan wadah menurut penggunaan dan beri label.", "生食用食品は加熱で菌を減らせないため、区別が重要です。", "Makanan siap santap tidak mendapat pemanasan untuk mengurangi bakteri, jadi pemisahan penting."],
+          ["作業中に手袋が破れましたが、食品には触れていないと思っています。", "Sarung tangan robek saat bekerja, tetapi pekerja merasa belum menyentuh makanan.", "作業を止め、手洗いして手袋を交換する", "Hentikan pekerjaan, cuci tangan, lalu ganti sarung tangan.", "破れた手袋は汚染や異物混入の原因になるためすぐ交換します。", "Sarung tangan robek dapat menyebabkan kontaminasi dan benda asing, jadi segera diganti."]
+        ],
+        wrongs: [["少しなら問題ないので作業を続ける", "Jika sedikit saja tidak masalah, lanjutkan pekerjaan."], ["見た目がきれいならそのまま使う", "Jika terlihat bersih, pakai saja."], ["手袋だけ替えて記録しない", "Hanya mengganti sarung tangan dan tidak mencatat."], ["責任者に知らせず自分だけで判断する", "Memutuskan sendiri tanpa memberi tahu penanggung jawab."], ["水で軽く流して終わる", "Membilas sebentar dengan air lalu selesai."], ["汚れた場所の近くで製品を開ける", "Membuka produk dekat tempat kotor."], ["清掃せず次の食品を扱う", "Menangani makanan berikutnya tanpa membersihkan."]]
+      },
+      clothing: {
+        name: ["手洗い・作業服・毛髪混入", "Cuci tangan, pakaian kerja & rambut"],
+        count: 35,
+        cases: [
+          ["帽子から前髪が出たまま作業場へ入ろうとしています。", "Poni keluar dari topi saat akan masuk area kerja.", "髪を帽子やネットの中に入れてから入場する", "Masukkan rambut ke dalam topi atau hairnet sebelum masuk.", "髪の毛は代表的な異物なので、外へ出さない管理が必要です。", "Rambut adalah benda asing yang umum, jadi harus dikendalikan agar tidak keluar."],
+          ["耳の周りの髪がヘアネットから出ています。", "Rambut di sekitar telinga keluar dari hairnet.", "鏡で確認し、髪を完全に収める", "Periksa dengan cermin dan masukkan rambut sepenuhnya.", "入場前の身だしなみ確認で毛髪混入を防ぎます。", "Pemeriksaan penampilan sebelum masuk mencegah rambut masuk produk."],
+          ["作業服に糸くずが付いたままラインへ入ります。", "Serat benang menempel pada pakaian kerja saat masuk lini.", "粘着ローラーで取り除いてから入る", "Bersihkan dengan roller perekat sebelum masuk.", "衣服の付着物は製品へ落ちる可能性があります。", "Benda yang menempel pada pakaian dapat jatuh ke produk."],
+          ["腕時計と指輪を着けたまま食品を扱おうとしています。", "Pekerja akan menangani makanan sambil memakai jam tangan dan cincin.", "装飾品を外し、手洗いしてから作業する", "Lepaskan aksesori, cuci tangan, lalu bekerja.", "装飾品は汚れが残りやすく、異物にもなります。", "Aksesori mudah menyimpan kotoran dan bisa menjadi benda asing."],
+          ["作業場に急ぐため、粘着ローラーを省略しようとしています。", "Karena terburu-buru, pekerja ingin melewati penggunaan roller perekat.", "決められた入場手順を省略しない", "Jangan melewati prosedur masuk yang sudah ditentukan.", "入場手順は毛髪やほこりを持ち込まないための重要な管理です。", "Prosedur masuk penting untuk mencegah rambut dan debu terbawa masuk."],
+          ["作業靴のまま外へ出て、戻ってすぐ作業しようとしています。", "Pekerja keluar dengan sepatu kerja lalu langsung kembali bekerja.", "靴の区分と清掃・消毒の手順を守る", "Patuhi pemisahan sepatu serta prosedur pembersihan dan sanitasi.", "外部の汚れを作業場へ持ち込まないことが大切です。", "Penting untuk tidak membawa kotoran dari luar ke area kerja."],
+          ["手袋を着けたままスマートフォンに触りました。", "Pekerja menyentuh ponsel saat memakai sarung tangan.", "手袋を交換し、必要な手洗いを行う", "Ganti sarung tangan dan lakukan cuci tangan yang diperlukan.", "食品以外に触れた手袋は汚染源になることがあります。", "Sarung tangan yang menyentuh benda selain makanan dapat menjadi sumber kontaminasi."],
+          ["爪が長いまま手袋を着けて作業しています。", "Pekerja bekerja memakai sarung tangan dengan kuku panjang.", "爪を短く清潔にしてから作業する", "Pendekkan dan bersihkan kuku sebelum bekerja.", "長い爪は手袋破れや汚れ残りの原因になります。", "Kuku panjang dapat merobek sarung tangan dan menyimpan kotoran."],
+          ["マスクが鼻からずれて、口だけを覆っています。", "Masker turun dari hidung dan hanya menutup mulut.", "鼻と口を覆うよう正しく着け直す", "Pasang ulang agar menutup hidung dan mulut.", "飛沫を防ぐにはマスクを正しく着用する必要があります。", "Untuk mencegah droplet, masker harus dipakai dengan benar."],
+          ["作業服のポケットにペンを入れたままラインに入ります。", "Pekerja masuk lini dengan pena di saku pakaian kerja.", "落下しない管理品だけを決められた方法で持つ", "Bawa hanya barang terkontrol dengan cara yang ditentukan agar tidak jatuh.", "ポケット内の物は落下して異物混入になることがあります。", "Barang di saku dapat jatuh dan menjadi benda asing."],
+          ["手洗い後、濡れた手のまま手袋を着けようとしています。", "Setelah cuci tangan, pekerja akan memakai sarung tangan saat tangan masih basah.", "手をよく乾かしてから手袋を着ける", "Keringkan tangan dengan baik sebelum memakai sarung tangan.", "濡れた手は衛生状態や手袋の扱いを悪くすることがあります。", "Tangan basah dapat menurunkan higiene dan menyulitkan penggunaan sarung tangan."],
+          ["更衣室で作業服を床に置いてしまいました。", "Pakaian kerja diletakkan di lantai ruang ganti.", "汚れを確認し、必要なら交換して報告する", "Periksa kotoran, ganti jika perlu, dan laporkan.", "床に置いた作業服は汚染される可能性があります。", "Pakaian kerja yang diletakkan di lantai dapat tercemar."]
+        ],
+        wrongs: [["急いでいるのでそのまま入る", "Karena terburu-buru, masuk saja."], ["見えにくい場所なら気にしない", "Jika sulit terlihat, tidak perlu dipedulikan."], ["作業後にまとめて直す", "Memperbaiki semuanya setelah pekerjaan selesai."], ["手袋をしていれば装飾品は外さない", "Jika memakai sarung tangan, aksesori tidak perlu dilepas."], ["注意された時だけ直す", "Memperbaiki hanya jika ditegur."], ["食品から少し離れていればよい", "Tidak apa-apa jika agak jauh dari makanan."], ["記録や報告は必要ない", "Catatan atau laporan tidak diperlukan."]]
+      },
+      haccp: {
+        name: ["HACCP・重要管理点・記録", "HACCP, CCP & catatan"],
+        count: 45,
+        cases: [
+          ["重要管理点の加熱温度が基準より低い結果でした。", "Suhu pemanasan pada CCP lebih rendah dari standar.", "出荷せず、基準外として是正処置を行う", "Jangan kirim produk; lakukan tindakan koreksi sebagai penyimpangan standar.", "CCPの基準外は食品安全に直結するため、決められた是正処置が必要です。", "Penyimpangan CCP berkaitan langsung dengan keamanan pangan, jadi tindakan koreksi wajib dilakukan."],
+          ["金属探知機の始業前テストでテストピースに反応しません。", "Pada tes awal kerja, detektor logam tidak bereaksi terhadap test piece.", "機械を使わず責任者へ報告し、確認を受ける", "Jangan gunakan mesin; laporkan dan minta pemeriksaan penanggung jawab.", "探知機が正常でなければ金属混入を見逃す危険があります。", "Jika detektor tidak normal, kontaminasi logam bisa terlewat."],
+          ["冷却工程で決められた時間を超えても温度が下がりません。", "Pada proses pendinginan, suhu belum turun walaupun waktu standar terlewati.", "基準外として製品を分け、指示を受ける", "Pisahkan produk sebagai penyimpangan dan ikuti instruksi.", "冷却遅れは菌の増殖につながるため、通常品と混ぜません。", "Pendinginan terlambat dapat menyebabkan bakteri berkembang, jadi jangan dicampur dengan produk normal."],
+          ["記録を忙しいから後でまとめて書こうとしています。", "Karena sibuk, catatan akan ditulis sekaligus nanti.", "測定した時点で正確に記録する", "Catat secara akurat pada saat pengukuran.", "HACCPの記録はリアルタイムで正確に残すことが重要です。", "Catatan HACCP harus akurat dan ditulis saat itu juga."],
+          ["受け入れた冷蔵原料の温度が基準より高いです。", "Suhu bahan baku dingin saat penerimaan lebih tinggi dari standar.", "受入を止め、温度と状態を記録して報告する", "Hentikan penerimaan, catat suhu dan kondisi, lalu laporkan.", "原料受入時の異常は製品全体の危害につながります。", "Ketidaknormalan saat penerimaan bahan dapat menjadi bahaya bagi seluruh produk."],
+          ["CCPの測定担当者が交代します。", "Petugas pengukuran CCP akan berganti.", "測定方法、基準、記録場所を引き継ぐ", "Serahkan metode pengukuran, standar, dan tempat pencatatan.", "担当者が変わっても同じ基準で管理できることが必要です。", "Walaupun petugas berubah, pengendalian harus tetap dengan standar yang sama."],
+          ["基準外になった製品を、通常品の台車に戻そうとしています。", "Produk yang menyimpang akan dikembalikan ke troli produk normal.", "基準外品として明確に区分する", "Pisahkan dengan jelas sebagai produk menyimpang.", "区分しないと誤って出荷する危険があります。", "Jika tidak dipisahkan, produk dapat terkirim secara salah."],
+          ["忙しいのでモニタリング回数を減らしたいという相談がありました。", "Ada usulan mengurangi jumlah monitoring karena sibuk.", "決められた頻度を守り、変更は正式に確認する", "Patuhi frekuensi yang ditentukan; perubahan harus dikonfirmasi resmi.", "監視頻度は安全確認のために決められています。", "Frekuensi monitoring ditetapkan untuk memastikan keamanan."],
+          ["是正処置を行いましたが、記録には結果だけを書こうとしています。", "Tindakan koreksi sudah dilakukan, tetapi hanya hasil yang akan dicatat.", "異常内容、処置、確認結果を記録する", "Catat isi penyimpangan, tindakan, dan hasil pemeriksaan.", "是正処置の記録は原因追跡と再発防止に必要です。", "Catatan koreksi diperlukan untuk pelacakan penyebab dan pencegahan ulang."],
+          ["中心温度計の校正期限が過ぎていることに気づきました。", "Masa kalibrasi termometer inti sudah lewat.", "使用を止め、校正済みの温度計を使う", "Hentikan penggunaan dan pakai termometer yang sudah dikalibrasi.", "正確でない温度計では安全確認ができません。", "Dengan termometer tidak akurat, keamanan tidak bisa dipastikan."],
+          ["重要管理点の意味を新しい作業者に説明します。", "Menjelaskan arti CCP kepada pekerja baru.", "危害を防ぐため特に管理が必要な工程と説明する", "Jelaskan bahwa CCP adalah proses yang harus dikendalikan khusus untuk mencegah bahaya.", "CCPは安全を左右する工程なので、基準と記録が必要です。", "CCP menentukan keamanan, sehingga standar dan catatan diperlukan."],
+          ["新しい原料を使うことになりました。", "Akan menggunakan bahan baku baru.", "危害要因と手順への影響を確認する", "Periksa bahaya dan pengaruhnya terhadap prosedur.", "原料変更はアレルゲンや加熱条件などに影響することがあります。", "Perubahan bahan dapat memengaruhi alergen atau kondisi pemanasan."],
+          ["HACCP記録の保管場所が人によって違います。", "Tempat penyimpanan catatan HACCP berbeda tergantung orang.", "決められた場所に整理して保管する", "Simpan secara rapi di tempat yang ditentukan.", "必要な時に確認できるよう、記録管理を統一します。", "Pengelolaan catatan harus seragam agar bisa diperiksa saat diperlukan."],
+          ["作業手順を少し変えて効率を上げたいと言われました。", "Ada usulan sedikit mengubah prosedur kerja agar lebih efisien.", "安全への影響を確認し、許可を得てから変える", "Periksa dampak keamanan dan ubah hanya setelah mendapat izin.", "手順変更はHACCP計画に影響する場合があります。", "Perubahan prosedur dapat memengaruhi rencana HACCP."],
+          ["CCPで異常があった製品を出荷できるか迷っています。", "Ragu apakah produk dengan ketidaknormalan pada CCP boleh dikirim.", "責任者の判定が出るまで出荷しない", "Jangan kirim sampai ada keputusan penanggung jawab.", "基準外品を自己判断で出荷してはいけません。", "Produk menyimpang tidak boleh dikirim dengan keputusan sendiri."]
+        ],
+        wrongs: [["問題なさそうなら出荷する", "Jika terlihat tidak masalah, kirim saja."], ["記録は月末にまとめる", "Catatan ditulis sekaligus pada akhir bulan."], ["基準外品を通常品と混ぜる", "Mencampur produk menyimpang dengan produk normal."], ["測定値を覚えておくだけにする", "Hanya mengingat nilai pengukuran."], ["担当者だけで秘密にする", "Dirahasiakan oleh petugas saja."], ["忙しい日は測定を省略する", "Saat sibuk, pengukuran dilewati."], ["基準を自分で変える", "Mengubah standar sendiri."]]
+      },
+      fiveS: {
+        name: ["5S・清掃・洗浄・消毒", "5S, pembersihan, pencucian & disinfeksi"],
+        count: 35,
+        cases: [
+          ["使わない工具がライン横に置かれたままです。", "Alat yang tidak dipakai masih diletakkan di samping lini.", "不要な物を片付け、必要な物だけ置く", "Rapikan barang tidak perlu dan letakkan hanya yang diperlukan.", "整理は不要な物を分けてなくすことです。", "Seiri berarti memisahkan dan menghilangkan barang yang tidak diperlukan."],
+          ["洗浄済みの器具と未洗浄の器具が同じ棚にあります。", "Alat yang sudah dicuci dan belum dicuci berada di rak yang sama.", "状態が分かるよう区分して保管する", "Simpan terpisah agar statusnya jelas.", "混在すると汚れた器具を誤って使う危険があります。", "Jika tercampur, alat kotor bisa salah dipakai."],
+          ["清掃後の床に水たまりが残っています。", "Ada genangan air di lantai setelah pembersihan.", "水分を取り、滑らない状態にする", "Hilangkan air agar lantai tidak licin.", "水たまりは転倒と菌の増殖の原因になります。", "Genangan dapat menyebabkan terpeleset dan pertumbuhan bakteri."],
+          ["作業台に汚れが残ったまま消毒液をかけています。", "Larutan sanitasi disemprotkan saat meja kerja masih kotor.", "先に汚れを落としてから消毒する", "Hilangkan kotoran dulu, lalu sanitasi.", "洗浄と消毒は目的が違い、汚れがあると消毒効果が下がります。", "Pencucian dan sanitasi berbeda; kotoran menurunkan efektivitas sanitasi."],
+          ["清掃したのに清掃記録へ記入していません。", "Pembersihan sudah dilakukan tetapi belum dicatat.", "実施後すぐに記録する", "Catat segera setelah dilakukan.", "記録がないと実施確認ができません。", "Tanpa catatan, pelaksanaan tidak bisa dibuktikan."],
+          ["洗剤を別容器に移したが、ラベルがありません。", "Deterjen dipindahkan ke wadah lain tanpa label.", "内容物と濃度が分かる表示を付ける", "Beri label agar isi dan konsentrasi jelas.", "表示がない薬剤は誤使用や混入の原因になります。", "Bahan kimia tanpa label dapat salah dipakai atau tercampur."],
+          ["掃除用具が濡れたまま作業場に置きっぱなしです。", "Alat kebersihan basah dibiarkan di area kerja.", "洗って乾かし、決められた場所へ戻す", "Cuci, keringkan, dan kembalikan ke tempat yang ditentukan.", "用具を清潔に保管することで再汚染を防ぎます。", "Menyimpan alat dengan bersih mencegah kontaminasi ulang."],
+          ["排水口にぬめりと食品くずがあります。", "Ada lendir dan sisa makanan di saluran pembuangan.", "決められた頻度で洗浄し、記録する", "Cuci sesuai frekuensi yang ditentukan dan catat.", "排水口の汚れは臭いや微生物、害虫の原因になります。", "Kotoran saluran dapat menyebabkan bau, mikroba, dan hama."],
+          ["作業台の下に原料くずが落ちています。", "Sisa bahan baku jatuh di bawah meja kerja.", "見えにくい場所も清掃対象にする", "Tempat yang sulit terlihat juga harus dibersihkan.", "食品くずは菌や害虫を増やす原因になります。", "Sisa makanan menyebabkan bakteri dan hama berkembang."],
+          ["新しい作業者が5Sの整理の意味を聞いています。", "Pekerja baru bertanya arti seiri dalam 5S.", "必要な物と不要な物を分けること", "Memisahkan barang yang diperlukan dan tidak diperlukan.", "整理は5Sの基本で、不要物を現場に置かないことです。", "Seiri adalah dasar 5S, yaitu tidak menaruh barang tidak perlu di tempat kerja."],
+          ["清潔の状態を保つための方法を確認しています。", "Sedang memeriksa cara menjaga kondisi bersih.", "決めたルールを守り、点検を続ける", "Patuhi aturan dan lanjutkan pemeriksaan.", "清潔は整理・整頓・清掃を維持することです。", "Seiketsu berarti menjaga seiri, seiton, dan seiso tetap berjalan."],
+          ["消毒液の接触時間を待たずにすぐ拭き取っています。", "Larutan sanitasi langsung dilap tanpa menunggu waktu kontak.", "基準の濃度と時間を守る", "Patuhi konsentrasi dan waktu kontak standar.", "消毒は決められた条件を守って効果を出します。", "Sanitasi efektif jika kondisi standar dipatuhi."]
+        ],
+        wrongs: [["見える所だけきれいにする", "Membersihkan hanya bagian yang terlihat."], ["洗剤名は覚えているので表示しない", "Karena ingat nama deterjen, tidak perlu label."], ["清掃記録は必要ない", "Catatan pembersihan tidak diperlukan."], ["濡れていてもすぐ作業を始める", "Walaupun basah, langsung mulai kerja."], ["未洗浄品も空いている棚に置く", "Alat belum dicuci diletakkan di rak kosong."], ["消毒すれば洗浄は不要", "Jika disanitasi, pencucian tidak perlu."], ["用具を床に置いて乾かす", "Mengeringkan alat dengan meletakkannya di lantai."]]
+      },
+      allergen: {
+        name: ["アレルゲン・交差汚染", "Alergen & kontaminasi silang"],
+        count: 35,
+        cases: [
+          ["卵を使う製品の後に、卵を含まない製品を作ります。", "Setelah produk yang memakai telur, akan dibuat produk tanpa telur.", "洗浄確認をしてから次の製品へ切り替える", "Konfirmasi pembersihan sebelum berganti ke produk berikutnya.", "アレルゲンは少量でも健康被害につながるため、切替管理が重要です。", "Alergen walau sedikit dapat membahayakan kesehatan, jadi pergantian produk harus dikendalikan."],
+          ["小麦粉が空気中に舞い、別製品のラインへ飛びそうです。", "Tepung terigu beterbangan dan bisa masuk ke lini produk lain.", "飛散を抑え、区分や清掃を徹底する", "Kendalikan debu, pisahkan area, dan bersihkan dengan teliti.", "粉体アレルゲンは飛散による交差汚染に注意します。", "Alergen berbentuk bubuk perlu dikendalikan karena dapat menyebar."],
+          ["包装前にアレルゲン表示ラベルを確認します。", "Label alergen diperiksa sebelum pengemasan.", "製品名とラベル内容が合っているか確認する", "Periksa apakah nama produk dan isi label sesuai.", "ラベル違いはアレルゲン事故の大きな原因です。", "Kesalahan label adalah penyebab besar insiden alergen."],
+          ["アレルゲン専用器具の色分けを守っていない人がいます。", "Ada orang yang tidak mengikuti kode warna alat khusus alergen.", "専用器具を正しく使うよう止めて確認する", "Hentikan dan pastikan alat khusus dipakai dengan benar.", "器具の共用は交差汚染につながります。", "Pemakaian alat bersama dapat menyebabkan kontaminasi silang."],
+          ["原材料の仕入先が変わりました。", "Pemasok bahan baku berubah.", "規格書やアレルゲン情報を確認する", "Periksa spesifikasi dan informasi alergen.", "同じ原料名でもアレルゲン情報が変わることがあります。", "Walau nama bahan sama, informasi alergen bisa berubah."],
+          ["アレルゲンを含む戻し品を別の製品へ使いたいと言われました。", "Rework yang mengandung alergen ingin digunakan untuk produk lain.", "使用できる製品か確認し、勝手に混ぜない", "Pastikan produk yang boleh menerima rework dan jangan mencampur sendiri.", "戻し品はアレルゲンの持ち込みに注意が必要です。", "Rework perlu dikendalikan karena dapat membawa alergen."],
+          ["洗浄済みと書かれたラインに粉が残っています。", "Pada lini bertanda sudah dicuci masih ada bubuk tersisa.", "再洗浄し、確認できるまで使用しない", "Cuci ulang dan jangan gunakan sampai terkonfirmasi.", "目に見える残りは交差汚染の危険があります。", "Sisa yang terlihat menunjukkan risiko kontaminasi silang."],
+          ["ナッツを扱う作業台で、次にナッツなし製品を扱います。", "Meja kerja bekas kacang akan dipakai untuk produk tanpa kacang.", "作業台と器具を洗浄し、切替確認を行う", "Cuci meja dan alat, lalu lakukan konfirmasi pergantian.", "ナッツ類は重いアレルギーにつながることがあります。", "Kacang dapat menyebabkan alergi berat."],
+          ["牛乳原料が床にこぼれ、近くに別製品の容器があります。", "Bahan susu tumpah di lantai dekat wadah produk lain.", "飛散や付着を防ぎ、汚染の有無を確認する", "Cegah percikan/penempelan dan periksa apakah ada kontaminasi.", "こぼれたアレルゲンは周囲へ広がる可能性があります。", "Alergen yang tumpah dapat menyebar ke sekitar."],
+          ["アレルゲン原料を通常原料と同じ場所に置いています。", "Bahan alergen disimpan bersama bahan biasa di tempat yang sama.", "表示して区分保管する", "Beri label dan simpan terpisah.", "保管時の混同やこぼれも交差汚染につながります。", "Kesalahan penyimpanan atau tumpahan juga menyebabkan kontaminasi silang."],
+          ["包装ラインで別製品のラベルが混ざっていました。", "Label produk lain tercampur di lini pengemasan.", "作業を止め、ラベルを照合して報告する", "Hentikan pekerjaan, cocokkan label, dan laporkan.", "ラベル混入はアレルゲン誤表示の危険があります。", "Label tercampur berisiko menyebabkan kesalahan informasi alergen."],
+          ["アレルゲン清掃後の確認を誰が行ったか分かりません。", "Tidak jelas siapa yang memeriksa setelah pembersihan alergen.", "確認者と結果を記録する", "Catat pemeriksa dan hasilnya.", "確認記録がないと安全な切替を証明できません。", "Tanpa catatan pemeriksaan, pergantian aman tidak dapat dibuktikan."]
+        ],
+        wrongs: [["少量なら問題ないと考える", "Menganggap sedikit saja tidak masalah."], ["同じ色の器具を空いている場所で使う", "Memakai alat warna apa saja yang tersedia."], ["ラベル確認は出荷後に行う", "Memeriksa label setelah pengiriman."], ["粉が少し残っていても続ける", "Melanjutkan walau ada sedikit bubuk tersisa."], ["表示せず近くに置く", "Meletakkan dekat tanpa label."], ["混ざった可能性を報告しない", "Tidak melaporkan kemungkinan tercampur."], ["別製品の戻し品を自由に使う", "Memakai rework produk lain secara bebas."]]
+      },
+      foreignMatter: {
+        name: ["異物混入・金属探知・器具管理", "Benda asing, deteksi logam & alat"],
+        count: 35,
+        cases: [
+          ["包装材のビニール片がライン近くに落ちています。", "Potongan plastik kemasan jatuh dekat lini.", "拾って隔離し、混入の可能性を報告する", "Ambil, pisahkan, dan laporkan kemungkinan masuk ke produk.", "ビニール片は製品に入りやすい異物です。", "Potongan plastik mudah masuk ke produk sebagai benda asing."],
+          ["金属探知機が反応した製品があります。", "Ada produk yang bereaksi pada detektor logam.", "製品を分け、手順どおり再確認する", "Pisahkan produk dan periksa ulang sesuai prosedur.", "反応品を通常品へ戻すと金属混入を見逃す危険があります。", "Mengembalikan produk bereaksi ke produk normal berisiko melewatkan logam."],
+          ["機械のボルトが少し緩んでいることに気づきました。", "Baut mesin terlihat agak longgar.", "作業を止め、責任者へ報告する", "Hentikan pekerjaan dan laporkan kepada penanggung jawab.", "部品の脱落は金属異物の原因になります。", "Komponen yang lepas dapat menjadi benda asing logam."],
+          ["照明カバーの近くでガラスが割れました。", "Kaca pecah dekat penutup lampu.", "周辺製品を隔離し、破片確認を行う", "Pisahkan produk sekitar dan periksa pecahan.", "ガラス片は重大な異物なので広がりを確認します。", "Pecahan kaca adalah benda asing serius, jadi penyebarannya harus diperiksa."],
+          ["製品上に髪の毛のようなものを見つけました。", "Ditemukan benda seperti rambut di atas produk.", "製品を分け、現物を保管して報告する", "Pisahkan produk, simpan benda tersebut, dan laporkan.", "異物を見つけたら捨てるだけでなく原因確認が必要です。", "Saat menemukan benda asing, tidak cukup hanya membuangnya; penyebab harus diperiksa."],
+          ["キャップ付きでないペンを作業場へ持ち込もうとしています。", "Pena tanpa tutup akan dibawa ke area kerja.", "持込ルールに合った備品だけを使う", "Gunakan hanya perlengkapan yang sesuai aturan masuk.", "ペンの部品は落下して異物になることがあります。", "Bagian pena dapat jatuh dan menjadi benda asing."],
+          ["原料袋を切った後、切りカスがどこにあるか分かりません。", "Setelah memotong kantong bahan, potongan plastik tidak diketahui posisinya.", "切りカスを確認し、紛失時は報告する", "Pastikan potongan ditemukan; jika hilang, laporkan.", "開封時の切りカスは混入しやすい異物です。", "Potongan saat membuka kantong mudah masuk sebagai benda asing."],
+          ["包装フィルムの端が破れて、破片が見当たりません。", "Ujung film kemasan sobek dan serpihannya tidak ditemukan.", "作業を止め、破片を探して報告する", "Hentikan pekerjaan, cari serpihan, dan laporkan.", "なくなった破片は製品へ入った可能性があります。", "Serpihan yang hilang mungkin masuk ke produk."],
+          ["へらの先端が欠けていることに気づきました。", "Ujung spatula terlihat patah.", "器具を使用停止にし、欠片を確認する", "Hentikan penggunaan alat dan periksa pecahannya.", "欠けた器具は異物混入の直接原因になります。", "Alat yang patah langsung menyebabkan benda asing masuk."],
+          ["段ボール片が原料容器の近くにあります。", "Potongan kardus berada dekat wadah bahan baku.", "食品区域から取り除き、清掃する", "Singkirkan dari area makanan dan bersihkan.", "紙片や木片も異物として扱います。", "Potongan kertas atau kayu juga termasuk benda asing."],
+          ["製品近くで虫を見つけました。", "Serangga ditemukan dekat produk.", "製品を守り、捕獲または清掃して報告する", "Lindungi produk, tangkap atau bersihkan, lalu laporkan.", "虫は異物であり衛生上の危害にもなります。", "Serangga adalah benda asing dan bahaya higiene."],
+          ["金属探知機のテストピースを紛失しました。", "Test piece detektor logam hilang.", "すぐ報告し、決められた管理を確認する", "Segera laporkan dan konfirmasi pengelolaan yang ditentukan.", "テストピース自体も重要な管理品であり、紛失は異常です。", "Test piece sendiri adalah barang kontrol penting, sehingga kehilangan adalah ketidaknormalan."]
+        ],
+        wrongs: [["小さいので捨てて終わる", "Karena kecil, buang saja lalu selesai."], ["見なかったことにする", "Berpura-pura tidak melihat."], ["通常品へ戻して流す", "Mengembalikan ke produk normal."], ["自分で直して報告しない", "Memperbaiki sendiri tanpa melapor."], ["破片を探さず次へ進む", "Melanjutkan tanpa mencari serpihan."], ["空いている器具を確認せず使う", "Memakai alat kosong tanpa memeriksa."], ["記録せず口頭だけで済ませる", "Hanya bicara tanpa mencatat."]]
+      },
+      temperature: {
+        name: ["温度管理・期限表示・保管", "Suhu, tanggal & penyimpanan"],
+        count: 35,
+        cases: [
+          ["冷蔵品の庫内温度が基準より高くなっています。", "Suhu penyimpanan produk dingin lebih tinggi dari standar.", "温度を記録し、製品状態を確認して報告する", "Catat suhu, periksa kondisi produk, dan laporkan.", "冷蔵温度の異常は品質と安全に影響します。", "Ketidaknormalan suhu dingin memengaruhi mutu dan keamanan."],
+          ["冷凍品の表面が溶け始めています。", "Permukaan produk beku mulai mencair.", "通常品と分け、温度履歴を確認する", "Pisahkan dari produk normal dan periksa riwayat suhu.", "再凍結や温度上昇は品質低下と危害につながります。", "Pembekuan ulang atau kenaikan suhu dapat menurunkan mutu dan menimbulkan bahaya."],
+          ["古い原料が奥に残り、新しい原料から使われています。", "Bahan lama tertinggal di belakang, sedangkan bahan baru dipakai lebih dulu.", "先入れ先出しになるよう並べ替える", "Atur agar FIFO, yang masuk lebih dulu dipakai lebih dulu.", "期限切れや品質低下を防ぐため先入れ先出しを守ります。", "FIFO mencegah kedaluwarsa dan penurunan mutu."],
+          ["使用期限を過ぎた原料を少量だけ使おうとしています。", "Bahan yang lewat tanggal pakai akan digunakan sedikit saja.", "使用せず、区分して報告する", "Jangan gunakan; pisahkan dan laporkan.", "期限切れ原料は量に関係なく使用しません。", "Bahan kedaluwarsa tidak digunakan walaupun sedikit."],
+          ["開封した原料に開封日が書かれていません。", "Bahan yang sudah dibuka tidak diberi tanggal buka.", "開封日と使用期限を表示する", "Tulis tanggal buka dan batas penggunaan.", "開封後の管理期限を守るため表示が必要です。", "Label diperlukan untuk mengendalikan batas penggunaan setelah dibuka."],
+          ["加熱品の中心温度を測らず、見た目だけで判断しています。", "Produk dipanaskan dinilai hanya dari tampilan tanpa mengukur suhu inti.", "中心温度を測定し、基準を満たすか確認する", "Ukur suhu inti dan pastikan memenuhi standar.", "見た目だけでは十分に加熱されたか判断できません。", "Tampilan saja tidak cukup untuk menilai pemanasan."],
+          ["冷却後の製品を冷蔵庫へ入れる時間が遅れています。", "Produk setelah pendinginan terlambat dimasukkan ke lemari pendingin.", "決められた時間内に保管温度へ移す", "Pindahkan ke suhu penyimpanan dalam waktu yang ditentukan.", "常温に長く置くと菌が増えやすくなります。", "Jika terlalu lama pada suhu ruang, bakteri mudah berkembang."],
+          ["半製品が作業台に長時間置かれています。", "Produk setengah jadi diletakkan lama di meja kerja.", "時間と温度を確認し、必要なら隔離する", "Periksa waktu dan suhu, pisahkan jika perlu.", "温度管理外の放置は安全性を下げます。", "Dibiarkan di luar kendali suhu menurunkan keamanan."],
+          ["原料を直射日光が当たる場所に保管しています。", "Bahan disimpan di tempat terkena sinar matahari langsung.", "表示条件に合う場所へ移す", "Pindahkan ke tempat sesuai kondisi label.", "保管条件を守らないと品質が変わることがあります。", "Jika kondisi penyimpanan tidak dipatuhi, mutu dapat berubah."],
+          ["温度計の表示が不安定です。", "Tampilan termometer tidak stabil.", "別の確認済み温度計で測り、異常を報告する", "Ukur dengan termometer lain yang terkonfirmasi dan laporkan ketidaknormalan.", "不正確な温度計では管理値を信用できません。", "Nilai dari termometer tidak akurat tidak dapat dipercaya."],
+          ["出荷前に期限表示の印字がかすれていることに気づきました。", "Sebelum pengiriman, cetakan tanggal terlihat buram.", "出荷を止め、表示を確認して修正指示を受ける", "Hentikan pengiriman, periksa label, dan minta instruksi perbaikan.", "期限表示は消費者が安全に使うための重要情報です。", "Tanggal adalah informasi penting agar konsumen memakai produk dengan aman."],
+          ["原料ロットが記録と現物で合っているか確認します。", "Memeriksa apakah lot bahan sesuai antara catatan dan barang.", "ロット番号を照合し、追跡できるようにする", "Cocokkan nomor lot agar dapat ditelusuri.", "ロット管理は問題発生時の追跡に必要です。", "Pengelolaan lot diperlukan untuk penelusuran saat terjadi masalah."]
+        ],
+        wrongs: [["少しの温度差なら記録しない", "Jika selisih suhu sedikit, tidak perlu dicatat."], ["古い原料を奥に入れたままにする", "Membiarkan bahan lama di bagian belakang."], ["期限切れでも加熱すれば使う", "Walau kedaluwarsa, dipakai jika dipanaskan."], ["見た目で安全と判断する", "Menilai aman dari tampilan saja."], ["表示が読めなくても出荷する", "Mengirim walaupun label tidak terbaca."], ["温度計が変でもそのまま使う", "Tetap memakai termometer yang aneh."], ["開封日は覚えておくだけにする", "Tanggal buka hanya diingat."]]
+      },
+      safety: {
+        name: ["機械安全・労働安全・報告", "Keselamatan mesin/kerja & pelaporan"],
+        count: 35,
+        cases: [
+          ["機械の安全カバーが外れたまま動いています。", "Mesin berjalan dengan penutup keselamatan terlepas.", "機械を止め、責任者へ報告する", "Hentikan mesin dan laporkan kepada penanggung jawab.", "安全カバーなしの運転は巻き込まれ事故の危険があります。", "Mengoperasikan tanpa penutup keselamatan berisiko tersangkut mesin."],
+          ["機械からいつもと違う音が聞こえます。", "Mesin mengeluarkan suara yang berbeda dari biasanya.", "無理に続けず、異常として報告する", "Jangan memaksa lanjut; laporkan sebagai ketidaknormalan.", "異音は故障や事故の前兆の場合があります。", "Suara tidak normal bisa menjadi tanda kerusakan atau kecelakaan."],
+          ["清掃中に機械の電源を切らずに手を入れようとしています。", "Saat membersihkan, pekerja akan memasukkan tangan tanpa mematikan daya mesin.", "停止と電源遮断を確認してから清掃する", "Pastikan mesin berhenti dan daya diputus sebelum membersihkan.", "清掃中の起動は重大事故につながります。", "Mesin menyala saat pembersihan dapat menyebabkan kecelakaan serius."],
+          ["床が濡れていて通路が滑りやすくなっています。", "Lantai basah dan jalur menjadi licin.", "表示して水分を取り、通行を安全にする", "Pasang tanda, hilangkan air, dan amankan jalur.", "濡れた床は転倒事故の原因になります。", "Lantai basah menyebabkan kecelakaan terpeleset."],
+          ["重い箱を一人で無理に持ち上げようとしています。", "Pekerja mencoba mengangkat kotak berat sendirian.", "二人作業や台車を使う", "Gunakan kerja berdua atau troli.", "無理な持ち上げは腰痛や落下事故につながります。", "Mengangkat paksa dapat menyebabkan sakit pinggang atau barang jatuh."],
+          ["刃物を使った後、刃を出したまま置いています。", "Setelah memakai pisau, mata pisau dibiarkan terbuka.", "刃をしまい、決められた場所に戻す", "Tutup mata pisau dan kembalikan ke tempat yang ditentukan.", "刃物の放置は切創や異物混入の原因になります。", "Pisau yang dibiarkan dapat menyebabkan luka atau benda asing."],
+          ["薬剤を扱う作業で保護メガネを外しています。", "Saat menangani bahan kimia, kacamata pelindung dilepas.", "必要な保護具を正しく着用する", "Pakai alat pelindung yang diperlukan dengan benar.", "薬剤は目や皮膚に触れると危険です。", "Bahan kimia berbahaya jika terkena mata atau kulit."],
+          ["非常停止ボタンの前に荷物が置かれています。", "Barang diletakkan di depan tombol berhenti darurat.", "すぐ押せるよう周囲を空ける", "Kosongkan area agar tombol bisa segera ditekan.", "非常時に使えない配置は重大な危険です。", "Jika tidak bisa dipakai saat darurat, bahayanya besar."],
+          ["ベルトコンベアの近くで袖がゆるい服装をしています。", "Pekerja memakai lengan baju longgar dekat conveyor.", "巻き込まれない服装に直す", "Perbaiki pakaian agar tidak tersangkut.", "ゆるい服は機械に巻き込まれることがあります。", "Pakaian longgar bisa tersangkut mesin."],
+          ["フォークリフトが近くを通ります。", "Forklift lewat di dekat area kerja.", "通路を確認し、運転者の合図に従う", "Periksa jalur dan ikuti isyarat operator.", "車両との接触を防ぐため、周囲確認が必要です。", "Pemeriksaan sekitar diperlukan untuk mencegah kontak dengan kendaraan."],
+          ["けがにはならなかったが、転びそうになりました。", "Tidak sampai cedera, tetapi hampir jatuh.", "ヒヤリハットとして報告する", "Laporkan sebagai near miss.", "小さな異常を報告することで事故を防げます。", "Melaporkan kejadian kecil dapat mencegah kecelakaan."],
+          ["熱い容器を素手で動かそうとしています。", "Pekerja akan memindahkan wadah panas dengan tangan kosong.", "耐熱手袋など適切な保護具を使う", "Gunakan APD yang sesuai seperti sarung tangan tahan panas.", "熱い物はやけどの危険があるため保護具が必要です。", "Benda panas berisiko menyebabkan luka bakar, jadi APD diperlukan."]
+        ],
+        wrongs: [["慣れているのでそのまま続ける", "Karena sudah terbiasa, lanjutkan saja."], ["自分で直して誰にも言わない", "Memperbaiki sendiri tanpa memberi tahu siapa pun."], ["急いでいるので保護具を外す", "Karena terburu-buru, melepas APD."], ["小さな異常は報告しない", "Ketidaknormalan kecil tidak dilaporkan."], ["通路に物を置いたままにする", "Membiarkan barang di jalur."], ["機械が動いたまま清掃する", "Membersihkan saat mesin masih bergerak."], ["注意表示を外して作業する", "Melepas tanda peringatan saat bekerja."]]
+      }
+    };
+
+    const foodPromptVariants = [
+      ["最もよい対応はどれですか。", "Tindakan terbaik adalah yang mana?", "正しい対応を選ぶ問題です。", "Ini soal memilih tindakan yang benar."],
+      ["特に確認することはどれですか。", "Hal yang paling perlu diperiksa adalah yang mana?", "確認すべき点を押さえることが本番対策になります。", "Memahami poin yang harus diperiksa membantu persiapan ujian."],
+      ["同じ問題を防ぐために必要なことはどれですか。", "Hal yang diperlukan untuk mencegah masalah yang sama adalah yang mana?", "再発防止では原因を考えて標準手順を守ります。", "Untuk pencegahan ulang, pikirkan penyebab dan ikuti prosedur standar."]
+    ];
+
+    function pickFoodWrongs(topic, start) {
+      const wrongs = [];
+      let offset = 0;
+      while (wrongs.length < 3) {
+        const item = topic.wrongs[(start + offset) % topic.wrongs.length];
+        if (!wrongs.some(existing => existing[0] === item[0])) wrongs.push(item);
+        offset += 1;
+      }
+      return wrongs;
+    }
+
+    function buildFoodQuestionBank() {
+      const questions = [];
+      Object.entries(foodTopicDefinitions).forEach(([topicKey, topic]) => {
+        const topicQuestions = [];
+        let index = 0;
+        while (topicQuestions.length < topic.count) {
+          const item = topic.cases[index % topic.cases.length];
+          const prompt = foodPromptVariants[Math.floor(index / topic.cases.length) % foodPromptVariants.length];
+          const wrongs = pickFoodWrongs(topic, index);
+          topicQuestions.push({
+            type: topic.name[0],
+            foodTopic: topicKey,
+            q: `${item[0]} ${prompt[0]}`,
+            qid: `${item[1]} ${prompt[1]}`,
+            choices: [item[2], ...wrongs.map(wrong => wrong[0])],
+            choiceIds: [item[3], ...wrongs.map(wrong => wrong[1])],
+            answer: 0,
+            exp: `${item[4]} ${prompt[2]}`,
+            id: `${item[5]} ${prompt[3]}`
+          });
+          index += 1;
+        }
+        questions.push(...topicQuestions);
+      });
+      return questions;
+    }
+
+    fields.food.questions = buildFoodQuestionBank();
+
     const choiceTranslations = {
       care: {
         "からかう": "Mengejek.",
@@ -2238,12 +2486,13 @@
       }
     };
 
-    function choiceIndonesian(choice) {
+    function choiceIndonesian(choice, question, index) {
+      if (question?.choiceIds?.[index]) return question.choiceIds[index];
       return choiceTranslations[currentField]?.[choice] || "";
     }
 
-    function choiceContent(choice) {
-      const translated = showIndonesianChoices ? choiceIndonesian(choice) : "";
+    function choiceContent(choice, question, index) {
+      const translated = showIndonesianChoices ? choiceIndonesian(choice, question, index) : "";
       return `${formatJapanese(choice)}${translated ? `<span class="choice-id">${escapeHtml(translated)}</span>` : ""}`;
     }
 
@@ -2296,6 +2545,8 @@
     let currentField = "care";
     let currentQuestion = 0;
     let constructionTrack = "common";
+    let foodTopic = "all";
+    let foodTopicPanelOpen = false;
     let selected = false;
     let showIndonesianQuestion = false;
     let showIndonesianChoices = false;
@@ -2820,6 +3071,48 @@
       `;
     }
 
+    function foodTopicNameHtml(key) {
+      if (key === "all") {
+        if (uiMode === "ja") return "全テーマ";
+        if (uiMode === "id") return "Semua tema";
+        return `全テーマ<span class="ui-sub">Semua tema</span>`;
+      }
+      const pair = foodTopicDefinitions[key].name;
+      if (uiMode === "ja") return escapeHtml(pair[0]);
+      if (uiMode === "id") return escapeHtml(pair[1]);
+      return `${escapeHtml(pair[0])}<span class="ui-sub">${escapeHtml(pair[1])}</span>`;
+    }
+
+    function foodTopicSelectorHtml() {
+      if (currentField !== "food") return "";
+      const keys = ["all", ...Object.keys(foodTopicDefinitions)];
+      const currentCount = foodTopic === "all" ? fields.food.questions.length : foodTopicDefinitions[foodTopic].count;
+      return `
+        <div class="track-switch compact" aria-label="食品テーマ選択">
+          <div class="topic-summary">
+            <span class="track-label">食品テーマ<span class="ui-sub">Tema makanan</span></span>
+            <span class="topic-current">${foodTopicNameHtml(foodTopic)}<span class="ui-sub">${currentCount} soal</span></span>
+            <button class="topic-toggle" data-food-topic-toggle type="button" aria-expanded="${foodTopicPanelOpen ? "true" : "false"}">
+              ${foodTopicPanelOpen ? "閉じる" : "選ぶ"}<span class="ui-sub">${foodTopicPanelOpen ? "Tutup" : "Pilih"}</span>
+            </button>
+          </div>
+          ${foodTopicPanelOpen ? `
+            <div class="track-buttons">
+              ${keys.map(key => {
+                const count = key === "all" ? fields.food.questions.length : foodTopicDefinitions[key].count;
+                return `
+                  <button class="track-btn ${foodTopic === key ? "active" : ""}" data-food-topic="${key}" type="button">
+                    ${foodTopicNameHtml(key)}
+                    <span class="ui-sub">${count} soal</span>
+                  </button>
+                `;
+              }).join("")}
+            </div>
+          ` : ""}
+        </div>
+      `;
+    }
+
     function attachConstructionTrackControls() {
       document.querySelectorAll("[data-construction-track]").forEach(button => {
         button.addEventListener("click", () => {
@@ -2835,15 +3128,50 @@
       });
     }
 
+    function attachFoodTopicControls() {
+      document.querySelectorAll("[data-food-topic-toggle]").forEach(button => {
+        button.addEventListener("click", () => {
+          foodTopicPanelOpen = !foodTopicPanelOpen;
+          render();
+        });
+      });
+      document.querySelectorAll("[data-food-topic]").forEach(button => {
+        button.addEventListener("click", () => {
+          if (foodTopic === button.dataset.foodTopic) {
+            foodTopicPanelOpen = false;
+            render();
+            return;
+          }
+          foodTopic = button.dataset.foodTopic;
+          foodTopicPanelOpen = false;
+          currentQuestion = 0;
+          selected = false;
+          quizChoiceKey = "";
+          quizChoiceOrder = [];
+          resetExam();
+          render();
+        });
+      });
+    }
+
     function activeQuestionBank() {
       if (currentField === "construction") {
         return constructionTrackBanks[constructionTrack] || fields.construction.questions;
+      }
+      if (currentField === "food" && foodTopic !== "all") {
+        return fields.food.questions.filter(question => question.foodTopic === foodTopic);
       }
       return fields[currentField].questions;
     }
 
     function activeExamConfig() {
       const config = examConfigs[currentField];
+      if (currentField === "food" && foodTopic !== "all") {
+        return {
+          ...config,
+          label: `${config.label}（${foodTopicDefinitions[foodTopic].name[0]}）`
+        };
+      }
       if (currentField !== "construction") return config;
       if (constructionTrack === "common") {
         return {
@@ -3041,6 +3369,7 @@
         selected = false;
         quizChoiceKey = "";
         quizChoiceOrder = [];
+        foodTopicPanelOpen = false;
         resetExam();
         document.querySelectorAll(".tab").forEach(tab => tab.setAttribute("aria-selected", "false"));
         button.setAttribute("aria-selected", "true");
@@ -3082,6 +3411,7 @@
       document.getElementById("overview").innerHTML = `
         <h3>${fieldHtml(currentField)} ${uiHtml("overviewTab")}</h3>
         ${constructionTrackSelectorHtml()}
+        ${foodTopicSelectorHtml()}
         <div class="grid-two">
           <div class="box">
             <h4>${uiHtml("keyThemes")}</h4>
@@ -3097,6 +3427,7 @@
       document.getElementById("plan").innerHTML = `
         <h3>${fieldHtml(currentField)} ${uiHtml("studyPlan")}</h3>
         ${constructionTrackSelectorHtml()}
+        ${foodTopicSelectorHtml()}
         <div class="box">
           <ul>${bilingualList(field.plan, translations.plan)}</ul>
         </div>
@@ -3106,6 +3437,7 @@
       renderQuiz();
       renderExam();
       attachConstructionTrackControls();
+      attachFoodTopicControls();
     }
 
     function renderQuiz() {
@@ -3118,6 +3450,7 @@
       document.getElementById("quiz").innerHTML = `
         <h3>${fieldHtml(currentField)} ${uiHtml("miniQuiz")}</h3>
         ${constructionTrackSelectorHtml()}
+        ${foodTopicSelectorHtml()}
         <div class="quiz-tools">
           <div>
             <label class="toggle" for="toggleIndonesianQuestion">
@@ -3144,7 +3477,7 @@
           <p class="question">${formatJapanese(question.q)}</p>
           <p class="${questionIdClass}" id="questionIndonesian">${questionIndonesian(question)}</p>
           <div class="choices">
-            ${orderedChoices.map(item => `<button class="choice" data-index="${item.originalIndex}">${choiceContent(item.choice)}</button>`).join("")}
+            ${orderedChoices.map(item => `<button class="choice" data-index="${item.originalIndex}">${choiceContent(item.choice, question, item.originalIndex)}</button>`).join("")}
           </div>
           <div class="explain" id="explain">
             <strong>${uiPlain("explanation")}：</strong>${formatJapanese(question.exp)}<br>
@@ -3195,6 +3528,7 @@
         renderQuiz();
       });
       attachConstructionTrackControls();
+      attachFoodTopicControls();
     }
 
     function answerQuestion(index) {
@@ -3224,7 +3558,8 @@
 
     function currentQuizChoiceOrder(question) {
       const trackKey = currentField === "construction" ? constructionTrack : "";
-      const key = `${currentField}:${trackKey}:${currentQuestion}`;
+      const topicKey = currentField === "food" ? foodTopic : "";
+      const key = `${currentField}:${trackKey}:${topicKey}:${currentQuestion}`;
       if (quizChoiceKey !== key || quizChoiceOrder.length === 0) {
         quizChoiceKey = key;
         quizChoiceOrder = shuffledChoiceOrder(question);
@@ -3294,17 +3629,30 @@
       const container = document.getElementById("exam");
       const config = activeExamConfig();
       if (!examState) {
+        const selectedFoodTopic = currentField === "food" && foodTopic !== "all";
+        const selectedBankSize = activeQuestionBank().length;
+        const setupTextJa = currentField === "construction" && constructionTrack !== "common"
+          ? "この模試は、共通安全問題18問と選択した区分の問題32問をミックスして出題します。"
+          : selectedFoodTopic
+            ? `この模試は、選択した食品テーマの${selectedBankSize}問からランダムに出題します。`
+            : "この模試は、現在の300問バンクからランダムに出題します。";
+        const setupTextId = currentField === "construction" && constructionTrack !== "common"
+          ? "Simulasi ini mencampur 18 soal keselamatan umum dan 32 soal dari subbidang yang dipilih."
+          : selectedFoodTopic
+            ? `Simulasi ini mengambil soal secara acak dari ${selectedBankSize} soal pada tema makanan yang dipilih.`
+            : "Simulasi ini mengambil soal secara acak dari bank 300 soal.";
         container.innerHTML = `
           <h3>${fieldHtml(currentField)} ${uiHtml("examPractice")}</h3>
           ${constructionTrackSelectorHtml()}
+          ${foodTopicSelectorHtml()}
           <div class="exam-summary">
             <div class="meta"><span class="label">${uiHtml("format")}</span><strong>${config.label}</strong></div>
             <div class="meta"><span class="label">${uiHtml("questionCount")}</span><strong>${questionCountHtml(config.questions)}</strong></div>
             <div class="meta"><span class="label">${uiHtml("timeLimit")}</span><strong>${minuteHtml(config.minutes)}</strong></div>
           </div>
           <div class="box">
-            <p>${currentField === "construction" && constructionTrack !== "common" ? "この模試は、共通安全問題18問と選択した区分の問題32問をミックスして出題します。" : "この模試は、現在の300問バンクからランダムに出題します。"}終了後に点数、合否判定、間違えた問題の復習リストを表示します。</p>
-            <span class="bi">Bahasa Indonesia: ${currentField === "construction" && constructionTrack !== "common" ? "Simulasi ini mencampur 18 soal keselamatan umum dan 32 soal dari subbidang yang dipilih." : "Simulasi ini mengambil soal secara acak dari bank 300 soal."} Setelah selesai, skor, hasil lulus/tidak, dan daftar soal salah akan ditampilkan.</span>
+            <p>${setupTextJa}終了後に点数、合否判定、間違えた問題の復習リストを表示します。</p>
+            <span class="bi">Bahasa Indonesia: ${setupTextId} Setelah selesai, skor, hasil lulus/tidak, dan daftar soal salah akan ditampilkan.</span>
           </div>
           <div class="quiz-actions">
             <button class="btn" id="startExam">${uiHtml("startExam")}</button>
@@ -3312,6 +3660,7 @@
         `;
         document.getElementById("startExam").addEventListener("click", startExam);
         attachConstructionTrackControls();
+        attachFoodTopicControls();
         return;
       }
 
@@ -3329,6 +3678,7 @@
       container.innerHTML = `
         <h3>${fieldHtml(currentField)} ${uiHtml("examPractice")}</h3>
         ${constructionTrackSelectorHtml()}
+        ${foodTopicSelectorHtml()}
         <div class="quiz-tools">
           <div>
             <label class="toggle" for="examToggleIndonesianQuestion">
@@ -3355,7 +3705,7 @@
           <p class="question">${formatJapanese(question.q)}</p>
           <p class="${questionIdClass}" id="examQuestionIndonesian">${questionIndonesian(question)}</p>
           <div class="choices">
-            ${orderedChoices.map(item => `<button class="choice ${selectedAnswer === item.originalIndex ? "selected" : ""}" data-index="${item.originalIndex}">${choiceContent(item.choice)}</button>`).join("")}
+            ${orderedChoices.map(item => `<button class="choice ${selectedAnswer === item.originalIndex ? "selected" : ""}" data-index="${item.originalIndex}">${choiceContent(item.choice, question, item.originalIndex)}</button>`).join("")}
           </div>
           <div class="quiz-actions">
             <button class="btn secondary" id="examPrev">${uiHtml("previous")}</button>
@@ -3390,6 +3740,7 @@
       });
       document.getElementById("finishExam").addEventListener("click", finishExam);
       attachConstructionTrackControls();
+      attachFoodTopicControls();
     }
 
     function renderExamResult(container, config) {
