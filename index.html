@@ -1954,6 +1954,702 @@
 
     fields.food.questions = buildFoodQuestionBank();
 
+    const repairedPromptVariants = [
+      ["最もよい対応はどれですか。", "Tindakan terbaik adalah yang mana?", "場面に合う安全で標準的な対応を選びます。", "Pilih tindakan standar yang aman dan sesuai situasi."],
+      ["まず確認することはどれですか。", "Hal pertama yang perlu diperiksa adalah yang mana?", "作業前の確認は事故やミスを防ぎます。", "Pemeriksaan sebelum bekerja mencegah kecelakaan dan kesalahan."],
+      ["作業前に行うこととして正しいものはどれですか。", "Hal yang benar dilakukan sebelum bekerja adalah yang mana?", "準備と確認をしてから作業を始めます。", "Mulai bekerja setelah persiapan dan pemeriksaan."],
+      ["作業中に注意することはどれですか。", "Hal yang harus diperhatikan saat bekerja adalah yang mana?", "作業中も周囲と手順を確認し続けます。", "Saat bekerja, tetap periksa sekitar dan prosedur."],
+      ["安全や品質を守るために必要なことはどれですか。", "Hal yang diperlukan untuk menjaga keselamatan atau mutu adalah yang mana?", "安全と品質は手順を守ることで安定します。", "Keselamatan dan mutu stabil jika prosedur dipatuhi."],
+      ["次に行うこととして適切なものはどれですか。", "Langkah berikutnya yang tepat adalah yang mana?", "次の行動は自己判断だけで決めません。", "Langkah berikutnya tidak ditentukan hanya dengan keputusan sendiri."],
+      ["責任者への報告として正しいものはどれですか。", "Laporan yang benar kepada penanggung jawab adalah yang mana?", "異常や判断に迷う場面は早く報告します。", "Ketidaknormalan atau keraguan harus segera dilaporkan."],
+      ["記録や確認で正しいものはどれですか。", "Hal yang benar dalam pencatatan atau pemeriksaan adalah yang mana?", "記録は事実をその時に残します。", "Catatan harus berisi fakta dan dibuat saat itu juga."],
+      ["日本の現場ルールとして適切なものはどれですか。", "Hal yang sesuai aturan tempat kerja di Jepang adalah yang mana?", "日本の現場では安全、報告、確認が重視されます。", "Di tempat kerja Jepang, keselamatan, laporan, dan pemeriksaan sangat penting."],
+      ["チームで作業するとき大切なことはどれですか。", "Hal penting saat bekerja dalam tim adalah yang mana?", "チーム作業では声かけと合図をそろえます。", "Dalam kerja tim, komunikasi dan isyarat harus disamakan."],
+      ["危険や異常を見つけたときの対応はどれですか。", "Tindakan saat menemukan bahaya atau ketidaknormalan adalah yang mana?", "危険を見つけたら放置せず止めて知らせます。", "Jika menemukan bahaya, jangan biarkan; hentikan dan beri tahu."],
+      ["対象者やお客様、製品、現場を守るために大切なことはどれですか。", "Hal penting untuk melindungi pengguna, tamu, produk, atau tempat kerja adalah yang mana?", "相手や製品、現場を守る視点で判断します。", "Putuskan dengan sudut pandang melindungi orang, produk, dan tempat kerja."],
+      ["同じミスを防ぐために必要なことはどれですか。", "Hal yang diperlukan agar kesalahan yang sama tidak terulang adalah yang mana?", "再発防止では原因と手順を確認します。", "Untuk mencegah ulang, periksa penyebab dan prosedur."],
+      ["指示が分からないときの行動として正しいものはどれですか。", "Tindakan yang benar saat instruksi tidak dipahami adalah yang mana?", "分からないまま進めず、確認してから動きます。", "Jangan lanjut jika belum paham; konfirmasi dulu."],
+      ["してはいけない行動を避けるために必要なことはどれですか。", "Hal yang diperlukan agar tindakan terlarang dapat dihindari adalah yang mana?", "禁止事項を理解し、迷ったら確認します。", "Pahami larangan dan konfirmasi jika ragu."]
+    ];
+
+    function repairedTopic(name, situations, corrects, wrongs, expJa, expId) {
+      return { name, situations, corrects, wrongs, expJa, expId, count: 75 };
+    }
+
+    function pickRepairedWrongs(topic, start) {
+      const choices = [];
+      let offset = 0;
+      while (choices.length < 3) {
+        const item = topic.wrongs[(start + offset) % topic.wrongs.length];
+        if (!choices.some(choice => choice[0] === item[0])) choices.push(item);
+        offset += 1;
+      }
+      return choices;
+    }
+
+    function buildRepairedQuestionBank(topics) {
+      const questions = [];
+      topics.forEach((topic, topicIndex) => {
+        for (let index = 0; index < topic.count; index += 1) {
+          const situation = topic.situations[index % topic.situations.length];
+          const prompt = repairedPromptVariants[Math.floor(index / topic.situations.length) % repairedPromptVariants.length];
+          const correct = topic.corrects[index % topic.corrects.length];
+          const wrongs = pickRepairedWrongs(topic, index);
+          questions.push({
+            type: topic.name[0],
+            topicKey: `topic-${topicIndex}`,
+            q: `${situation[0]} ${prompt[0]}`,
+            qid: `${situation[1]} ${prompt[1]}`,
+            choices: [correct[0], ...wrongs.map(wrong => wrong[0])],
+            choiceIds: [correct[1], ...wrongs.map(wrong => wrong[1])],
+            answer: 0,
+            exp: `${topic.expJa} ${prompt[2]}`,
+            id: `${topic.expId} ${prompt[3]}`
+          });
+        }
+      });
+      return questions;
+    }
+
+    const repairedQuestionTopicSets = {
+      care: [
+        repairedTopic(["尊厳・意思確認", "Martabat & konfirmasi keinginan"], [
+          ["利用者が自分で服を着たいと言っています。", "Pengguna mengatakan ingin memakai pakaian sendiri."],
+          ["利用者が好きな服を選びたいと言っています。", "Pengguna mengatakan ingin memilih pakaian yang disukai."],
+          ["利用者が一人でトイレに行きたいと言っています。", "Pengguna mengatakan ingin pergi ke toilet sendiri."],
+          ["家族が本人に聞かずに予定を決めようとしています。", "Keluarga ingin menentukan rencana tanpa bertanya kepada pengguna."],
+          ["利用者が周りに聞こえないよう小さな声で話しています。", "Pengguna berbicara pelan agar orang sekitar tidak mendengar."]
+        ], [
+          ["本人の希望を確認し、できる部分は本人にしてもらう", "Konfirmasi keinginan pengguna dan biarkan ia melakukan bagian yang bisa dilakukan."],
+          ["プライバシーを守り、安心できる声かけをする", "Jaga privasi dan bicara dengan cara yang membuat tenang."],
+          ["選択肢を示し、本人が決められるよう支援する", "Berikan pilihan dan dukung agar pengguna bisa memutuskan sendiri."],
+          ["無理に急がせず、必要な部分だけ手伝う", "Jangan memaksa terburu-buru; bantu hanya bagian yang diperlukan."]
+        ], [
+          ["時間がかかるので全部介助する", "Karena lama, bantu semuanya."],
+          ["家族の希望だけで決める", "Memutuskan hanya berdasarkan keinginan keluarga."],
+          ["大きな声で個人情報を話す", "Membicarakan informasi pribadi dengan suara keras."],
+          ["本人の返事を待たずに進める", "Melanjutkan tanpa menunggu jawaban pengguna."],
+          ["できないと決めつける", "Menganggap pengguna tidak bisa."],
+          ["嫌がっても同じ方法で続ける", "Tetap memakai cara yang sama walaupun pengguna tidak suka."]
+        ], "介護では利用者の尊厳と自己決定を守ります。", "Dalam perawatan, martabat dan keputusan diri pengguna harus dijaga."),
+        repairedTopic(["移動・移乗・安全", "Bergerak, transfer & keselamatan"], [
+          ["ベッドから車いすへ移る介助をします。", "Akan membantu pengguna pindah dari tempat tidur ke kursi roda."],
+          ["歩行中の利用者がふらついています。", "Pengguna tampak goyah saat berjalan."],
+          ["車いすのブレーキを確認せず移乗しようとしています。", "Akan melakukan transfer tanpa memeriksa rem kursi roda."],
+          ["利用者が立ち上がる前に足の位置が不安定です。", "Posisi kaki pengguna tidak stabil sebelum berdiri."],
+          ["廊下に荷物があり、歩行介助の通路が狭くなっています。", "Ada barang di koridor sehingga jalur bantuan berjalan menjadi sempit."]
+        ], [
+          ["ブレーキ、足の位置、周囲を確認してから声をかける", "Periksa rem, posisi kaki, dan sekitar sebelum memberi aba-aba."],
+          ["利用者の動きに合わせ、無理に引っぱらない", "Sesuaikan dengan gerakan pengguna dan jangan menarik paksa."],
+          ["転倒しそうな時は安全を確保してすぐ報告する", "Saat hampir jatuh, amankan keselamatan dan segera laporkan."],
+          ["通路の障害物を片付けてから介助する", "Rapikan penghalang di jalur sebelum membantu."]
+        ], [
+          ["急いで一人で持ち上げる", "Mengangkat sendiri dengan terburu-buru."],
+          ["ブレーキをかけずに移乗する", "Transfer tanpa mengunci rem."],
+          ["声をかけずに体を動かす", "Menggerakkan tubuh tanpa memberi tahu."],
+          ["ふらつきを見ても記録しない", "Tidak mencatat walaupun melihat goyah."],
+          ["通路の荷物をまたいで進む", "Melangkahi barang di jalur."],
+          ["利用者の腕だけを強く引く", "Menarik kuat hanya pada lengan pengguna."]
+        ], "移動介助では転倒防止、声かけ、周囲確認が重要です。", "Dalam bantuan bergerak, pencegahan jatuh, komunikasi, dan pemeriksaan sekitar sangat penting."),
+        repairedTopic(["食事・排泄・入浴", "Makan, toileting & mandi"], [
+          ["むせやすい利用者の食事介助をします。", "Akan membantu makan pengguna yang mudah tersedak."],
+          ["利用者が食事を自分のペースで食べています。", "Pengguna makan dengan kecepatannya sendiri."],
+          ["排泄介助の後に手袋を外します。", "Setelah bantuan toileting, sarung tangan akan dilepas."],
+          ["入浴前に利用者の顔色がいつもと違います。", "Sebelum mandi, warna wajah pengguna berbeda dari biasanya."],
+          ["衣類やタオルで体を隠さず介助しようとしています。", "Akan membantu tanpa menutup tubuh dengan pakaian atau handuk."]
+        ], [
+          ["姿勢と飲み込みを確認し、ゆっくり介助する", "Periksa posisi dan menelan, lalu bantu perlahan."],
+          ["本人のペースを尊重し、必要な時だけ支援する", "Hormati kecepatan pengguna dan bantu hanya saat perlu."],
+          ["手袋を正しく外し、手洗いと記録を行う", "Lepas sarung tangan dengan benar, cuci tangan, dan catat."],
+          ["体調を確認し、異常があれば入浴を中止して報告する", "Periksa kondisi tubuh; jika tidak normal, hentikan mandi dan laporkan."]
+        ], [
+          ["早く食べるよう急がせる", "Menyuruh makan lebih cepat."],
+          ["むせても同じ姿勢で続ける", "Tetap lanjut dengan posisi yang sama walau tersedak."],
+          ["排泄後の手洗いを省略する", "Melewati cuci tangan setelah toileting."],
+          ["顔色を見ずに入浴する", "Memandikan tanpa memperhatikan warna wajah."],
+          ["周囲から見えるまま介助する", "Membantu dalam kondisi tubuh terlihat orang sekitar."],
+          ["本人の希望を聞かずに食事量を決める", "Menentukan jumlah makan tanpa bertanya."]
+        ], "生活支援では安全、清潔、プライバシーを同時に守ります。", "Dalam bantuan kehidupan, keselamatan, kebersihan, dan privasi harus dijaga bersama."),
+        repairedTopic(["観察・記録・介護日本語", "Observasi, catatan & bahasa Jepang perawatan"], [
+          ["利用者の顔色が悪く、元気がありません。", "Wajah pengguna pucat dan tampak tidak bersemangat."],
+          ["同じ質問を何度もする利用者がいます。", "Ada pengguna yang menanyakan hal yang sama berkali-kali."],
+          ["介護記録に自分の感想を書きそうになっています。", "Akan menulis pendapat pribadi dalam catatan perawatan."],
+          ["「体温を測ってください」と指示されました。", "Diberi instruksi 'tolong ukur suhu tubuh'."],
+          ["利用者が転倒した直後です。", "Baru saja terjadi pengguna jatuh."]
+        ], [
+          ["事実を観察し、時刻や状態を正確に記録する", "Amati fakta dan catat waktu serta kondisi dengan akurat."],
+          ["落ち着いて短い言葉で説明し、必要なら繰り返す", "Jelaskan dengan tenang dan kalimat pendek, ulangi jika perlu."],
+          ["分からない日本語は確認してから行動する", "Jika bahasa Jepang tidak dipahami, konfirmasi sebelum bertindak."],
+          ["転倒後は無理に動かさず、状態を確認して報告する", "Setelah jatuh, jangan memaksa bergerak; periksa kondisi dan laporkan."]
+        ], [
+          ["たぶん大丈夫と書く", "Menulis 'mungkin tidak apa-apa'."],
+          ["転倒後すぐ立たせる", "Langsung membuat berdiri setelah jatuh."],
+          ["分からない指示をそのまま行う", "Melakukan instruksi yang belum dipahami."],
+          ["何度も聞く利用者を叱る", "Memarahi pengguna yang bertanya berulang."],
+          ["記録を翌日にまとめて書く", "Menulis catatan sekaligus keesokan hari."],
+          ["変化を見ても報告しない", "Tidak melapor walaupun melihat perubahan."]
+        ], "介護記録は事実、観察、報告を正確に残すためのものです。", "Catatan perawatan dibuat untuk menyimpan fakta, observasi, dan laporan dengan akurat.")
+      ],
+      cleaning: [
+        repairedTopic(["用具・洗剤", "Alat & deterjen"], [
+          ["床清掃で使うモップとバケツを準備します。", "Menyiapkan mop dan ember untuk pembersihan lantai."],
+          ["ガラス清掃でスクイジーを使います。", "Menggunakan squeegee untuk membersihkan kaca."],
+          ["洗剤の希釈倍率を確認します。", "Memeriksa perbandingan pengenceran deterjen."],
+          ["酸性洗剤と塩素系洗剤が近くに置かれています。", "Deterjen asam dan klorin diletakkan berdekatan."],
+          ["使用後の清掃用具が濡れたままです。", "Alat kebersihan setelah dipakai masih basah."]
+        ], [
+          ["場所と汚れに合う用具を選び、使用後は洗って乾かす", "Pilih alat sesuai tempat dan kotoran, lalu cuci dan keringkan setelah dipakai."],
+          ["洗剤表示を読み、決められた濃度で使う", "Baca label deterjen dan gunakan pada konsentrasi yang ditentukan."],
+          ["混ぜてはいけない洗剤を分けて管理する", "Pisahkan deterjen yang tidak boleh dicampur."],
+          ["用具を点検し、破損や汚れがあれば報告する", "Periksa alat; laporkan jika rusak atau kotor."]
+        ], [
+          ["洗剤を濃くすれば必ずよく落ちる", "Jika deterjen dibuat lebih pekat, pasti lebih bersih."],
+          ["酸性と塩素系を混ぜて使う", "Mencampur deterjen asam dan klorin."],
+          ["濡れた用具を床に置いて保管する", "Menyimpan alat basah di lantai."],
+          ["場所に関係なく同じクロスを使う", "Memakai kain yang sama untuk semua tempat."],
+          ["表示を読まずに洗剤を使う", "Menggunakan deterjen tanpa membaca label."],
+          ["壊れた用具をそのまま使う", "Tetap memakai alat yang rusak."]
+        ], "清掃では用具、洗剤、濃度、保管方法を正しく選びます。", "Dalam pembersihan, alat, deterjen, konsentrasi, dan penyimpanan harus dipilih dengan benar."),
+        repairedTopic(["床・ガラス・共用部", "Lantai, kaca & area umum"], [
+          ["水拭き後の床が濡れています。", "Lantai masih basah setelah dipel."],
+          ["共用通路に利用者が通っています。", "Pengguna lewat di koridor umum."],
+          ["ガラス面に水滴と拭き跡が残っています。", "Ada tetesan air dan bekas lap di permukaan kaca."],
+          ["玄関マットに砂とほこりがたまっています。", "Pasir dan debu menumpuk pada keset pintu masuk."],
+          ["掃除機のコードが通路をふさいでいます。", "Kabel vacuum cleaner menghalangi jalur."]
+        ], [
+          ["作業表示を置き、乾くまで安全を確保する", "Pasang tanda kerja dan amankan sampai kering."],
+          ["人の動線を確認し、邪魔にならない順序で清掃する", "Periksa jalur orang dan bersihkan dengan urutan yang tidak mengganggu."],
+          ["上から下へ、奥から手前へ進めて仕上がりを確認する", "Kerjakan dari atas ke bawah dan dari dalam ke depan, lalu cek hasil."],
+          ["コードや用具を整理し、転倒の原因をなくす", "Rapikan kabel dan alat agar tidak menyebabkan jatuh."]
+        ], [
+          ["濡れた床をそのままにする", "Membiarkan lantai basah."],
+          ["人が近くにいても強く振り回す", "Mengayunkan alat kuat walau ada orang dekat."],
+          ["コードを通路に伸ばしたままにする", "Membiarkan kabel melintang di jalur."],
+          ["確認せず次の場所へ行く", "Pindah ke tempat berikutnya tanpa memeriksa."],
+          ["ガラスの水滴を放置する", "Membiarkan tetesan pada kaca."],
+          ["ほこりを人の方へ掃く", "Menyapu debu ke arah orang."]
+        ], "共用部清掃では仕上がりだけでなく、利用者の安全を守ります。", "Pembersihan area umum menjaga bukan hanya hasil, tetapi juga keselamatan pengguna."),
+        repairedTopic(["トイレ・衛生区域", "Toilet & area higienis"], [
+          ["洋式大便器の清掃を始めます。", "Akan mulai membersihkan toilet duduk."],
+          ["トイレ用クロスと洗面台用クロスを使います。", "Memakai kain untuk toilet dan kain untuk wastafel."],
+          ["血液のような汚れを見つけました。", "Ditemukan noda seperti darah."],
+          ["手洗い場の石けんが切れています。", "Sabun di tempat cuci tangan habis."],
+          ["清掃後ににおいが残っています。", "Masih ada bau setelah pembersihan."]
+        ], [
+          ["場所ごとに用具を分け、汚染を広げない", "Pisahkan alat menurut area dan jangan menyebarkan kontaminasi."],
+          ["手袋など保護具を使い、手順どおり処理する", "Gunakan APD seperti sarung tangan dan tangani sesuai prosedur."],
+          ["清掃後に補充、におい、汚れ残りを確認する", "Setelah pembersihan, cek isi ulang, bau, dan sisa kotoran."],
+          ["異常な汚れは責任者へ報告する", "Laporkan kotoran tidak normal kepada penanggung jawab."]
+        ], [
+          ["トイレと洗面台を同じクロスで拭く", "Mengelap toilet dan wastafel dengan kain yang sama."],
+          ["素手で汚れを触る", "Menyentuh kotoran dengan tangan kosong."],
+          ["補充を確認しない", "Tidak memeriksa isi ulang."],
+          ["においがあっても終了する", "Selesai walaupun masih bau."],
+          ["汚れを隠して報告しない", "Menyembunyikan kotoran dan tidak melapor."],
+          ["清掃順序を考えずに進める", "Bekerja tanpa memikirkan urutan pembersihan."]
+        ], "衛生区域では交差汚染を防ぎ、保護具と清掃順序を守ります。", "Di area higienis, cegah kontaminasi silang dan ikuti APD serta urutan pembersihan."),
+        repairedTopic(["安全管理・ごみ・報告", "Keselamatan, sampah & laporan"], [
+          ["ごみ袋を交換するとき中に鋭い物が見えます。", "Saat mengganti kantong sampah, terlihat benda tajam di dalamnya."],
+          ["清掃中に設備の破損を見つけました。", "Ditemukan kerusakan fasilitas saat membersihkan."],
+          ["利用者から床が滑ると言われました。", "Pengguna mengatakan lantai licin."],
+          ["作業終了後に用具が数と合いません。", "Setelah kerja selesai, jumlah alat tidak sesuai."],
+          ["立入禁止表示を外すタイミングを迷っています。", "Ragu kapan melepas tanda dilarang masuk."]
+        ], [
+          ["危険物に注意し、無理に押し込まず報告する", "Waspadai benda berbahaya, jangan dipaksa masuk, dan laporkan."],
+          ["破損や危険は場所と状態を伝える", "Sampaikan lokasi dan kondisi kerusakan atau bahaya."],
+          ["安全が確認できてから表示を外す", "Lepas tanda hanya setelah aman dipastikan."],
+          ["作業後に用具数、片付け、記録を確認する", "Setelah kerja, cek jumlah alat, kerapian, dan catatan."]
+        ], [
+          ["袋を強く押して小さくする", "Menekan kantong kuat-kuat agar kecil."],
+          ["破損を見なかったことにする", "Berpura-pura tidak melihat kerusakan."],
+          ["滑ると言われても続ける", "Tetap lanjut walau dikatakan licin."],
+          ["用具数を確認しない", "Tidak memeriksa jumlah alat."],
+          ["床が濡れたまま表示を外す", "Melepas tanda saat lantai masih basah."],
+          ["報告は翌日にする", "Melapor keesokan hari."]
+        ], "清掃作業では利用者の安全、用具管理、報告が大切です。", "Dalam pembersihan, keselamatan pengguna, pengelolaan alat, dan laporan sangat penting.")
+      ],
+      agriculture: [
+        repairedTopic(["耕種作業・栽培管理", "Tanaman & budidaya"], [
+          ["ハウス内の温度が高くなっています。", "Suhu di dalam greenhouse meningkat."],
+          ["苗の葉がしおれています。", "Daun bibit layu."],
+          ["畑の畝に水がたまっています。", "Air menggenang pada bedengan ladang."],
+          ["作物の葉に病気のような斑点があります。", "Ada bercak seperti penyakit pada daun tanaman."],
+          ["換気をする時間を指示されました。", "Diberi instruksi waktu untuk melakukan ventilasi."]
+        ], [
+          ["温度、湿度、作物の状態を確認して報告する", "Periksa suhu, kelembapan, dan kondisi tanaman lalu laporkan."],
+          ["指示された時間と方法を守って作業する", "Bekerja sesuai waktu dan cara yang diinstruksikan."],
+          ["異常な株を見つけたら広がる前に知らせる", "Jika menemukan tanaman tidak normal, beri tahu sebelum menyebar."],
+          ["水やり、換気、日よけを作物に合わせて行う", "Lakukan penyiraman, ventilasi, dan peneduhan sesuai tanaman."]
+        ], [
+          ["暑くても換気しない", "Tidak melakukan ventilasi walaupun panas."],
+          ["病気らしい葉を触って他の株も触る", "Menyentuh daun yang tampak sakit lalu tanaman lain."],
+          ["指示を聞かず自分の時間で行う", "Bekerja pada waktu sendiri tanpa mengikuti instruksi."],
+          ["水がたまっても放置する", "Membiarkan genangan air."],
+          ["異常を写真も報告もせず捨てる", "Membuang tanpa foto atau laporan."],
+          ["作物名を確認しない", "Tidak memeriksa nama tanaman."]
+        ], "耕種作業では作物の変化を観察し、指示と環境管理を守ります。", "Dalam budidaya tanaman, amati perubahan tanaman serta ikuti instruksi dan pengelolaan lingkungan."),
+        repairedTopic(["畜産作業・家畜観察", "Peternakan & observasi ternak"], [
+          ["牛の食欲がいつもよりありません。", "Nafsu makan sapi lebih rendah dari biasanya."],
+          ["鶏舎で死んだ鶏を見つけました。", "Ditemukan ayam mati di kandang."],
+          ["豚舎の給水器から水が出ていません。", "Tempat minum di kandang babi tidak mengeluarkan air."],
+          ["家畜の歩き方がいつもと違います。", "Cara berjalan ternak berbeda dari biasanya."],
+          ["飼料の袋が破れて床にこぼれています。", "Karung pakan robek dan tumpah di lantai."]
+        ], [
+          ["いつもとの違いを観察し、すぐ責任者へ報告する", "Amati perbedaan dari biasanya dan segera laporkan."],
+          ["病気やけがの可能性を考え、勝手に移動させない", "Pertimbangkan kemungkinan sakit/cedera dan jangan memindahkan sendiri."],
+          ["水、飼料、温度、換気を確認する", "Periksa air, pakan, suhu, dan ventilasi."],
+          ["こぼれた飼料を片付け、汚染や害虫を防ぐ", "Bersihkan pakan tumpah dan cegah kontaminasi serta hama."]
+        ], [
+          ["元気がなくても様子を見て終わる", "Hanya melihat walaupun tidak sehat."],
+          ["死んだ家畜を素手で触る", "Menyentuh ternak mati dengan tangan kosong."],
+          ["給水異常を報告しない", "Tidak melaporkan masalah air."],
+          ["病気かもしれない家畜を他と混ぜる", "Mencampur ternak yang mungkin sakit dengan yang lain."],
+          ["こぼれた飼料を放置する", "Membiarkan pakan tumpah."],
+          ["記録せず記憶に頼る", "Mengandalkan ingatan tanpa catatan."]
+        ], "畜産では毎日の観察と早い報告が病気や事故の拡大を防ぎます。", "Dalam peternakan, observasi harian dan laporan cepat mencegah penyebaran penyakit atau kecelakaan."),
+        repairedTopic(["農薬・肥料・機械安全", "Pestisida, pupuk & keselamatan mesin"], [
+          ["農薬を散布する前にラベルを確認します。", "Memeriksa label sebelum menyemprot pestisida."],
+          ["肥料をまく量が分かりません。", "Jumlah pupuk yang harus diberikan tidak dipahami."],
+          ["草刈機の刃を点検します。", "Memeriksa mata mesin pemotong rumput."],
+          ["トラクターの周りに人がいます。", "Ada orang di sekitar traktor."],
+          ["燃料を補給する場所の近くに火気があります。", "Ada api dekat tempat pengisian bahan bakar."]
+        ], [
+          ["ラベル、保護具、風向き、立入制限を確認する", "Periksa label, APD, arah angin, dan pembatasan masuk."],
+          ["量や方法が分からない時は責任者に確認する", "Jika jumlah atau cara tidak paham, konfirmasi kepada penanggung jawab."],
+          ["機械を止めてから点検し、周囲の人を離す", "Matikan mesin sebelum memeriksa dan jauhkan orang sekitar."],
+          ["燃料補給は火気を避け、こぼれを処理する", "Isi bahan bakar jauh dari api dan tangani tumpahan."]
+        ], [
+          ["農薬をラベルを読まずに使う", "Memakai pestisida tanpa membaca label."],
+          ["保護具を暑いから外す", "Melepas APD karena panas."],
+          ["機械を動かしたまま刃を見る", "Memeriksa mata pisau saat mesin bergerak."],
+          ["人が近くにいても発進する", "Menjalankan mesin walau ada orang dekat."],
+          ["火気の近くで燃料を入れる", "Mengisi bahan bakar dekat api."],
+          ["肥料量を自分で適当に決める", "Menentukan jumlah pupuk sembarang."]
+        ], "農薬、肥料、機械は表示、指示、保護具、停止確認を守ります。", "Pestisida, pupuk, dan mesin harus mengikuti label, instruksi, APD, dan pemeriksaan berhenti."),
+        repairedTopic(["収穫・選別・保管・指示理解", "Panen, sortasi, penyimpanan & instruksi"], [
+          ["収穫した野菜に土が多く付いています。", "Sayuran panen banyak terkena tanah."],
+          ["傷んだ果実が良品の箱に入りそうです。", "Buah rusak hampir masuk ke kotak produk baik."],
+          ["収穫後の品物を日なたに置いています。", "Hasil panen diletakkan di bawah sinar matahari."],
+          ["出荷用ラベルの品種名を確認します。", "Memeriksa nama varietas pada label pengiriman."],
+          ["日本語の作業指示で時間と場所が分かりません。", "Dalam instruksi kerja bahasa Jepang, waktu dan tempat tidak dipahami."]
+        ], [
+          ["規格を確認し、良品と不良品を分ける", "Periksa standar dan pisahkan produk baik dan tidak baik."],
+          ["温度や日光に注意して決められた場所に保管する", "Perhatikan suhu dan sinar matahari, simpan di tempat yang ditentukan."],
+          ["ラベル、数量、品種、ロットを確認する", "Periksa label, jumlah, varietas, dan lot."],
+          ["分からない指示は作業前に聞き直す", "Tanyakan ulang instruksi yang tidak dipahami sebelum bekerja."]
+        ], [
+          ["傷んだ物も一緒に入れる", "Memasukkan produk rusak bersama."],
+          ["日なたで長く置く", "Meletakkan lama di bawah matahari."],
+          ["ラベルを見ずに出荷する", "Mengirim tanpa melihat label."],
+          ["分からないまま別の場所へ行く", "Pergi ke tempat lain walau belum paham."],
+          ["土を落とさず箱に入れる", "Memasukkan ke kotak tanpa membersihkan tanah."],
+          ["数量を確認しない", "Tidak memeriksa jumlah."]
+        ], "収穫後は品質を守るため、選別、表示、保管、指示理解が重要です。", "Setelah panen, sortasi, label, penyimpanan, dan pemahaman instruksi penting untuk menjaga mutu.")
+      ],
+      hotel: [
+        repairedTopic(["フロント・予約・会計", "Front office, reservasi & pembayaran"], [
+          ["お客様が予約名を伝えました。", "Tamu menyebutkan nama reservasi."],
+          ["チェックイン時にパスポート確認が必要です。", "Saat check-in perlu memeriksa paspor."],
+          ["お客様が支払い方法を質問しています。", "Tamu bertanya tentang metode pembayaran."],
+          ["予約人数と到着人数が違います。", "Jumlah reservasi dan jumlah tamu datang berbeda."],
+          ["領収書の名前を変更してほしいと言われました。", "Tamu meminta nama pada kuitansi diubah."]
+        ], [
+          ["予約内容、人数、日付を丁寧に確認する", "Konfirmasi isi reservasi, jumlah orang, dan tanggal dengan sopan."],
+          ["本人確認と必要書類を手順どおり確認する", "Periksa identitas dan dokumen yang diperlukan sesuai prosedur."],
+          ["料金や支払い条件を確認して分かりやすく伝える", "Periksa biaya dan syarat pembayaran lalu jelaskan dengan mudah."],
+          ["判断に迷う変更は責任者へ確認する", "Untuk perubahan yang meragukan, konfirmasi kepada penanggung jawab."]
+        ], [
+          ["予約を確認せず部屋を渡す", "Memberikan kamar tanpa memeriksa reservasi."],
+          ["個人情報を大きな声で読む", "Membaca informasi pribadi dengan suara keras."],
+          ["料金を自分で変える", "Mengubah biaya sendiri."],
+          ["人数違いを記録しない", "Tidak mencatat perbedaan jumlah orang."],
+          ["分からないまま説明する", "Menjelaskan walaupun belum tahu."],
+          ["別のお客様の情報を見せる", "Memperlihatkan informasi tamu lain."]
+        ], "フロントでは確認、個人情報保護、丁寧な説明が重要です。", "Di front office, konfirmasi, perlindungan informasi pribadi, dan penjelasan sopan sangat penting."),
+        repairedTopic(["客室・清掃・備品", "Kamar tamu, housekeeping & amenitas"], [
+          ["客室清掃で忘れ物を見つけました。", "Menemukan barang tertinggal saat membersihkan kamar."],
+          ["タオルの数が基準より少ないです。", "Jumlah handuk kurang dari standar."],
+          ["ベッドメイク後にシーツの汚れを見つけました。", "Setelah merapikan tempat tidur, ditemukan noda pada seprai."],
+          ["客室の電球が切れています。", "Lampu kamar mati."],
+          ["清掃中にお客様が部屋へ戻ってきました。", "Tamu kembali ke kamar saat sedang dibersihkan."]
+        ], [
+          ["忘れ物は触りすぎず、決められた方法で報告する", "Barang tertinggal jangan banyak disentuh; laporkan sesuai prosedur."],
+          ["備品数と汚れを確認し、基準どおり補充する", "Periksa jumlah amenitas dan kotoran, lalu lengkapi sesuai standar."],
+          ["設備不良は部屋番号と状態を報告する", "Laporkan kerusakan fasilitas dengan nomor kamar dan kondisinya."],
+          ["お客様に挨拶し、入室可否を確認する", "Sapa tamu dan konfirmasi boleh tidaknya masuk/lanjut."]
+        ], [
+          ["忘れ物を自分で持ち帰る", "Membawa pulang barang tertinggal."],
+          ["汚れを隠してそのままにする", "Menyembunyikan noda dan membiarkan."],
+          ["備品数を見ずに終了する", "Selesai tanpa memeriksa jumlah amenitas."],
+          ["電球切れを報告しない", "Tidak melaporkan lampu mati."],
+          ["お客様を無視して清掃を続ける", "Mengabaikan tamu dan terus membersihkan."],
+          ["別の部屋の物を勝手に移す", "Memindahkan barang kamar lain sendiri."]
+        ], "客室業務では忘れ物、備品、清潔、設備不良を正しく扱います。", "Dalam housekeeping, barang tertinggal, amenitas, kebersihan, dan kerusakan fasilitas harus ditangani benar."),
+        repairedTopic(["レストラン・宴会・アレルギー", "Restoran, banquet & alergi"], [
+          ["お客様が食物アレルギーを伝えました。", "Tamu menyampaikan alergi makanan."],
+          ["料理名を聞かれましたが、材料が分かりません。", "Ditanya nama makanan, tetapi bahan tidak diketahui."],
+          ["宴会場の人数が予定より増えました。", "Jumlah orang di ruang banquet bertambah dari rencana."],
+          ["熱い料理を運びます。", "Akan membawa makanan panas."],
+          ["テーブルに別のお客様の伝票が置かれています。", "Bill tamu lain berada di meja."]
+        ], [
+          ["アレルギー情報を復唱し、責任者や厨房へ正確に伝える", "Ulangi informasi alergi dan sampaikan akurat kepada penanggung jawab atau dapur."],
+          ["分からない材料は確認してから答える", "Jika bahan tidak diketahui, konfirmasi sebelum menjawab."],
+          ["人数変更はすぐ共有し、席と料理を確認する", "Bagikan perubahan jumlah segera dan cek kursi serta makanan."],
+          ["熱い物や伝票は安全と個人情報に注意して扱う", "Tangani benda panas dan bill dengan memperhatikan keselamatan dan informasi pribadi."]
+        ], [
+          ["アレルギーを軽く考える", "Menganggap alergi ringan."],
+          ["材料を想像で答える", "Menjawab bahan berdasarkan dugaan."],
+          ["人数変更を厨房に伝えない", "Tidak memberi tahu dapur tentang perubahan jumlah."],
+          ["熱い料理を走って運ぶ", "Membawa makanan panas sambil berlari."],
+          ["別のお客様の伝票を見せる", "Memperlihatkan bill tamu lain."],
+          ["確認せず料理を出す", "Menyajikan tanpa konfirmasi."]
+        ], "飲食サービスではアレルギー、人数、熱い料理、個人情報を慎重に扱います。", "Dalam layanan makanan, alergi, jumlah orang, makanan panas, dan informasi pribadi harus ditangani hati-hati."),
+        repairedTopic(["苦情・安全・接客日本語", "Keluhan, keselamatan & bahasa layanan"], [
+          ["お客様が部屋の騒音について苦情を言っています。", "Tamu mengeluh tentang kebisingan kamar."],
+          ["館内でお客様が転びました。", "Tamu jatuh di dalam hotel."],
+          ["火災報知器が鳴りました。", "Alarm kebakaran berbunyi."],
+          ["道案内を日本語で頼まれました。", "Diminta memberi petunjuk arah dalam bahasa Jepang."],
+          ["お客様が怒って早口で話しています。", "Tamu marah dan berbicara cepat."]
+        ], [
+          ["謝意を示して内容を確認し、責任者へ共有する", "Tunjukkan permintaan maaf/empati, konfirmasi isi, lalu bagikan kepada penanggung jawab."],
+          ["けがや安全を確認し、必要な連絡を行う", "Periksa cedera dan keselamatan, lalu lakukan kontak yang diperlukan."],
+          ["非常時は手順に従い、お客様を安全に案内する", "Saat darurat, ikuti prosedur dan arahkan tamu dengan aman."],
+          ["分かりやすい日本語で、場所と方法を確認して伝える", "Gunakan bahasa Jepang yang mudah, konfirmasi tempat dan cara lalu sampaikan."]
+        ], [
+          ["苦情に言い返す", "Membantah keluhan."],
+          ["転んだお客様を放置する", "Membiarkan tamu yang jatuh."],
+          ["警報を確認せず止める", "Mematikan alarm tanpa memeriksa."],
+          ["分からない道を適当に教える", "Memberi arah sembarang."],
+          ["怒っているお客様を急がせる", "Menyuruh tamu marah agar cepat."],
+          ["責任者に知らせない", "Tidak memberi tahu penanggung jawab."]
+        ], "宿泊業では安全確保、丁寧な確認、分かりやすい日本語が大切です。", "Dalam perhotelan, memastikan keselamatan, konfirmasi sopan, dan bahasa Jepang mudah sangat penting.")
+      ],
+      constructionCommon: [
+        repairedTopic(["保護具・高所安全", "APD & keselamatan di ketinggian"], [
+          ["現場に入る前にヘルメットを確認します。", "Memeriksa helm sebelum masuk lokasi."],
+          ["高所作業で安全帯を使います。", "Menggunakan sabuk keselamatan saat bekerja di ketinggian."],
+          ["足場の床材にすき間があります。", "Ada celah pada lantai perancah."],
+          ["開口部の近くで作業します。", "Bekerja dekat bukaan/lubang."],
+          ["雨で足元が滑りやすくなっています。", "Kaki pijakan licin karena hujan."]
+        ], [
+          ["保護具を正しく着用し、損傷がないか確認する", "Pakai APD dengan benar dan periksa tidak ada kerusakan."],
+          ["墜落防止設備を確認してから作業する", "Periksa perlengkapan pencegah jatuh sebelum bekerja."],
+          ["危険箇所は表示し、近づかないようにする", "Beri tanda pada tempat berbahaya dan cegah orang mendekat."],
+          ["足元と天候を確認し、無理な作業をしない", "Periksa pijakan dan cuaca, jangan bekerja memaksa."]
+        ], [
+          ["ヘルメットのあごひもを外す", "Melepas tali dagu helm."],
+          ["安全帯を付けずに高所へ行く", "Naik ke tempat tinggi tanpa sabuk keselamatan."],
+          ["開口部を放置する", "Membiarkan bukaan tanpa pengaman."],
+          ["滑る足場で走る", "Berlari di pijakan licin."],
+          ["手すりを勝手に外す", "Melepas pagar pengaman sendiri."],
+          ["危険表示を隠す", "Menyembunyikan tanda bahaya."]
+        ], "建設現場では保護具と墜落防止が基本です。", "Di lokasi konstruksi, APD dan pencegahan jatuh adalah dasar."),
+        repairedTopic(["工具・電気・火気", "Alat, listrik & api"], [
+          ["電動工具を使う前にコードを見ます。", "Melihat kabel sebelum memakai alat listrik."],
+          ["仮設電源の近くに水たまりがあります。", "Ada genangan dekat sumber listrik sementara."],
+          ["グラインダーの火花が周囲へ飛びます。", "Percikan gerinda menyebar ke sekitar."],
+          ["工具の刃が欠けています。", "Mata alat terlihat retak/patah."],
+          ["溶接作業の近くに燃えやすい物があります。", "Ada benda mudah terbakar dekat pekerjaan las."]
+        ], [
+          ["工具の損傷、コード、保護カバーを確認する", "Periksa kerusakan alat, kabel, dan pelindung."],
+          ["感電や火災を防ぐため水と火気を管理する", "Kelola air dan api untuk mencegah sengatan listrik dan kebakaran."],
+          ["火花の方向と周囲の可燃物を確認する", "Periksa arah percikan dan benda mudah terbakar sekitar."],
+          ["異常な工具は使わず報告する", "Jangan gunakan alat tidak normal; laporkan."]
+        ], [
+          ["コードが傷んでも使う", "Tetap memakai kabel rusak."],
+          ["濡れた手で電源に触る", "Menyentuh listrik dengan tangan basah."],
+          ["火花の先を確認しない", "Tidak memeriksa arah percikan."],
+          ["欠けた刃をそのまま使う", "Tetap memakai mata alat yang patah."],
+          ["燃えやすい物の近くで溶接する", "Mengelas dekat benda mudah terbakar."],
+          ["保護カバーを外して作業する", "Bekerja dengan melepas pelindung."]
+        ], "工具や電気、火気は点検と周囲確認をしてから使います。", "Alat, listrik, dan api digunakan setelah pemeriksaan dan pengecekan sekitar."),
+        repairedTopic(["重機・玉掛け・搬送", "Alat berat, rigging & pengangkutan"], [
+          ["重機の旋回範囲の近くを通ります。", "Akan lewat dekat area putar alat berat."],
+          ["吊り荷の下に人が入りそうです。", "Ada orang hampir masuk ke bawah beban gantung."],
+          ["長い資材を二人で運びます。", "Dua orang membawa material panjang."],
+          ["クレーン作業で合図者が見えにくいです。", "Pemberi isyarat sulit terlihat saat kerja crane."],
+          ["資材を高く積み上げています。", "Material ditumpuk tinggi."]
+        ], [
+          ["重機の死角と立入禁止範囲を確認する", "Periksa blind spot alat berat dan area larangan masuk."],
+          ["吊り荷の下に入らず、合図を守る", "Jangan masuk bawah beban; ikuti isyarat."],
+          ["声をかけ合い、持つ位置と通路を確認する", "Saling memberi aba-aba dan cek posisi memegang serta jalur."],
+          ["荷崩れしない高さと置き方にする", "Tumpuk dengan tinggi dan cara yang tidak mudah roboh."]
+        ], [
+          ["吊り荷の下を近道にする", "Menjadikan bawah beban gantung sebagai jalan pintas."],
+          ["合図なしで動かす", "Menggerakkan tanpa isyarat."],
+          ["重機の後ろに急に入る", "Tiba-tiba masuk ke belakang alat berat."],
+          ["資材を不安定に積む", "Menumpuk material tidak stabil."],
+          ["一人で長い資材を無理に持つ", "Memaksa membawa material panjang sendirian."],
+          ["合図者が見えなくても続ける", "Tetap lanjut walau pemberi isyarat tidak terlihat."]
+        ], "重機や吊り荷の近くでは合図、死角、立入禁止を守ります。", "Di dekat alat berat dan beban gantung, ikuti isyarat, blind spot, dan larangan masuk."),
+        repairedTopic(["現場整理・合図・報告", "Kerapian lokasi, isyarat & laporan"], [
+          ["通路に材料が散らばっています。", "Material berserakan di jalur."],
+          ["立入禁止の表示が倒れています。", "Tanda larangan masuk terjatuh."],
+          ["初めての作業を任されました。", "Mendapat pekerjaan pertama kali."],
+          ["現場で危険な状態を見つけました。", "Menemukan kondisi berbahaya di lokasi."],
+          ["朝礼で聞いた作業場所が分かりません。", "Tidak paham lokasi kerja yang dijelaskan saat briefing pagi."]
+        ], [
+          ["通路を確保し、不要な物を片付ける", "Amankan jalur dan rapikan barang tidak perlu."],
+          ["表示や合図を分かる状態に戻す", "Kembalikan tanda dan isyarat agar jelas."],
+          ["初めての作業や不明点は確認してから行う", "Konfirmasi pekerjaan baru atau hal tidak jelas sebelum melakukannya."],
+          ["危険を見つけたら止めて報告する", "Jika menemukan bahaya, hentikan dan laporkan."]
+        ], [
+          ["通路の材料をまたいで進む", "Melangkahi material di jalur."],
+          ["表示が倒れても放置する", "Membiarkan tanda yang jatuh."],
+          ["初めてでも聞かずに始める", "Mulai tanpa bertanya walau pertama kali."],
+          ["危険を自分だけで直して終わる", "Memperbaiki bahaya sendiri lalu selesai."],
+          ["朝礼内容を確認しない", "Tidak memastikan isi briefing."],
+          ["合図を無視する", "Mengabaikan isyarat."]
+        ], "現場では整理整頓、合図、報告が事故防止につながります。", "Di lokasi, kerapian, isyarat, dan laporan mencegah kecelakaan.")
+      ],
+      constructionCivil: [
+        repairedTopic(["土工・掘削・埋戻し", "Pekerjaan tanah, galian & urugan"], [
+          ["掘削した穴の近くで作業します。", "Bekerja dekat lubang galian."],
+          ["土砂が崩れやすい法面があります。", "Ada lereng tanah yang mudah runtuh."],
+          ["埋戻し前に配管の位置を確認します。", "Memeriksa posisi pipa sebelum urugan."],
+          ["雨の後で地盤がぬかるんでいます。", "Tanah becek setelah hujan."],
+          ["掘削機のバケット付近に人がいます。", "Ada orang dekat bucket excavator."]
+        ], [
+          ["土留め、足元、立入禁止範囲を確認する", "Periksa penahan tanah, pijakan, dan area larangan masuk."],
+          ["埋設物や配管位置を図面と現地で確認する", "Periksa benda tertanam dan posisi pipa pada gambar serta lokasi."],
+          ["重機周辺の人払いと合図を徹底する", "Pastikan orang menjauh dari alat berat dan isyarat jelas."],
+          ["雨後は地盤状態を確認して無理に入らない", "Setelah hujan, cek kondisi tanah dan jangan memaksa masuk."]
+        ], [
+          ["穴の端に資材を積む", "Menumpuk material di tepi lubang."],
+          ["崩れそうな法面の下に入る", "Masuk ke bawah lereng yang hampir runtuh."],
+          ["図面を見ずに埋戻す", "Mengurug tanpa melihat gambar."],
+          ["ぬかるみに重機を無理に入れる", "Memaksa alat berat masuk ke tanah becek."],
+          ["バケットの下を通る", "Lewat di bawah bucket."],
+          ["立入禁止を表示しない", "Tidak memasang tanda larangan masuk."]
+        ], "土工では崩壊、埋設物、重機接触を防ぐ確認が重要です。", "Dalam pekerjaan tanah, penting mencegah runtuh, kerusakan benda tertanam, dan kontak alat berat."),
+        repairedTopic(["コンクリート・型枠・鉄筋", "Beton, bekisting & tulangan"], [
+          ["コンクリート打設前に型枠を確認します。", "Memeriksa bekisting sebelum pengecoran beton."],
+          ["鉄筋の間隔が図面と違うように見えます。", "Jarak tulangan terlihat berbeda dari gambar."],
+          ["生コン車が現場に到着しました。", "Truk beton tiba di lokasi."],
+          ["バイブレーターを使って締固めます。", "Menggunakan vibrator untuk pemadatan."],
+          ["打設後の養生を行います。", "Melakukan curing setelah pengecoran."]
+        ], [
+          ["図面、型枠の固定、鉄筋位置を確認する", "Periksa gambar, pengikatan bekisting, dan posisi tulangan."],
+          ["受入時間や状態を確認して記録する", "Periksa dan catat waktu penerimaan serta kondisi."],
+          ["締固めは手順どおり行い、周囲へ声をかける", "Lakukan pemadatan sesuai prosedur dan beri aba-aba sekitar."],
+          ["養生条件を守り、早く外さない", "Ikuti kondisi curing dan jangan melepas terlalu cepat."]
+        ], [
+          ["図面と違ってもそのまま打設する", "Tetap mengecor walau berbeda dari gambar."],
+          ["型枠固定を見ない", "Tidak memeriksa pengikatan bekisting."],
+          ["受入時間を記録しない", "Tidak mencatat waktu penerimaan."],
+          ["バイブレーターを人に向ける", "Mengarahkan vibrator ke orang."],
+          ["養生を省略する", "Melewati curing."],
+          ["鉄筋を踏んで曲げる", "Menginjak dan membengkokkan tulangan."]
+        ], "コンクリート工事では図面、受入、締固め、養生を守ります。", "Dalam pekerjaan beton, ikuti gambar, penerimaan, pemadatan, dan curing."),
+        repairedTopic(["舗装・道路・測量", "Perkerasan, jalan & pengukuran"], [
+          ["舗装前に路盤の状態を確認します。", "Memeriksa kondisi base sebelum pengaspalan."],
+          ["転圧機械の近くで作業します。", "Bekerja dekat alat pemadat."],
+          ["測量杭が倒れています。", "Patok ukur roboh."],
+          ["アスファルト合材の温度を確認します。", "Memeriksa suhu campuran aspal."],
+          ["道路上で片側通行の作業をします。", "Bekerja dengan lalu lintas satu arah di jalan."]
+        ], [
+          ["路盤、温度、厚さ、転圧状態を確認する", "Periksa base, suhu, ketebalan, dan kondisi pemadatan."],
+          ["測量基準を勝手に動かさず報告する", "Jangan memindahkan patokan ukur sendiri; laporkan."],
+          ["機械の進行方向と死角に入らない", "Jangan masuk arah gerak dan blind spot mesin."],
+          ["交通誘導と作業区域表示を守る", "Ikuti pengaturan lalu lintas dan tanda area kerja."]
+        ], [
+          ["温度を測らず施工する", "Mengerjakan tanpa mengukur suhu."],
+          ["転圧機械の直前を横切る", "Menyeberang tepat di depan alat pemadat."],
+          ["測量杭を勝手に戻す", "Mengembalikan patok sendiri."],
+          ["交通表示を省略する", "Melewati tanda lalu lintas."],
+          ["厚さを確認しない", "Tidak memeriksa ketebalan."],
+          ["一般車両に背を向ける", "Membelakangi kendaraan umum."]
+        ], "道路工事では品質確認と交通安全を同時に守ります。", "Dalam pekerjaan jalan, pemeriksaan mutu dan keselamatan lalu lintas harus dijaga bersama."),
+        repairedTopic(["排水・法面・重機周辺", "Drainase, lereng & sekitar alat berat"], [
+          ["側溝の勾配を確認します。", "Memeriksa kemiringan saluran samping."],
+          ["法面にシートを張ります。", "Memasang lembar pelindung pada lereng."],
+          ["排水管の向きが図面と違います。", "Arah pipa drainase berbeda dari gambar."],
+          ["重機の誘導を任されました。", "Ditugaskan memandu alat berat."],
+          ["泥水が道路へ流れそうです。", "Air berlumpur hampir mengalir ke jalan."]
+        ], [
+          ["図面、勾配、流れる方向を確認する", "Periksa gambar, kemiringan, dan arah aliran."],
+          ["法面では足場と滑落防止を確認する", "Pada lereng, periksa pijakan dan pencegahan tergelincir."],
+          ["誘導は合図を統一し、安全な位置で行う", "Pemanduan memakai isyarat seragam dari posisi aman."],
+          ["濁水や流出を防ぐ処置を確認する", "Periksa tindakan mencegah air keruh keluar."]
+        ], [
+          ["勾配を確認せず据える", "Memasang tanpa memeriksa kemiringan."],
+          ["法面を走って下りる", "Berlari turun di lereng."],
+          ["重機の真後ろで誘導する", "Memandu tepat di belakang alat berat."],
+          ["泥水を道路へ流す", "Mengalirkan air berlumpur ke jalan."],
+          ["図面違いを報告しない", "Tidak melaporkan perbedaan dari gambar."],
+          ["合図を決めずに動かす", "Menggerakkan tanpa menentukan isyarat."]
+        ], "土木では水の流れ、法面安全、重機誘導を正しく管理します。", "Dalam sipil, aliran air, keselamatan lereng, dan panduan alat berat harus dikelola benar.")
+      ],
+      constructionBuilding: [
+        repairedTopic(["足場・開口部・墜落防止", "Perancah, bukaan & pencegahan jatuh"], [
+          ["足場に上がる前に点検します。", "Memeriksa sebelum naik perancah."],
+          ["床の開口部のふたがずれています。", "Penutup bukaan lantai bergeser."],
+          ["脚立を使って天井付近で作業します。", "Bekerja dekat plafon memakai tangga lipat."],
+          ["外部足場で強い風が吹いています。", "Angin kuat bertiup pada perancah luar."],
+          ["手すりを一時的に外す必要があると言われました。", "Dikatakan perlu melepas pagar sementara."]
+        ], [
+          ["足場、手すり、床材、昇降設備を確認する", "Periksa perancah, pagar, lantai kerja, dan akses naik turun."],
+          ["開口部はふたや表示で確実に養生する", "Amankan bukaan dengan penutup dan tanda."],
+          ["脚立は安定させ、無理な姿勢をしない", "Stabilkan tangga lipat dan jangan bekerja dengan posisi memaksa."],
+          ["手すりを外す時は許可と代替安全措置を確認する", "Saat melepas pagar, pastikan izin dan tindakan keselamatan pengganti."]
+        ], [
+          ["足場の上で走る", "Berlari di atas perancah."],
+          ["開口部を小さいから放置する", "Membiarkan bukaan karena kecil."],
+          ["脚立の天板に立つ", "Berdiri di papan paling atas tangga lipat."],
+          ["強風でも同じ作業を続ける", "Tetap bekerja saat angin kuat."],
+          ["手すりを勝手に外す", "Melepas pagar sendiri."],
+          ["昇降設備以外から登る", "Naik bukan dari akses naik turun."]
+        ], "建築現場では足場、開口部、脚立の墜落防止を徹底します。", "Di pekerjaan bangunan, pencegahan jatuh pada perancah, bukaan, dan tangga harus ditegakkan."),
+        repairedTopic(["型枠・鉄筋・コンクリート", "Bekisting, tulangan & beton"], [
+          ["柱の型枠を組み立てます。", "Merakit bekisting kolom."],
+          ["鉄筋のかぶり厚さを確認します。", "Memeriksa tebal selimut beton tulangan."],
+          ["コンクリート打設中に型枠から水が漏れています。", "Air bocor dari bekisting saat pengecoran."],
+          ["スラブ配筋の上を歩きます。", "Berjalan di atas tulangan slab."],
+          ["打設後に仕上げ面を確認します。", "Memeriksa permukaan finishing setelah pengecoran."]
+        ], [
+          ["図面、固定、寸法、かぶりを確認する", "Periksa gambar, pengikatan, dimensi, dan selimut beton."],
+          ["異常な漏れや変形は作業を止めて報告する", "Jika ada kebocoran/ubah bentuk tidak normal, hentikan dan laporkan."],
+          ["鉄筋を傷めない通路を使う", "Gunakan jalur yang tidak merusak tulangan."],
+          ["仕上がりと養生を確認する", "Periksa hasil akhir dan curing."]
+        ], [
+          ["図面を見ずに組む", "Merakit tanpa melihat gambar."],
+          ["漏れを見ても打設を続ける", "Tetap mengecor walau melihat bocor."],
+          ["鉄筋を踏んで曲げる", "Menginjak tulangan hingga bengkok."],
+          ["かぶりを確認しない", "Tidak memeriksa selimut beton."],
+          ["養生前に荷物を置く", "Meletakkan barang sebelum curing."],
+          ["寸法違いを隠す", "Menyembunyikan perbedaan dimensi."]
+        ], "建築躯体では図面、固定、鉄筋位置、打設時の異常確認が重要です。", "Dalam struktur bangunan, gambar, pengikatan, posisi tulangan, dan cek abnormal saat pengecoran penting."),
+        repairedTopic(["内装・建具・仕上げ", "Interior, pintu/jendela & finishing"], [
+          ["石膏ボードを二人で運びます。", "Dua orang membawa papan gipsum."],
+          ["ドアを取り付けた後に開閉を確認します。", "Memeriksa buka-tutup pintu setelah pemasangan."],
+          ["仕上げ材に傷を見つけました。", "Menemukan goresan pada material finishing."],
+          ["接着剤を使う室内作業です。", "Pekerjaan dalam ruangan memakai lem."],
+          ["床仕上げ後に他の職種が通ります。", "Pekerja lain lewat setelah finishing lantai."]
+        ], [
+          ["材料を傷めない持ち方と置き方を確認する", "Periksa cara membawa dan meletakkan agar material tidak rusak."],
+          ["水平、開閉、固定状態を確認する", "Periksa level, buka-tutup, dan kondisi pengikatan."],
+          ["傷や汚れは隠さず報告する", "Laporkan goresan/kotoran tanpa menyembunyikan."],
+          ["換気と養生を行い、仕上げを保護する", "Lakukan ventilasi dan perlindungan untuk menjaga finishing."]
+        ], [
+          ["一人で無理に運ぶ", "Memaksa membawa sendiri."],
+          ["開閉確認をしない", "Tidak memeriksa buka-tutup."],
+          ["傷を隠して引き渡す", "Menyembunyikan goresan saat serah terima."],
+          ["換気せず接着剤を使う", "Memakai lem tanpa ventilasi."],
+          ["仕上げ面を養生しない", "Tidak melindungi permukaan finishing."],
+          ["端材を通路に置く", "Meletakkan sisa material di jalur."]
+        ], "内装仕上げでは材料保護、寸法、固定、換気、養生を守ります。", "Pada finishing interior, lindungi material, dimensi, pengikatan, ventilasi, dan perlindungan permukaan."),
+        repairedTopic(["防水・屋根・資材搬入", "Waterproofing, atap & material"], [
+          ["防水作業の前に下地を確認します。", "Memeriksa dasar sebelum pekerjaan waterproofing."],
+          ["屋根上で材料を運びます。", "Membawa material di atas atap."],
+          ["雨が降りそうな天気です。", "Cuaca tampak akan hujan."],
+          ["資材を搬入して仮置きします。", "Membawa material dan menaruh sementara."],
+          ["防水材の缶に表示があります。", "Ada label pada kaleng bahan waterproofing."]
+        ], [
+          ["下地の乾燥、汚れ、天候を確認する", "Periksa kekeringan dasar, kotoran, dan cuaca."],
+          ["屋根では墜落防止と材料の落下防止を行う", "Di atap, lakukan pencegahan jatuh dan pencegahan material jatuh."],
+          ["搬入経路と置き場を確認し通路をふさがない", "Periksa jalur masuk dan tempat material agar tidak menghalangi jalur."],
+          ["材料表示と使用方法を確認する", "Periksa label bahan dan cara pemakaian."]
+        ], [
+          ["濡れた下地にそのまま施工する", "Mengerjakan langsung pada dasar basah."],
+          ["屋根端部で後ろ向きに歩く", "Berjalan mundur di tepi atap."],
+          ["雨でも同じように塗る", "Tetap mengecat/menutup saat hujan."],
+          ["避難通路に資材を置く", "Meletakkan material di jalur evakuasi."],
+          ["表示を読まずに使う", "Memakai tanpa membaca label."],
+          ["落下防止を考えない", "Tidak memikirkan pencegahan jatuhnya benda."]
+        ], "防水や屋根作業では天候、下地、墜落、資材置き場を確認します。", "Pada waterproofing dan atap, periksa cuaca, dasar, jatuh, dan tempat material.")
+      ],
+      constructionLifeline: [
+        repairedTopic(["配管・水道・漏水確認", "Pipa, air & cek bocor"], [
+          ["配管を取り付ける前に材料を確認します。", "Memeriksa material sebelum memasang pipa."],
+          ["水道管の接続後に試験を行います。", "Melakukan tes setelah menyambung pipa air."],
+          ["配管の流れる方向が分かりにくいです。", "Arah aliran pipa sulit dipahami."],
+          ["床下で狭い姿勢の作業をします。", "Bekerja dengan posisi sempit di bawah lantai."],
+          ["接続部に水滴があります。", "Ada tetesan air pada sambungan."]
+        ], [
+          ["管種、口径、方向、図面を確認する", "Periksa jenis pipa, diameter, arah, dan gambar."],
+          ["接続後は漏水や圧力を手順どおり確認する", "Setelah sambungan, cek kebocoran dan tekanan sesuai prosedur."],
+          ["狭所作業では姿勢と周囲の危険を確認する", "Pada ruang sempit, periksa posisi tubuh dan bahaya sekitar."],
+          ["水滴や異常は隠さず報告する", "Laporkan tetesan atau ketidaknormalan tanpa menyembunyikan."]
+        ], [
+          ["似ている管なら何でも使う", "Memakai pipa apa saja jika terlihat mirip."],
+          ["漏水確認をせず埋める", "Menutup tanpa cek bocor."],
+          ["流れ方向を確認しない", "Tidak memeriksa arah aliran."],
+          ["無理な姿勢で長く作業する", "Bekerja lama dengan posisi memaksa."],
+          ["水滴を拭いて隠す", "Mengelap tetesan untuk menyembunyikan."],
+          ["図面を見ない", "Tidak melihat gambar."]
+        ], "配管作業では管種、方向、接続、漏水確認を守ります。", "Pada pekerjaan pipa, jenis, arah, sambungan, dan cek bocor harus dipatuhi."),
+        repairedTopic(["電気・通信・感電防止", "Listrik, komunikasi & pencegahan sengatan"], [
+          ["電気設備の作業前に盤を確認します。", "Memeriksa panel sebelum pekerjaan listrik."],
+          ["通信ケーブルを配線します。", "Memasang kabel komunikasi."],
+          ["濡れた床の近くで電動工具を使います。", "Memakai alat listrik dekat lantai basah."],
+          ["ケーブルの行き先表示が外れています。", "Label tujuan kabel terlepas."],
+          ["通電確認をする必要があります。", "Perlu memeriksa apakah listrik menyala."]
+        ], [
+          ["電源遮断、検電、表示を確認する", "Periksa pemutusan listrik, tes tegangan, dan label."],
+          ["ケーブルを強く引かず、曲げすぎない", "Jangan menarik kabel kuat dan jangan menekuk berlebihan."],
+          ["水気を避け、感電防止を優先する", "Hindari air dan utamakan pencegahan sengatan listrik."],
+          ["行き先や番号を確認して記録する", "Periksa tujuan/nomor kabel dan catat."]
+        ], [
+          ["通電したまま触る", "Menyentuh saat masih bertegangan."],
+          ["濡れた手で作業する", "Bekerja dengan tangan basah."],
+          ["ケーブルを強く引っぱる", "Menarik kabel kuat."],
+          ["表示を外したままにする", "Membiarkan label terlepas."],
+          ["検電を省略する", "Melewati tes tegangan."],
+          ["曲げ半径を考えない", "Tidak memikirkan radius tekuk."]
+        ], "電気通信作業では感電防止、表示、ケーブル保護が重要です。", "Pada pekerjaan listrik/komunikasi, pencegahan sengatan, label, dan perlindungan kabel penting."),
+        repairedTopic(["ガス・保温保冷・板金", "Gas, insulasi & sheet metal"], [
+          ["ガス配管の近くで火気を使いそうです。", "Akan memakai api dekat pipa gas."],
+          ["配管に保温材を取り付けます。", "Memasang bahan insulasi pada pipa."],
+          ["金属板の切り口が鋭いです。", "Tepi lembaran logam tajam."],
+          ["ガスのようなにおいがします。", "Tercium bau seperti gas."],
+          ["保温材にすき間があります。", "Ada celah pada bahan insulasi."]
+        ], [
+          ["火気を避け、異臭があればすぐ報告する", "Hindari api dan segera laporkan jika ada bau tidak normal."],
+          ["保温材はすき間なく固定し、表示を隠さない", "Pasang insulasi tanpa celah dan jangan menutup label."],
+          ["金属板は手袋を使い、切り口と落下に注意する", "Gunakan sarung tangan untuk lembaran logam dan waspadai tepi serta jatuh."],
+          ["ガス作業は勝手にバルブを操作しない", "Pada pekerjaan gas, jangan mengoperasikan valve sendiri."]
+        ], [
+          ["火花を近づける", "Mendekatkan percikan api."],
+          ["においを無視する", "Mengabaikan bau."],
+          ["保温材のすき間を放置する", "Membiarkan celah insulasi."],
+          ["素手で金属板を押す", "Menekan lembar logam dengan tangan kosong."],
+          ["勝手にバルブを開ける", "Membuka valve sendiri."],
+          ["表示を保温材で隠す", "Menutup label dengan insulasi."]
+        ], "ガスや板金では火気、切創、表示、固定状態に注意します。", "Pada gas dan sheet metal, perhatikan api, luka potong, label, dan pengikatan."),
+        repairedTopic(["設備据付・試運転・埋設物", "Pemasangan peralatan, uji operasi & utilitas tertanam"], [
+          ["設備機器を設置する位置を確認します。", "Memeriksa posisi pemasangan peralatan."],
+          ["試運転前に安全カバーを確認します。", "Memeriksa penutup keselamatan sebelum uji operasi."],
+          ["地中の配管やケーブル付近を掘ります。", "Menggali dekat pipa atau kabel bawah tanah."],
+          ["機器から試運転中に異音がします。", "Saat uji operasi, peralatan mengeluarkan suara tidak normal."],
+          ["重量物をアンカーで固定します。", "Mengikat barang berat dengan anchor."]
+        ], [
+          ["水平、固定、作業スペースを確認する", "Periksa level, pengikatan, dan ruang kerja."],
+          ["試運転前に接続、安全装置、周囲を確認する", "Sebelum uji operasi, periksa sambungan, alat keselamatan, dan sekitar."],
+          ["埋設物は図面と位置を確認し必要なら手掘りにする", "Periksa gambar dan posisi utilitas tertanam; gali manual jika perlu."],
+          ["異音や振動があれば止めて報告する", "Jika ada suara/getaran tidak normal, hentikan dan laporkan."]
+        ], [
+          ["仮置きのまま運転する", "Mengoperasikan saat masih sementara."],
+          ["安全カバーを外して試運転する", "Uji operasi dengan penutup keselamatan dilepas."],
+          ["埋設表示を無視して掘る", "Menggali sambil mengabaikan tanda utilitas tertanam."],
+          ["異音がしても続ける", "Tetap lanjut walau ada suara tidak normal."],
+          ["固定を確認しない", "Tidak memeriksa pengikatan."],
+          ["人が近くにいても知らせない", "Tidak memberi tahu walau ada orang dekat."]
+        ], "設備工事では固定、試運転、埋設物確認、異常時報告を守ります。", "Dalam pekerjaan fasilitas, pengikatan, uji operasi, cek utilitas tertanam, dan laporan abnormal harus dipatuhi.")
+      ]
+    };
+
+    function rebuildRepeatedQuestionBanks() {
+      fields.care.questions = buildRepairedQuestionBank(repairedQuestionTopicSets.care);
+      fields.cleaning.questions = buildRepairedQuestionBank(repairedQuestionTopicSets.cleaning);
+      fields.agriculture.questions = buildRepairedQuestionBank(repairedQuestionTopicSets.agriculture);
+      fields.hotel.questions = buildRepairedQuestionBank(repairedQuestionTopicSets.hotel);
+      fields.construction.questions = buildRepairedQuestionBank(repairedQuestionTopicSets.constructionCommon);
+      constructionTrackBanks.common = fields.construction.questions;
+      constructionTrackBanks.civil = buildRepairedQuestionBank(repairedQuestionTopicSets.constructionCivil);
+      constructionTrackBanks.building = buildRepairedQuestionBank(repairedQuestionTopicSets.constructionBuilding);
+      constructionTrackBanks.lifeline = buildRepairedQuestionBank(repairedQuestionTopicSets.constructionLifeline);
+    }
+
     const choiceTranslations = {
       care: {
         "からかう": "Mengejek.",
@@ -2541,12 +3237,13 @@
 
     expandQuestionBanks();
     expandConstructionTrackBanks();
+    rebuildRepeatedQuestionBanks();
 
     let currentField = "care";
     let currentQuestion = 0;
     let constructionTrack = "common";
-    let foodTopic = "all";
-    let foodTopicPanelOpen = false;
+    let topicFilters = {};
+    let topicPanelOpen = false;
     let selected = false;
     let showIndonesianQuestion = false;
     let showIndonesianChoices = false;
@@ -3071,42 +3768,84 @@
       `;
     }
 
-    function foodTopicNameHtml(key) {
-      if (key === "all") {
-        if (uiMode === "ja") return "全テーマ";
-        if (uiMode === "id") return "Semua tema";
-        return `全テーマ<span class="ui-sub">Semua tema</span>`;
+    const constructionTopicSetKeys = {
+      common: "constructionCommon",
+      civil: "constructionCivil",
+      building: "constructionBuilding",
+      lifeline: "constructionLifeline"
+    };
+
+    function topicScopeKey() {
+      return currentField === "construction" ? `construction:${constructionTrack}` : currentField;
+    }
+
+    function activeBaseQuestionBank() {
+      if (currentField === "construction") {
+        return constructionTrackBanks[constructionTrack] || fields.construction.questions;
       }
-      const pair = foodTopicDefinitions[key].name;
+      return fields[currentField].questions;
+    }
+
+    function topicPairHtml(pair) {
       if (uiMode === "ja") return escapeHtml(pair[0]);
       if (uiMode === "id") return escapeHtml(pair[1]);
       return `${escapeHtml(pair[0])}<span class="ui-sub">${escapeHtml(pair[1])}</span>`;
     }
 
-    function foodTopicSelectorHtml() {
-      if (currentField !== "food") return "";
-      const keys = ["all", ...Object.keys(foodTopicDefinitions)];
-      const currentCount = foodTopic === "all" ? fields.food.questions.length : foodTopicDefinitions[foodTopic].count;
+    function activeTopicOptions() {
+      const allOption = { key: "all", name: ["全テーマ", "Semua tema"], count: activeBaseQuestionBank().length };
+      if (currentField === "food") {
+        return [
+          allOption,
+          ...Object.entries(foodTopicDefinitions).map(([key, topic]) => ({
+            key,
+            name: topic.name,
+            count: topic.count
+          }))
+        ];
+      }
+      const topicSetKey = currentField === "construction" ? constructionTopicSetKeys[constructionTrack] : currentField;
+      const topics = repairedQuestionTopicSets[topicSetKey];
+      if (!topics) return [];
+      return [
+        allOption,
+        ...topics.map((topic, index) => ({
+          key: `topic-${index}`,
+          name: topic.name,
+          count: topic.count
+        }))
+      ];
+    }
+
+    function activeTopicKey() {
+      const options = activeTopicOptions();
+      if (!options.length) return "all";
+      const saved = topicFilters[topicScopeKey()] || "all";
+      return options.some(option => option.key === saved) ? saved : "all";
+    }
+
+    function topicSelectorHtml() {
+      const options = activeTopicOptions();
+      if (options.length <= 1) return "";
+      const currentTopic = activeTopicKey();
+      const currentOption = options.find(option => option.key === currentTopic) || options[0];
       return `
-        <div class="track-switch compact" aria-label="食品テーマ選択">
+        <div class="track-switch compact" aria-label="練習テーマ選択">
           <div class="topic-summary">
-            <span class="track-label">食品テーマ<span class="ui-sub">Tema makanan</span></span>
-            <span class="topic-current">${foodTopicNameHtml(foodTopic)}<span class="ui-sub">${currentCount} soal</span></span>
-            <button class="topic-toggle" data-food-topic-toggle type="button" aria-expanded="${foodTopicPanelOpen ? "true" : "false"}">
-              ${foodTopicPanelOpen ? "閉じる" : "選ぶ"}<span class="ui-sub">${foodTopicPanelOpen ? "Tutup" : "Pilih"}</span>
+            <span class="track-label">練習テーマ<span class="ui-sub">Tema latihan</span></span>
+            <span class="topic-current">${topicPairHtml(currentOption.name)}<span class="ui-sub">${currentOption.count} soal</span></span>
+            <button class="topic-toggle" data-topic-toggle type="button" aria-expanded="${topicPanelOpen ? "true" : "false"}">
+              ${topicPanelOpen ? "閉じる" : "選ぶ"}<span class="ui-sub">${topicPanelOpen ? "Tutup" : "Pilih"}</span>
             </button>
           </div>
-          ${foodTopicPanelOpen ? `
+          ${topicPanelOpen ? `
             <div class="track-buttons">
-              ${keys.map(key => {
-                const count = key === "all" ? fields.food.questions.length : foodTopicDefinitions[key].count;
-                return `
-                  <button class="track-btn ${foodTopic === key ? "active" : ""}" data-food-topic="${key}" type="button">
-                    ${foodTopicNameHtml(key)}
-                    <span class="ui-sub">${count} soal</span>
-                  </button>
-                `;
-              }).join("")}
+              ${options.map(option => `
+                <button class="track-btn ${currentTopic === option.key ? "active" : ""}" data-topic-key="${option.key}" type="button">
+                  ${topicPairHtml(option.name)}
+                  <span class="ui-sub">${option.count} soal</span>
+                </button>
+              `).join("")}
             </div>
           ` : ""}
         </div>
@@ -3122,28 +3861,30 @@
           selected = false;
           quizChoiceKey = "";
           quizChoiceOrder = [];
+          topicPanelOpen = false;
           resetExam();
           render();
         });
       });
     }
 
-    function attachFoodTopicControls() {
-      document.querySelectorAll("[data-food-topic-toggle]").forEach(button => {
+    function attachTopicControls() {
+      document.querySelectorAll("[data-topic-toggle]").forEach(button => {
         button.addEventListener("click", () => {
-          foodTopicPanelOpen = !foodTopicPanelOpen;
+          topicPanelOpen = !topicPanelOpen;
           render();
         });
       });
-      document.querySelectorAll("[data-food-topic]").forEach(button => {
+      document.querySelectorAll("[data-topic-key]").forEach(button => {
         button.addEventListener("click", () => {
-          if (foodTopic === button.dataset.foodTopic) {
-            foodTopicPanelOpen = false;
+          const scope = topicScopeKey();
+          if (activeTopicKey() === button.dataset.topicKey) {
+            topicPanelOpen = false;
             render();
             return;
           }
-          foodTopic = button.dataset.foodTopic;
-          foodTopicPanelOpen = false;
+          topicFilters[scope] = button.dataset.topicKey;
+          topicPanelOpen = false;
           currentQuestion = 0;
           selected = false;
           quizChoiceKey = "";
@@ -3155,37 +3896,39 @@
     }
 
     function activeQuestionBank() {
-      if (currentField === "construction") {
-        return constructionTrackBanks[constructionTrack] || fields.construction.questions;
-      }
-      if (currentField === "food" && foodTopic !== "all") {
-        return fields.food.questions.filter(question => question.foodTopic === foodTopic);
-      }
-      return fields[currentField].questions;
+      const bank = activeBaseQuestionBank();
+      const topicKey = activeTopicKey();
+      if (topicKey === "all") return bank;
+      if (currentField === "food") return bank.filter(question => question.foodTopic === topicKey);
+      return bank.filter(question => question.topicKey === topicKey);
     }
 
     function activeExamConfig() {
       const config = examConfigs[currentField];
-      if (currentField === "food" && foodTopic !== "all") {
-        return {
-          ...config,
-          label: `${config.label}（${foodTopicDefinitions[foodTopic].name[0]}）`
-        };
+      const topicKey = activeTopicKey();
+      const topicOption = activeTopicOptions().find(option => option.key === topicKey);
+      if (currentField !== "construction") {
+        return topicKey === "all" ? config : { ...config, label: `${config.label}（${topicOption.name[0]}）` };
       }
-      if (currentField !== "construction") return config;
+      const topicSuffix = topicKey === "all" ? "" : `（${topicOption.name[0]}）`;
       if (constructionTrack === "common") {
         return {
           ...config,
-          label: constructionTracks.common.label
+          label: `${constructionTracks.common.label}${topicSuffix}`
         };
       }
       return {
         ...config,
-        label: `${constructionTracks[constructionTrack].label}（共通18問＋区分32問）`
+        label: topicKey === "all"
+          ? `${constructionTracks[constructionTrack].label}（共通18問＋区分32問）`
+          : `${constructionTracks[constructionTrack].label}${topicSuffix}`
       };
     }
 
     function activeExamQuestions(config) {
+      if (activeTopicKey() !== "all") {
+        return shuffle(activeQuestionBank()).slice(0, config.questions);
+      }
       if (currentField !== "construction" || constructionTrack === "common") {
         return shuffle(activeQuestionBank()).slice(0, config.questions);
       }
@@ -3369,7 +4112,7 @@
         selected = false;
         quizChoiceKey = "";
         quizChoiceOrder = [];
-        foodTopicPanelOpen = false;
+        topicPanelOpen = false;
         resetExam();
         document.querySelectorAll(".tab").forEach(tab => tab.setAttribute("aria-selected", "false"));
         button.setAttribute("aria-selected", "true");
@@ -3411,7 +4154,7 @@
       document.getElementById("overview").innerHTML = `
         <h3>${fieldHtml(currentField)} ${uiHtml("overviewTab")}</h3>
         ${constructionTrackSelectorHtml()}
-        ${foodTopicSelectorHtml()}
+        ${topicSelectorHtml()}
         <div class="grid-two">
           <div class="box">
             <h4>${uiHtml("keyThemes")}</h4>
@@ -3427,7 +4170,7 @@
       document.getElementById("plan").innerHTML = `
         <h3>${fieldHtml(currentField)} ${uiHtml("studyPlan")}</h3>
         ${constructionTrackSelectorHtml()}
-        ${foodTopicSelectorHtml()}
+        ${topicSelectorHtml()}
         <div class="box">
           <ul>${bilingualList(field.plan, translations.plan)}</ul>
         </div>
@@ -3437,7 +4180,7 @@
       renderQuiz();
       renderExam();
       attachConstructionTrackControls();
-      attachFoodTopicControls();
+      attachTopicControls();
     }
 
     function renderQuiz() {
@@ -3450,7 +4193,7 @@
       document.getElementById("quiz").innerHTML = `
         <h3>${fieldHtml(currentField)} ${uiHtml("miniQuiz")}</h3>
         ${constructionTrackSelectorHtml()}
-        ${foodTopicSelectorHtml()}
+        ${topicSelectorHtml()}
         <div class="quiz-tools">
           <div>
             <label class="toggle" for="toggleIndonesianQuestion">
@@ -3528,7 +4271,7 @@
         renderQuiz();
       });
       attachConstructionTrackControls();
-      attachFoodTopicControls();
+      attachTopicControls();
     }
 
     function answerQuestion(index) {
@@ -3558,7 +4301,7 @@
 
     function currentQuizChoiceOrder(question) {
       const trackKey = currentField === "construction" ? constructionTrack : "";
-      const topicKey = currentField === "food" ? foodTopic : "";
+      const topicKey = activeTopicKey();
       const key = `${currentField}:${trackKey}:${topicKey}:${currentQuestion}`;
       if (quizChoiceKey !== key || quizChoiceOrder.length === 0) {
         quizChoiceKey = key;
@@ -3629,22 +4372,22 @@
       const container = document.getElementById("exam");
       const config = activeExamConfig();
       if (!examState) {
-        const selectedFoodTopic = currentField === "food" && foodTopic !== "all";
+        const selectedTopic = activeTopicKey() !== "all";
         const selectedBankSize = activeQuestionBank().length;
-        const setupTextJa = currentField === "construction" && constructionTrack !== "common"
+        const setupTextJa = currentField === "construction" && constructionTrack !== "common" && !selectedTopic
           ? "この模試は、共通安全問題18問と選択した区分の問題32問をミックスして出題します。"
-          : selectedFoodTopic
-            ? `この模試は、選択した食品テーマの${selectedBankSize}問からランダムに出題します。`
+          : selectedTopic
+            ? `この模試は、選択したテーマの${selectedBankSize}問からランダムに出題します。`
             : "この模試は、現在の300問バンクからランダムに出題します。";
-        const setupTextId = currentField === "construction" && constructionTrack !== "common"
+        const setupTextId = currentField === "construction" && constructionTrack !== "common" && !selectedTopic
           ? "Simulasi ini mencampur 18 soal keselamatan umum dan 32 soal dari subbidang yang dipilih."
-          : selectedFoodTopic
-            ? `Simulasi ini mengambil soal secara acak dari ${selectedBankSize} soal pada tema makanan yang dipilih.`
+          : selectedTopic
+            ? `Simulasi ini mengambil soal secara acak dari ${selectedBankSize} soal pada tema yang dipilih.`
             : "Simulasi ini mengambil soal secara acak dari bank 300 soal.";
         container.innerHTML = `
           <h3>${fieldHtml(currentField)} ${uiHtml("examPractice")}</h3>
           ${constructionTrackSelectorHtml()}
-          ${foodTopicSelectorHtml()}
+          ${topicSelectorHtml()}
           <div class="exam-summary">
             <div class="meta"><span class="label">${uiHtml("format")}</span><strong>${config.label}</strong></div>
             <div class="meta"><span class="label">${uiHtml("questionCount")}</span><strong>${questionCountHtml(config.questions)}</strong></div>
@@ -3660,7 +4403,7 @@
         `;
         document.getElementById("startExam").addEventListener("click", startExam);
         attachConstructionTrackControls();
-        attachFoodTopicControls();
+        attachTopicControls();
         return;
       }
 
@@ -3678,7 +4421,7 @@
       container.innerHTML = `
         <h3>${fieldHtml(currentField)} ${uiHtml("examPractice")}</h3>
         ${constructionTrackSelectorHtml()}
-        ${foodTopicSelectorHtml()}
+        ${topicSelectorHtml()}
         <div class="quiz-tools">
           <div>
             <label class="toggle" for="examToggleIndonesianQuestion">
@@ -3740,7 +4483,7 @@
       });
       document.getElementById("finishExam").addEventListener("click", finishExam);
       attachConstructionTrackControls();
-      attachFoodTopicControls();
+      attachTopicControls();
     }
 
     function renderExamResult(container, config) {
